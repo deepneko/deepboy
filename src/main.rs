@@ -1,3 +1,5 @@
+#![crate_name = "deepboy"]
+
 use std::fs::File;
 use std::io::prelude::*;
 
