@@ -7,5 +7,6 @@ fn main() {
     let fname = &args[1];
     println!("rom: {rom}", rom=fname);
 
-    Gameboy::load_rom(fname);
+    let gameboy: &mut Gameboy;
+    Gameboy::load_rom(gameboy, fname);
 }
