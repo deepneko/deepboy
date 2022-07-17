@@ -7,6 +7,7 @@ pub struct Rom {
     pub ram_size_type: u8,
     pub ram: Vec<u8>,
     pub ram_size: u32,
+    pub boot_rom: Vec<u8>,
 }
 
 impl Rom {
@@ -17,17 +18,17 @@ impl Rom {
             ram_size_type: 0,
             ram: Vec::new(),
             ram_size: 0,
+            boot_rom: Vec::new(),
         }
     }
 
     pub fn load(&mut self, fname: &String) {
         let mut f = File::open(fname).expect("File not found.");
-        let mut buffer: [u8; 0x200000] = [0; 0x200000];
-        f.read(&mut buffer);
+        f.read_to_end(&mut self.ram);
 
-        self.mbc_type = buffer[0x147];
-        self.rom_size_type = buffer[0x148];
-        self.ram_size_type = buffer[0x149];
+        self.mbc_type = self.ram[0x147];
+        self.rom_size_type = self.ram[0x148];
+        self.ram_size_type = self.ram[0x149];
 
         println!("MBC TYPE:{m}", m=self.mbc_type);
         println!("ROM SIZE TYPE:{m}", m=self.rom_size_type);
@@ -46,5 +47,10 @@ impl Rom {
             3 => self.ram_size = 0x8000,
             _ => println!("Invalid RAM SIZE TYPE")
         }
+    }
+
+    pub fn load_bootstrap(&mut self, fname: &String) {
+        let mut f = File::open(fname).expect("File not found.");
+        f.read_to_end(&mut self.boot_rom);
     }
 }

@@ -11,7 +11,11 @@ impl Gameboy {
         }
     }
 
-    pub fn load(&mut self, rom_name: &String) {
-        self.rom.load(rom_name);
+    pub fn load_rom(&mut self, fname: &String) {
+        self.rom.load(fname);
+    }
+
+    pub fn load_bootstrap(&mut self, fname: &String) {
+        self.rom.load_bootstrap(fname);
     }
 }
