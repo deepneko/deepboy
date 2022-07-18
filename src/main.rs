@@ -1,6 +1,8 @@
 #![crate_name = "deepboy"]
 
+use std::time::Duration;
 use deepboy::gameboy::Gameboy;
+use deepboy::output::Output;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -10,7 +12,13 @@ fn main() {
     let bootstrap_name = &args[2];
     println!("boot_strap: {boot}", boot=bootstrap_name);
 
-    let mut gameboy = Gameboy::new();
+    let mut output = Output::new();
+    let mut gameboy = Gameboy::new(output);
     gameboy.load_rom(rom_name);
-    gameboy.load_bootstrap(bootstrap_name)
+    gameboy.load_bootstrap(bootstrap_name);
+
+    loop {
+        gameboy.exec_frame();
+        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
+    }
 }

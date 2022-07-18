@@ -1,13 +1,19 @@
 use super::rom::Rom;
+use super::cpu::CPU;
+use super::output::Output;
 
 pub struct Gameboy {
     rom: Rom,
+    cpu: CPU,
+    output: Output,
 }
 
 impl Gameboy {
-    pub fn new() -> Self {
+    pub fn new(output: Output) -> Self {
         Gameboy {
             rom: Rom::new(),
+            cpu: CPU::new(),
+            output: output,
         }
     }
 
@@ -17,5 +23,10 @@ impl Gameboy {
 
     pub fn load_bootstrap(&mut self, fname: &String) {
         self.rom.load_bootstrap(fname);
+    }
+
+    pub fn exec_frame(&mut self) {
+        self.cpu.run(0);
+        self.output.write_screen();
     }
 }

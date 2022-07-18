@@ -24,7 +24,7 @@ impl Rom {
 
     pub fn load(&mut self, fname: &String) {
         let mut f = File::open(fname).expect("File not found.");
-        f.read_to_end(&mut self.ram);
+        f.read_to_end(&mut self.ram).unwrap();
 
         self.mbc_type = self.ram[0x147];
         self.rom_size_type = self.ram[0x148];
@@ -51,6 +51,6 @@ impl Rom {
 
     pub fn load_bootstrap(&mut self, fname: &String) {
         let mut f = File::open(fname).expect("File not found.");
-        f.read_to_end(&mut self.boot_rom);
+        f.read_to_end(&mut self.boot_rom).unwrap();
     }
 }
