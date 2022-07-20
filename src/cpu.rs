@@ -1,4 +1,5 @@
 use super::register::Register;
+use super::instruction as inst;
 
 pub struct CPU {
     pub regs: Register,
@@ -16,5 +17,6 @@ impl CPU {
     }
 
     pub fn run(&mut self, cycles: u32) {
+        inst::ld_rr();
     }
 }

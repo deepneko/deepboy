@@ -1,10 +1,9 @@
 use sdl2::render::Canvas;
 use sdl2::video::Window;
-use sdl2::{Sdl, VideoSubsystem};
+use sdl2::Sdl;
 use sdl2::pixels::Color;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use std::time::Duration;
 
 pub struct Output {
     pub sdl_context: Sdl,

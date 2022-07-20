@@ -12,7 +12,7 @@ fn main() {
     let bootstrap_name = &args[2];
     println!("boot_strap: {boot}", boot=bootstrap_name);
 
-    let mut output = Output::new();
+    let output = Output::new();
     let mut gameboy = Gameboy::new(output);
     gameboy.load_rom(rom_name);
     gameboy.load_bootstrap(bootstrap_name);
