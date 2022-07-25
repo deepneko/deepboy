@@ -8,6 +8,7 @@ pub struct Rom {
     pub ram: Vec<u8>,
     pub ram_size: u32,
     pub boot_rom: Vec<u8>,
+    pub boot_rom_size: usize,
 }
 
 impl Rom {
@@ -19,6 +20,7 @@ impl Rom {
             ram: Vec::new(),
             ram_size: 0,
             boot_rom: Vec::new(),
+            boot_rom_size: 0,
         }
     }
 
@@ -52,5 +54,6 @@ impl Rom {
     pub fn load_bootstrap(&mut self, fname: &String) {
         let mut f = File::open(fname).expect("File not found.");
         f.read_to_end(&mut self.boot_rom).unwrap();
+        self.boot_rom_size = self.boot_rom.len();
     }
 }

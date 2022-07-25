@@ -3,9 +3,9 @@ use super::cpu::CPU;
 use super::output::Output;
 
 pub struct Gameboy {
-    rom: Rom,
-    cpu: CPU,
-    output: Output,
+    pub rom: Rom,
+    pub cpu: CPU,
+    pub output: Output,
 }
 
 impl Gameboy {
