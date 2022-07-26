@@ -1,10 +1,12 @@
 use super::rom::Rom;
 use super::cpu::CPU;
+use super::mmc::MMC;
 use super::output::Output;
 
 pub struct Gameboy {
     pub rom: Rom,
     pub cpu: CPU,
+    pub mmc: MMC,
     pub output: Output,
 }
 
@@ -13,6 +15,7 @@ impl Gameboy {
         Gameboy {
             rom: Rom::new(),
             cpu: CPU::new(),
+            mmc: MMC::new(),
             output: output,
         }
     }

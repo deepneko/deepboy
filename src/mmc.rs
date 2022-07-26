@@ -5,7 +5,7 @@ pub struct MMC {
 }
 
 impl MMC {
-    pub fn new(gb: Gameboy) -> Self {
+    pub fn new(gameboy: Gameboy) -> Self {
         MMC {
             gameboy: gb,
         }
