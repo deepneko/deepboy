@@ -1,21 +1,23 @@
-use super::gameboy::Gameboy;
+use std::{cell::RefCell, rc::Rc};
+
+use crate::rom::Rom;
 
 pub struct MMC {
-    pub gameboy: Gameboy,
+    pub rom: Rc<RefCell<Rom>>,
 }
 
 impl MMC {
-    pub fn new(gameboy: Gameboy) -> Self {
+    pub fn new(rom: Rc<RefCell<Rom>>) -> Self {
         MMC {
-            gameboy: gb,
+            rom: rom,
         }
     }
 
     pub fn read(&mut self, addr: usize) {
         if addr < 256 {
-            self.gameboy.rom.boot_rom[addr];
+            self.rom.borrow().boot_rom[addr];
         } else if addr < 0x8000 {
-            self.gameboy.rom.ram[addr];
+            self.rom.borrow().ram[addr];
         }
     }
 }

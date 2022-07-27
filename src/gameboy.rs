@@ -1,3 +1,4 @@
+use std::{cell::RefCell, rc::Rc};
 use super::rom::Rom;
 use super::cpu::CPU;
 use super::mmc::MMC;
@@ -12,11 +13,14 @@ pub struct Gameboy {
 
 impl Gameboy {
     pub fn new(output: Output) -> Self {
+        let mut rom = Rom::new();
+        let mut mmc = MMC::new(Rc::new(RefCell::new(rom)));
+        let mut cpu = CPU::new(Rc::new(RefCell::new(mmc)));
         Gameboy {
-            rom: Rom::new(),
-            cpu: CPU::new(),
-            mmc: MMC::new(),
-            output: output,
+            rom: rom,
+            mmc: mmc,
+            cpu: cpu,
+            output,
         }
     }
 

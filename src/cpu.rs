@@ -1,18 +1,19 @@
-use crate::gameboy::Gameboy;
+use std::{cell::RefCell, rc::Rc};
+use crate::mmc::MMC;
 use super::register::Register;
 use super::instruction as inst;
 
 pub struct CPU {
-    pub gameboy: Gameboy,
+    pub mmc: Rc<RefCell<MMC>>,
     pub regs: Register,
     pub opcode: u32,
     pub cycles: u32,
 }
 
 impl CPU {
-    pub fn new(gameboy: Gameboy) -> Self {
+    pub fn new(mmc: Rc<RefCell<MMC>>) -> Self {
         CPU {
-            gameboy: gameboy,
+            mmc: mmc,
             regs: Register::new(),
             opcode: 0,
             cycles: 0,
@@ -22,7 +23,7 @@ impl CPU {
     pub fn run(&mut self, cycles: u32) {
     }
 
-    pub fn read(&mut self, addr: u32) {
-        self.gameboy.mmc.read(addr);
+    pub fn read(&mut self, addr: usize) {
+        self.mmc.borrow_mut().read(addr);
     }
 }
