@@ -3,21 +3,29 @@ use std::{cell::RefCell, rc::Rc};
 use crate::rom::Rom;
 
 pub struct MMC {
-    pub rom: Rc<RefCell<Rom>>,
+    pub rom: Rom, 
 }
 
 impl MMC {
-    pub fn new(rom: Rc<RefCell<Rom>>) -> Self {
+    pub fn new() -> Self {
         MMC {
-            rom: rom,
+            rom: Rom::new(),
         }
+    }
+
+    pub fn load_rom(&mut self, fname: &String) {
+        self.rom.load(fname);
+    }
+
+    pub fn load_bootstrap(&mut self, fname: &String) {
+        self.rom.load_bootstrap(fname);
     }
 
     pub fn read(&mut self, addr: usize) {
         if addr < 256 {
-            self.rom.borrow().boot_rom[addr];
+            self.rom.boot_rom[addr];
         } else if addr < 0x8000 {
-            self.rom.borrow().ram[addr];
+            self.rom.ram[addr];
         }
     }
 }

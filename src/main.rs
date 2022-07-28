@@ -4,8 +4,6 @@ use std::time::Duration;
 use deepboy::gameboy::Gameboy;
 use deepboy::output::Output;
 
-Rc<RefCell<Gameboy>>;
-
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let rom_name = &args[1];
