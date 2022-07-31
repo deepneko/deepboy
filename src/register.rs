@@ -12,25 +12,25 @@ pub struct Register {
 }
 
 pub enum IoRegs {
-    RIE = 0xFFFF,
-    RIF = 0xFF0F,
-    RJOYP = 0xFF00,
-    RDIV = 0xFF04,
-    RTIMA = 0xFF05,
-    RTMA = 0xFF06,
-    RTAC = 0xFF07,
-    RLCDC = 0xFF40,
-    RSTAT = 0xFF41,
+    IE = 0xFFFF,
+    IF = 0xFF0F,
+    JOYP = 0xFF00,
+    DIV = 0xFF04,
+    TIMA = 0xFF05,
+    TMA = 0xFF06,
+    TAC = 0xFF07,
+    LCDC = 0xFF40,
+    TAT = 0xFF41,
     RSCY = 0xFF42,
-    RSCX = 0xFF43,
-    RLY = 0xFF44,
-    RLYC = 0xFF45,
-    RWY = 0xFF4A,
-    RWX = 0xFF4B,
-    RDMA = 0xFF46,
-    RBGP = 0xFF47,
-    ROBP0 = 0xFF48,
-    ROBP1 = 0xFF49,
+    SCX = 0xFF43,
+    LY = 0xFF44,
+    LYC = 0xFF45,
+    WY = 0xFF4A,
+    WX = 0xFF4B,
+    DMA = 0xFF46,
+    BGP = 0xFF47,
+    OBP0 = 0xFF48,
+    OBP1 = 0xFF49,
     NR10 = 0xFF10,
     NR11 = 0xFF11,
     NR12 = 0xFF12,
@@ -52,6 +52,14 @@ pub enum IoRegs {
     NR50 = 0xFF24,
     NR51 = 0xFF25,
     NR52 = 0xFF26,
+}
+
+pub enum IntFlag {
+    VBLANK = 1,
+    STAT = 1 << 1,
+    TIMER = 1 << 2,
+    SERIAL = 1 << 3,
+    JOYPAD = 1 << 4,
 }
 
 impl Register {

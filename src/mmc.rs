@@ -30,4 +30,8 @@ impl MMC {
             0
         }
     }
+
+    pub fn write(&mut self, addr: usize, dat: u8) {
+
+    }
 }
