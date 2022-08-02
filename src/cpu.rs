@@ -7,7 +7,7 @@ use super::instruction as inst;
 pub struct CPU {
     pub mmc: Rc<RefCell<MMC>>,
     pub regs: Register,
-    pub opcode: u32,
+    pub opcode: u8,
     pub cycles: u32,
     pub halt: bool,
     pub ime: bool,
@@ -29,9 +29,9 @@ impl CPU {
 
     pub fn run(&mut self, cycle: u32) {
         self.cycles += cycle;
-        let opcode: u8 = self.read8(self.regs.pc);
+        self.opcode = self.read8(self.regs.pc);
         let int_enable: u8 = self.read8(IoRegs::IE as usize);
-        let int_flag: u8 = self.read8(IoRegs::IF as usize);
+        let mut int_flag: u8 = self.read8(IoRegs::IF as usize);
         let interrupt: u8 = int_enable & int_flag;
 
         if self.halt {
@@ -47,16 +47,127 @@ impl CPU {
 
         if self.ime && interrupt > 0 {
             // ToDo: Timer cycle
+            // ToDo: Timer cycle
 
             self.write8(self.regs.sp, (self.regs.pc >> 8) as u8);
             self.regs.sp -= 1;
             self.write8(self.regs.sp, (self.regs.pc & 0xFF) as u8);
             self.regs.sp -= 1;
+
+            if interrupt & (IntFlag::VBLANK as u8) > 0 {
+                self.regs.pc = 0x40;
+                int_flag &= !(IntFlag::VBLANK as u8);
+            } else if interrupt & (IntFlag::STAT as u8) > 0 {
+                self.regs.pc = 0x48;
+                int_flag &= !(IntFlag::STAT as u8);
+            } else if interrupt & (IntFlag::TIMER as u8) > 0 {
+                self.regs.pc = 0x58;
+                int_flag &= !(IntFlag::SERIAL as u8);
+            } else if interrupt & (IntFlag::JOYPAD as u8) > 0 {
+                self.regs.pc = 0x60;
+                int_flag &= !(IntFlag::JOYPAD as u8);
+            } else {
+                panic!("Failed to handle interrupt.");
+            }
+
+            self.write8(IoRegs::IF as usize, int_flag & 0xFF);
+            self.ime = false;
+
+            // ToDo: Timer cycle
+
+            self.opcode = self.read8(self.regs.pc);
+            self.cycles += 20;
         }
 
-        if (interrupt & (IntFlag::VBLANK as u8)) > 0 {
-            self.regs.pc = 0x40;
-            int_flag &= ~(IntFlag::VBLANK);
+        if self.ei_delay {
+            self.ei_delay = false;
+            self.ime = true;
+        }
+
+        self.regs.pc += 1;
+
+        match self.opcode {
+            // LD B,R
+            0x40 => {},
+            0x41 => self.regs.b = self.regs.c,
+            0x42 => self.regs.b = self.regs.d,
+            0x43 => self.regs.b = self.regs.e,
+            0x44 => self.regs.b = self.regs.h,
+            0x45 => self.regs.b = self.regs.l,
+            0x47 => self.regs.b = self.regs.a,
+
+            // LD C,R
+            0x48 => self.regs.c = self.regs.b,
+            0x49 => {},
+            0x4A => self.regs.c = self.regs.d,
+            0x4B => self.regs.c = self.regs.e,
+            0x4C => self.regs.c = self.regs.h,
+            0x4D => self.regs.c = self.regs.l,
+            0x4F => self.regs.c = self.regs.a,
+
+            // LD D,R
+            0x50 => self.regs.d = self.regs.b,
+            0x51 => self.regs.d = self.regs.c,
+            0x52 => {},
+            0x53 => self.regs.d = self.regs.e,
+            0x54 => self.regs.d = self.regs.h,
+            0x55 => self.regs.d = self.regs.l,
+            0x57 => self.regs.d = self.regs.a,
+
+            // LD E,R
+            0x58 => self.regs.e = self.regs.b,
+            0x59 => self.regs.e = self.regs.c,
+            0x5A => self.regs.e = self.regs.d,
+            0x5B => {},
+            0x5C => self.regs.e = self.regs.h,
+            0x5D => self.regs.e = self.regs.l,
+            0x5F => self.regs.e = self.regs.a,
+
+            // LD H,R
+            0x60 => self.regs.h = self.regs.b,
+            0x61 => self.regs.h = self.regs.c,
+            0x62 => self.regs.h = self.regs.d,
+            0x63 => self.regs.h = self.regs.e,
+            0x64 => {},
+            0x65 => self.regs.h = self.regs.l,
+            0x67 => self.regs.h = self.regs.a,
+
+            // LD L,R
+            0x68 => self.regs.l = self.regs.b,
+            0x69 => self.regs.l = self.regs.c,
+            0x6A => self.regs.l = self.regs.d,
+            0x6B => self.regs.l = self.regs.e,
+            0x6C => self.regs.l = self.regs.h,
+            0x6D => {},
+            0x6F => self.regs.l = self.regs.a,
+
+            // LD A,R
+            0x78 => self.regs.a = self.regs.b,
+            0x79 => self.regs.a = self.regs.c,
+            0x7A => self.regs.a = self.regs.d,
+            0x7B => self.regs.a = self.regs.e,
+            0x7C => self.regs.a = self.regs.h,
+            0x7D => self.regs.a = self.regs.l,
+            0x7F => {},
+
+            // LD R,(HL)
+            0x70 => {},
+            0x71 => {},
+            0x72 => {},
+            0x73 => {},
+            0x74 => {},
+            0x75 => {},
+            0x77 => {},
+
+            // LD R,(HL)
+            0x46 => self.regs.b = self.read8(self.regs.h as usize),
+            0x4E => self.regs.c = self.regs.c,
+            0x56 => self.regs.d = self.regs.d,
+            0x5E => self.regs.e = self.regs.e,
+            0x66 => self.regs.h = self.regs.h,
+            0x6E => self.regs.l = self.regs.l,
+            0x7E => self.regs.a = self.regs.a,
+            _ => {},
         }
     }
 
