@@ -87,6 +87,21 @@ impl CPU {
         self.regs.pc += 1;
 
         match self.opcode {
+            // NOP
+            0x00 => {},
+
+            // LD R16,D16
+            0x02 | 0x11 | 0x21 | 0x31 => {
+              let dat = self.mmc.borrow_mut().read16(self.regs.pc);
+              match self.opcode {
+                0x02 => self.regs.set_bc(dat),
+                0x11 => self.regs.set_de(dat),
+                0x21 => self.regs.set_hl(dat),
+                0x31 => self.regs.sp = dat as usize,
+                _ => {},
+              }
+            }
+
             // LD B,R
             0x40 => {},
             0x41 => self.regs.b = self.regs.c,
@@ -141,6 +156,24 @@ impl CPU {
             0x6D => {},
             0x6F => self.regs.l = self.regs.a,
 
+            // LD (HL),R
+            0x70 | 0x71 | 0x72 | 0x73 | 0x74 | 0x75 | 0x77 => {
+                let addr = self.regs.get_hl();
+                match self.opcode {
+                    0x70 => self.write8(addr as usize, self.regs.b),
+                    0x71 => self.write8(addr as usize, self.regs.c),
+                    0x72 => self.write8(addr as usize, self.regs.d),
+                    0x73 => self.write8(addr as usize, self.regs.e),
+                    0x74 => self.write8(addr as usize, self.regs.h),
+                    0x75 => self.write8(addr as usize, self.regs.l),
+                    0x77 => self.write8(addr as usize, self.regs.a),
+                    _ => {},
+                }
+            }
+
+            // Halt
+            0x76 => self.halt = true,
+
             // LD A,R
             0x78 => self.regs.a = self.regs.b,
             0x79 => self.regs.a = self.regs.c,
@@ -151,28 +184,25 @@ impl CPU {
             0x7F => {},
 
             // LD R,(HL)
-            0x70 => {},
-            0x71 => {},
-            0x72 => {},
-            0x73 => {},
-            0x74 => {},
-            0x75 => {},
-            0x77 => {},
-
-            // LD R,(HL)
-            0x46 => self.regs.b = self.read8(self.regs.h as usize),
-            0x4E => self.regs.c = self.regs.c,
-            0x56 => self.regs.d = self.regs.d,
-            0x5E => self.regs.e = self.regs.e,
-            0x66 => self.regs.h = self.regs.h,
-            0x6E => self.regs.l = self.regs.l,
-            0x7E => self.regs.a = self.regs.a,
+            0x46 | 0x4E | 0x56 | 0x5E | 0x66 | 0x6E | 0x7E => {
+                let addr = self.mmc.borrow_mut().read8(self.regs.get_hl() as usize);
+                match self.opcode {
+                    0x46 => self.regs.b = self.read8(addr as usize),
+                    0x4E => self.regs.c = self.read8(addr as usize),
+                    0x56 => self.regs.d = self.read8(addr as usize),
+                    0x5E => self.regs.e = self.read8(addr as usize),
+                    0x66 => self.regs.h = self.read8(addr as usize),
+                    0x6E => self.regs.l = self.read8(addr as usize),
+                    0x7E => self.regs.a = self.read8(addr as usize),
+                    _ => {},
+                }
+            }
             _ => {},
         }
     }
 
     pub fn read8(&mut self, addr: usize) -> u8 {
-        self.mmc.borrow_mut().read(addr)
+        self.mmc.borrow_mut().read8(addr)
     }
 
     pub fn write8(&mut self, addr: usize, dat: u8) {
