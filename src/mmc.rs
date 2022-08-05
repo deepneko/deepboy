@@ -21,7 +21,7 @@ impl MMC {
         self.rom.load_bootstrap(fname);
     }
 
-    pub fn read8(&mut self, addr: usize) -> u8 {
+    pub fn read(&mut self, addr: usize) -> u8 {
         if addr < 256 {
             self.rom.boot_rom[addr]
         } else if addr < 0x8000 {
@@ -29,10 +29,6 @@ impl MMC {
         } else {
             0
         }
-    }
-
-    pub fn read16(&mut self, addr: usize) -> u16 {
-        u16::from(self.read8(addr)) | u16::from(self.read8(addr + 1)) << 8
     }
 
     pub fn write(&mut self, addr: usize, dat: u8) {
