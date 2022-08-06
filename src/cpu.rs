@@ -30,8 +30,8 @@ impl CPU {
     pub fn run(&mut self, cycle: u32) {
         self.cycles += cycle;
         self.opcode = self.imm8();
-        let int_enable: u8 = self.read8(IoRegs::IE as usize);
-        let mut int_flag: u8 = self.read8(IoRegs::IF as usize);
+        let int_enable: u8 = self.read8(IoRegs::IE as u16);
+        let mut int_flag: u8 = self.read8(IoRegs::IF as u16);
         let interrupt: u8 = int_enable & int_flag;
 
         if self.halt {
@@ -70,7 +70,7 @@ impl CPU {
                 panic!("Failed to handle interrupt.");
             }
 
-            self.write8(IoRegs::IF as usize, int_flag & 0xFF);
+            self.write8(IoRegs::IF as u16, int_flag & 0xFF);
             self.ime = false;
 
             // ToDo: Timer cycle
@@ -89,6 +89,7 @@ impl CPU {
         match self.opcode {
             // NOP
             0x00 => {},
+            0x10 => {},
 
             // LD R16,D16
             0x01 | 0x11 | 0x21 | 0x31 => {
@@ -97,7 +98,7 @@ impl CPU {
                     0x01 => self.regs.set_bc(dat),
                     0x11 => self.regs.set_de(dat),
                     0x21 => self.regs.set_hl(dat),
-                    0x31 => self.regs.sp = dat as usize,
+                    0x31 => self.regs.sp = dat,
                     _ => {},
                 }
             }
@@ -105,20 +106,20 @@ impl CPU {
             // LD (R16),A
             0x02 => {
                 let addr = self.regs.get_bc();
-                self.write8(addr as usize, self.regs.a);
+                self.write8(addr, self.regs.a);
             }
             0x12 => {
                 let addr = self.regs.get_de();
-                self.write8(addr as usize, self.regs.a);
+                self.write8(addr, self.regs.a);
             }
             0x22 => {
                 let addr = self.regs.get_hl();
-                self.write8(addr as usize, self.regs.a);
+                self.write8(addr, self.regs.a);
                 self.regs.set_hl(addr + 1);
             }
             0x32 => {
                 let addr = self.regs.get_hl();
-                self.write8(addr as usize, self.regs.a);
+                self.write8(addr, self.regs.a);
                 self.regs.set_hl(addr - 1);
             }
 
@@ -130,26 +131,32 @@ impl CPU {
             0x36 => {
                 let addr = self.regs.get_hl();
                 let dat = self.imm8();
-                self.write8(addr as usize, dat);
+                self.write8(addr, dat);
             },
 
+            // LD (A16),SP
+            0x08 => {
+                let addr = self.imm16();
+                //self.write16(addr, self.regs.sp);
+            }
+                
             // LD A,(R16)
             0x0A => {
                 let addr = self.regs.get_bc();
-                self.regs.a = self.read8(addr as usize);
+                self.regs.a = self.read8(addr);
             }
             0x1A => {
                 let addr = self.regs.get_de();
-                self.regs.a = self.read8(addr as usize);
+                self.regs.a = self.read8(addr);
             }
             0x2A => {
                 let addr = self.regs.get_hl();
-                self.regs.a = self.read8(addr as usize);
+                self.regs.a = self.read8(addr);
                 self.regs.set_hl(addr + 1);
             }
             0x3A => {
                 let addr = self.regs.get_hl();
-                self.regs.a = self.read8(addr as usize);
+                self.regs.a = self.read8(addr);
                 self.regs.set_hl(addr - 1);
             }
 
@@ -215,7 +222,7 @@ impl CPU {
 
             // LD (HL),R
             0x70 | 0x71 | 0x72 | 0x73 | 0x74 | 0x75 | 0x77 => {
-                let addr = self.regs.get_hl() as usize;
+                let addr = self.regs.get_hl();
                 match self.opcode {
                     0x70 => self.write8(addr, self.regs.b),
                     0x71 => self.write8(addr, self.regs.c),
@@ -242,7 +249,7 @@ impl CPU {
 
             // LD R,(HL)
             0x46 | 0x4E | 0x56 | 0x5E | 0x66 | 0x6E | 0x7E => {
-                let addr = self.regs.get_hl() as usize;
+                let addr = self.regs.get_hl();
                 match self.opcode {
                     0x46 => self.regs.b = self.read8(addr),
                     0x4E => self.regs.c = self.read8(addr),
@@ -254,15 +261,52 @@ impl CPU {
                     _ => {},
                 }
             }
+
+            // LD (A8),A
+            0xE0 => {
+                let addr = 0xFF00 | u16::from(self.imm8());
+                self.write8(addr, self.regs.a);
+            }
+
+            // LD (C),A
+            0xE2 => {
+                let addr = 0xFF00 | u16::from(self.regs.c);
+                self.write8(addr, self.regs.a);
+            }
+
+            // LD (A16),A
+            0xEA => {
+                let addr = self.imm16();
+                self.write8(addr, self.regs.a);
+            }
+
+            // LD A,(A8)
+            0xF0 => {
+                let addr = 0xFF00 | u16::from(self.imm8());
+                self.regs.a = self.read8(addr);
+            }
+            
+            // LD A,(C)
+            0xF2 => {
+                let addr = 0xFF00 | u16::from(self.regs.c);
+                self.regs.a = self.read8(addr);
+            }
+
+            // LD A,(A16)
+            0xFA => {
+                let addr = self.imm16();
+                self.regs.a = self.read8(addr);
+            }
+
             _ => {},
         }
     }
 
-    pub fn read8(&mut self, addr: usize) -> u8 {
+    pub fn read8(&mut self, addr: u16) -> u8 {
         self.mmc.borrow_mut().read(addr)
     }
 
-    pub fn read16(&mut self, addr: usize) -> u16 {
+    pub fn read16(&mut self, addr: u16) -> u16 {
         u16::from(self.read8(addr)) | u16::from(self.read8(addr + 1)) << 8
     }
 
@@ -278,7 +322,12 @@ impl CPU {
         ret
     }
 
-    pub fn write8(&mut self, addr: usize, dat: u8) {
+    pub fn write8(&mut self, addr: u16, dat: u8) {
         self.mmc.borrow_mut().write(addr, dat);
+    }
+
+    pub fn write16(&mut self, addr: u16, dat: u16) {
+        self.write8(addr, (dat & 0xFF) as u8);
+        self.write8(addr+1, (dat >> 8) as u8);
     }
 }

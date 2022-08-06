@@ -21,17 +21,20 @@ impl MMC {
         self.rom.load_bootstrap(fname);
     }
 
-    pub fn read(&mut self, addr: usize) -> u8 {
-        if addr < 256 {
-            self.rom.boot_rom[addr]
-        } else if addr < 0x8000 {
-            self.rom.ram[addr]
-        } else {
-            0
+    pub fn read(&mut self, addr: u16) -> u8 {
+        let uaddr = addr as usize;
+        match addr {
+            0x0000..=0x00FF => self.rom.boot_rom[uaddr],
+            0x00FF..=0x8000 => self.rom.ram[uaddr],
+            _ => 0,
         }
     }
 
-    pub fn write(&mut self, addr: usize, dat: u8) {
+    pub fn write(&mut self, addr: u16, dat: u8) {
+
+    }
+
+    pub fn write16(&mut self, addr: u16, dat: u16) {
 
     }
 }

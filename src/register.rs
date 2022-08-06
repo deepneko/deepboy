@@ -7,8 +7,8 @@ pub struct Register {
     pub e: u8,
     pub h: u8,
     pub l: u8,
-    pub sp: usize,
-    pub pc: usize,
+    pub sp: u16,
+    pub pc: u16,
 }
 
 pub enum IoRegs {
