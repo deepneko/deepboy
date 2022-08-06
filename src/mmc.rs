@@ -33,8 +33,4 @@ impl MMC {
     pub fn write(&mut self, addr: u16, dat: u8) {
 
     }
-
-    pub fn write16(&mut self, addr: u16, dat: u16) {
-
-    }
 }
