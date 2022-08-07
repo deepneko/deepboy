@@ -123,6 +123,43 @@ impl CPU {
                 self.regs.set_hl(addr - 1);
             }
 
+            // INC R16
+            0x03 => {
+                let dat = self.regs.get_bc() + 1;
+                self.regs.set_bc(dat);
+            },
+            0x13 => {
+                let dat = self.regs.get_de() + 1;
+                self.regs.set_de(dat);
+            },
+            0x23 => {
+                let dat = self.regs.get_hl() + 1;
+                self.regs.set_hl(dat);
+            }
+            0x33 => self.regs.sp += 1,
+
+            // INC R8
+            0x04 => self.regs.b = self.inc(self.regs.b),
+            0x14 => self.regs.d = self.inc(self.regs.d),
+            0x24 => self.regs.h = self.inc(self.regs.h),
+            0x34 => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                let inc_dat = self.inc(dat);
+                self.write8(addr, inc_dat);
+            }
+
+            // DEC R8
+            0x05 => self.regs.b = self.dec(self.regs.b),
+            0x15 => self.regs.d = self.dec(self.regs.d),
+            0x25 => self.regs.h = self.inc(self.regs.h),
+            0x35 => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                let dec_dat = self.dec(dat);
+                self.write8(addr, dec_dat);
+            }
+
             // LD R8,D8
             0x06 => self.regs.b = self.imm8(),
             0x16 => self.regs.d = self.imm8(),
@@ -137,9 +174,9 @@ impl CPU {
             // LD (A16),SP
             0x08 => {
                 let addr = self.imm16();
-                //self.write16(addr, self.regs.sp);
-            }
-                
+                self.write16(addr, self.regs.sp);
+            },
+
             // LD A,(R16)
             0x0A => {
                 let addr = self.regs.get_bc();
@@ -329,5 +366,26 @@ impl CPU {
     pub fn write16(&mut self, addr: u16, dat: u16) {
         self.write8(addr, (dat & 0xFF) as u8);
         self.write8(addr+1, (dat >> 8) as u8);
+    }
+
+    pub fn inc(&mut self, r: u8) -> u8 {
+        let ret = r + 1;
+        let half = (r & 0x0F) + 1;
+        
+        self.regs.set_z(r == 0);
+        self.regs.set_n(false);
+        self.regs.set_h(half & 0x10 > 0);
+
+        ret
+    }
+
+    pub fn dec(&mut self, r: u8) -> u8 {
+        let ret = r - 1;
+        
+        self.regs.set_z(r == 0);
+        self.regs.set_n(true);
+        self.regs.set_h(r & 0x0F < 1);
+
+        ret
     }
 }

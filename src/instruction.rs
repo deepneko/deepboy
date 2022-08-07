@@ -1,7 +1,3 @@
-pub fn ld_rr() {
-
-}
-
 pub fn ld_rn() {
 }
 
