@@ -413,6 +413,62 @@ impl CPU {
                 }
             }
 
+            // ADD
+            0x80 => self.regs.a = self.add(self.regs.b),
+            0x81 => self.regs.a = self.add(self.regs.c),
+            0x82 => self.regs.a = self.add(self.regs.d),
+            0x83 => self.regs.a = self.add(self.regs.e),
+            0x84 => self.regs.a = self.add(self.regs.h),
+            0x85 => self.regs.a = self.add(self.regs.l),
+            0x86 => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.regs.a = self.add(dat);
+            }
+            0x87 => self.regs.a = self.add(self.regs.a),
+
+            // ADC
+            0x88 => self.regs.a = self.adc(self.regs.b),
+            0x89 => self.regs.a = self.adc(self.regs.c),
+            0x8A => self.regs.a = self.adc(self.regs.d),
+            0x8B => self.regs.a = self.adc(self.regs.e),
+            0x8C => self.regs.a = self.adc(self.regs.h),
+            0x8D => self.regs.a = self.adc(self.regs.l),
+            0x8E => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.regs.a = self.adc(dat);
+            }
+            0x8F => self.regs.a = self.adc(self.regs.a),
+
+            // SUB
+            0x90 => self.regs.a = self.sub(self.regs.b),
+            0x91 => self.regs.a = self.sub(self.regs.c),
+            0x92 => self.regs.a = self.sub(self.regs.d),
+            0x93 => self.regs.a = self.sub(self.regs.e),
+            0x94 => self.regs.a = self.sub(self.regs.h),
+            0x95 => self.regs.a = self.sub(self.regs.l),
+            0x96 => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.regs.a = self.sub(dat);
+            }
+            0x97 => self.regs.a = self.sub(self.regs.a),
+
+            // SBC
+            0x98 => self.regs.a = self.sbc(self.regs.b),
+            0x99 => self.regs.a = self.sbc(self.regs.c),
+            0x9A => self.regs.a = self.sbc(self.regs.d),
+            0x9B => self.regs.a = self.sbc(self.regs.e),
+            0x9C => self.regs.a = self.sbc(self.regs.h),
+            0x9D => self.regs.a = self.sbc(self.regs.l),
+            0x9E => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.regs.a = self.sbc(dat);
+            }
+            0x9F => self.regs.a = self.sbc(self.regs.a),
+
             // LD (A8),A
             0xE0 => {
                 let addr = 0xFF00 | u16::from(self.imm8());
@@ -486,7 +542,7 @@ impl CPU {
         let ret = r + 1;
         let half = (r & 0x0F) + 1;
         
-        self.regs.set_z(r == 0);
+        self.regs.set_z(ret == 0);
         self.regs.set_n(false);
         self.regs.set_h(half & 0x10 > 0);
 
@@ -496,9 +552,63 @@ impl CPU {
     pub fn dec(&mut self, r: u8) -> u8 {
         let ret = r - 1;
         
-        self.regs.set_z(r == 0);
+        self.regs.set_z(ret == 0);
         self.regs.set_n(true);
         self.regs.set_h(r & 0x0F < 1);
+
+        ret
+    }
+
+    pub fn add(&mut self, r: u8) -> u8 {
+        let ret = self.regs.a.wrapping_add(r);
+        let half_carry = (self.regs.a & 0xF) + (r & 0xF) > 0xF;
+        let carry = u16::from(self.regs.a) + u16::from(r) > 0xFF;
+
+        self.regs.set_z(r == 0);
+        self.regs.set_n(false);
+        self.regs.set_h(half_carry);
+        self.regs.set_c(carry);
+
+        ret
+    }
+
+    pub fn adc(&mut self, r: u8) -> u8 {
+        let ret = self.regs.a.wrapping_add(r);
+        let c = self.regs.get_c() as u8;
+        let half_carry = (self.regs.a & 0xF) + (r & 0xF) + (c & 0xF) > 0xF;
+        let carry = u16::from(self.regs.a) + u16::from(r) + u16::from(c) > 0xFF;
+
+        self.regs.set_z(ret == 0);
+        self.regs.set_n(false);
+        self.regs.set_h(half_carry);
+        self.regs.set_c(carry);
+
+        ret
+    }
+
+    pub fn sub(&mut self, r: u8) -> u8 {
+        let ret = self.regs.a.wrapping_sub(r);
+        let half_carry = (self.regs.a & 0xF) < (r & 0xF);
+        let carry = self.regs.a < r;
+
+        self.regs.set_z(ret == 0);
+        self.regs.set_n(true);
+        self.regs.set_h(half_carry);
+        self.regs.set_c(carry);
+
+        ret
+    }
+
+    pub fn sbc(&mut self, r: u8) -> u8 {
+        let ret = self.regs.a.wrapping_sub(r);
+        let c = self.regs.get_c() as u8;
+        let half_carry = (self.regs.a & 0xF) < (r & 0xF) + (c & 0xF);
+        let carry = u16::from(self.regs.a) < u16::from(r) + u16::from(c);
+
+        self.regs.set_z(ret == 0);
+        self.regs.set_n(true);
+        self.regs.set_h(half_carry);
+        self.regs.set_c(carry);
 
         ret
     }
