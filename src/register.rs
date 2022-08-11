@@ -126,7 +126,7 @@ impl Register {
         ((self.f >> 5) & 0x1) != 0
     }
 
-    pub fn get_l(&mut self) -> bool {
+    pub fn get_c(&mut self) -> bool {
         ((self.f >> 4) & 0x1) != 0
     }
 

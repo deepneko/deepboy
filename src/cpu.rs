@@ -92,8 +92,25 @@ impl CPU {
             0x10 => {},
 
             // JR
-            0x20 => {},
-            0x30 => {},
+            0x18 | 0x20 | 0x28 | 0x30 | 0x38 => {
+                let offset = self.imm8() as i8;
+                match self.opcode {
+                    0x18 => self.regs.pc = (i32::from(self.regs.pc) + i32::from(offset)) as u16,
+                    0x20 => if !self.regs.get_z() {
+                        self.regs.pc = (i32::from(self.regs.pc) + i32::from(offset)) as u16;
+                    },
+                    0x28 => if self.regs.get_z() {
+                        self.regs.pc = (i32::from(self.regs.pc) + i32::from(offset)) as u16;
+                    }
+                    0x30 => if !self.regs.get_c() {
+                        self.regs.pc = (i32::from(self.regs.pc) + i32::from(offset)) as u16;
+                    }
+                    0x38 => if self.regs.get_c() {
+                        self.regs.pc = (i32::from(self.regs.pc) + i32::from(offset)) as u16;
+                    }
+                    _ => {},
+                }
+            }
 
             // LD R16,D16
             0x01 | 0x11 | 0x21 | 0x31 => {
@@ -175,6 +192,62 @@ impl CPU {
                 self.write8(addr, dat);
             },
 
+            // RLCA
+            0x07 => {
+                let carry = self.regs.a & 0x80 > 0;
+                self.regs.a <<= 1;
+                if carry { self.regs.a |= 0x1 };
+                self.regs.set_z(false);
+                self.regs.set_n(false);
+                self.regs.set_h(false);
+                self.regs.set_c(carry);
+            }
+
+            // RLA
+            0x17 => {
+                let carry = self.regs.get_c();
+                self.regs.a <<= 1;
+                if carry { self.regs.a |= 0x1 };
+                self.regs.set_z(false);
+                self.regs.set_n(false);
+                self.regs.set_h(false);
+                self.regs.set_c(carry);
+            }
+
+            // DAA
+            0x27 => {
+                let mut a = self.regs.a;
+                if !self.regs.get_n() {
+                    if self.regs.get_h() || (a & 0x0F) > 0x09 {
+                        a.wrapping_add(0x06);
+                    }
+                    if self.regs.get_c() || a > 0x99 {
+                        a.wrapping_add(0x60);
+                    }
+                } else {
+                    if self.regs.get_h() {
+                        a.wrapping_sub(0x06);
+                    }
+                    if self.regs.get_c() {
+                        a.wrapping_sub(0x60);
+                    }
+                }
+
+                if self.regs.get_c() || a > 0x99 {
+                    self.regs.set_c(true);
+                }
+                self.regs.set_z(a != 0x00);
+                self.regs.set_h(false);
+                self.regs.a = a;
+            }
+
+            // SCF
+            0x37 => {
+                self.regs.set_n(false);
+                self.regs.set_h(false);
+                self.regs.set_c(true);
+            }
+
             // LD (A16),SP
             0x08 => {
                 let addr = self.imm16();
@@ -206,6 +279,43 @@ impl CPU {
             0x1E => self.regs.e = self.imm8(),
             0x2E => self.regs.l = self.imm8(),
             0x3E => self.regs.a = self.imm8(),
+
+            // RRCA
+            0x0F => {
+                let carry = self.regs.a & 0x1 > 0;
+                self.regs.a <<= 1;
+                if carry { self.regs.a |= 0x80 };
+                self.regs.set_z(false);
+                self.regs.set_n(false);
+                self.regs.set_h(false);
+                self.regs.set_c(carry);
+            }
+
+            // RRA
+            0x1F => {
+                let carry = self.regs.get_c();
+                self.regs.a <<= 1;
+                if carry { self.regs.a |= 0x80 };
+                self.regs.set_z(false);
+                self.regs.set_n(false);
+                self.regs.set_h(false);
+                self.regs.set_c(carry);
+            }
+
+            // CPL
+            0x2F => {
+                self.regs.a = !self.regs.a;
+                self.regs.set_n(true);
+                self.regs.set_h(true);
+            }
+
+            // CCF
+            0x3F => {
+                self.regs.set_n(false);
+                self.regs.set_h(false);
+                let c = self.regs.get_c();
+                self.regs.set_c(!c);
+            }
 
             // LD B,R
             0x40 => {},
