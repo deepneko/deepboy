@@ -78,19 +78,19 @@ impl Register {
         }
     }
 
-    pub fn get_af(&mut self) -> u16 {
+    pub fn get_af(&self) -> u16 {
         (u16::from(self.a) << 8) | u16::from(self.f)
     }
 
-    pub fn get_bc(&mut self) -> u16 {
+    pub fn get_bc(&self) -> u16 {
         (u16::from(self.b) << 8) | u16::from(self.c)
     }
 
-    pub fn get_de(&mut self) -> u16 {
+    pub fn get_de(&self) -> u16 {
         (u16::from(self.d) << 8) | u16::from(self.e)
     }
 
-    pub fn get_hl(&mut self) -> u16 {
+    pub fn get_hl(&self) -> u16 {
         (u16::from(self.h) << 8) | u16::from(self.l)
     }
 
@@ -114,19 +114,19 @@ impl Register {
         self.l = (dat & 0x00ff) as u8;
     }
 
-    pub fn get_z(&mut self) -> bool {
+    pub fn get_z(&self) -> bool {
         ((self.f >> 7) & 0x1) != 0
     }
 
-    pub fn get_n(&mut self) -> bool {
+    pub fn get_n(&self) -> bool {
         ((self.f >> 6) & 0x1) != 0
     }
 
-    pub fn get_h(&mut self) -> bool {
+    pub fn get_h(&self) -> bool {
         ((self.f >> 5) & 0x1) != 0
     }
 
-    pub fn get_c(&mut self) -> bool {
+    pub fn get_c(&self) -> bool {
         ((self.f >> 4) & 0x1) != 0
     }
 
