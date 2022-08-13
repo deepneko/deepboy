@@ -3,10 +3,51 @@ use crate::mmc::MMC;
 use crate::register::*;
 use super::register::Register;
 
+pub const CYCLES: [u32; 0x100] = [
+ //x0  x1  x2  x3  x4  x5  x6  x7  x8  x9  xA  xB  xC  xD  xE  xF
+    4, 12,  8,  8,  4,  4,  8,  4, 20,  8,  8,  8,  4,  4,  8,  4, // 0x
+    4, 12,  8,  8,  4,  4,  8,  4, 12,  8,  8,  8,  4,  4,  8,  4, // 1x
+    8, 12,  8,  8,  4,  4,  8,  4,  8,  8,  8,  8,  4,  4,  8,  4, // 2x
+    8, 12,  8,  8,  4,  4,  8,  4,  8,  8,  8,  8,  4,  4,  8,  4, // 3x
+    4,  4,  4,  4,  4,  4,  8,  4,  4,  4,  4,  4,  4,  4,  8,  4, // 4x
+    4,  4,  4,  4,  4,  4,  8,  4,  4,  4,  4,  4,  4,  4,  8,  4, // 5x
+    4,  4,  4,  4,  4,  4,  8,  4,  4,  4,  4,  4,  4,  4,  8,  4, // 6x
+    8,  8,  8,  8,  8,  8,  4,  8,  4,  4,  4,  4,  4,  4,  8,  4, // 7x
+    4,  4,  4,  4,  4,  4,  8,  4,  4,  4,  4,  4,  4,  4,  8,  4, // 8x
+    4,  4,  4,  4,  4,  4,  8,  4,  4,  4,  4,  4,  4,  4,  8,  4, // 9x
+    4,  4,  4,  4,  4,  4,  8,  4,  4,  4,  4,  4,  4,  4,  8,  4, // Ax
+    4,  4,  4,  4,  4,  4,  8,  4,  4,  4,  4,  4,  4,  4,  8,  4, // Bx
+    8, 12, 12, 16, 12, 16,  8, 16,  8, 16, 12,  4, 12, 24,  8, 16, // Cx
+    8, 12, 12,  0, 12, 16,  8, 16,  8, 16, 12,  0, 12,  0,  8, 16, // Dx
+   12, 12,  8,  0,  0, 16,  8, 16, 16,  4, 16,  0,  0,  0,  8, 16, // Ex
+   12, 12,  8,  4,  0, 16,  8, 16, 12,  8, 16,  4,  0,  0,  8, 16, // Fx
+];
+
+pub const CB_CYCLES: [u32; 0x100] = [
+ //x0  x1  x2  x3  x4  x5  x6  x7  x8  x9  xA  xB  xC  xD  xE  xF
+    8,  8,  8,  8,  8,  8, 16,  8,  8,  8,  8,  8,  8,  8, 16,  8, // 0x
+    8,  8,  8,  8,  8,  8, 16,  8,  8,  8,  8,  8,  8,  8, 16,  8, // 1x
+    8,  8,  8,  8,  8,  8, 16,  8,  8,  8,  8,  8,  8,  8, 16,  8, // 2x
+    8,  8,  8,  8,  8,  8, 16,  8,  8,  8,  8,  8,  8,  8, 16,  8, // 3x
+    8,  8,  8,  8,  8,  8, 16,  8,  8,  8,  8,  8,  8,  8, 16,  8, // 4x
+    8,  8,  8,  8,  8,  8, 16,  8,  8,  8,  8,  8,  8,  8, 16,  8, // 5x
+    8,  8,  8,  8,  8,  8, 16,  8,  8,  8,  8,  8,  8,  8, 16,  8, // 6x
+    8,  8,  8,  8,  8,  8, 16,  8,  8,  8,  8,  8,  8,  8, 16,  8, // 7x
+    8,  8,  8,  8,  8,  8, 16,  8,  8,  8,  8,  8,  8,  8, 16,  8, // 8x
+    8,  8,  8,  8,  8,  8, 16,  8,  8,  8,  8,  8,  8,  8, 16,  8, // 9x
+    8,  8,  8,  8,  8,  8, 16,  8,  8,  8,  8,  8,  8,  8, 16,  8, // Ax
+    8,  8,  8,  8,  8,  8, 16,  8,  8,  8,  8,  8,  8,  8, 16,  8, // Bx
+    8,  8,  8,  8,  8,  8, 16,  8,  8,  8,  8,  8,  8,  8, 16,  8, // Cx
+    8,  8,  8,  8,  8,  8, 16,  8,  8,  8,  8,  8,  8,  8, 16,  8, // Dx
+    8,  8,  8,  8,  8,  8, 16,  8,  8,  8,  8,  8,  8,  8, 16,  8, // Ex
+    8,  8,  8,  8,  8,  8, 16,  8,  8,  8,  8,  8,  8,  8, 16,  8, // Fx
+];
+
 pub struct CPU {
     pub mmc: Rc<RefCell<MMC>>,
     pub regs: Register,
     pub opcode: u8,
+    pub cb_opcode: u8,
     pub cycles: u32,
     pub halt: bool,
     pub ime: bool,
@@ -19,6 +60,7 @@ impl CPU {
             mmc: mmc,
             regs: Register::new(),
             opcode: 0,
+            cb_opcode: 0,
             cycles: 0,
             halt: false,
             ime: false,
@@ -26,65 +68,15 @@ impl CPU {
         }
     }
 
-    pub fn run(&mut self, cycle: u32) {
-        self.cycles += cycle;
+    pub fn run(&mut self) -> u32 {
+        self.cycles = self.handle_interrupt();
+        if self.cycles > 0 {
+            return self.cycles;
+        } else if self.halt {
+            return 16;
+        }
+
         self.opcode = self.imm8();
-        let int_enable: u8 = self.read8(IoRegs::IE as u16);
-        let mut int_flag: u8 = self.read8(IoRegs::IF as u16);
-        let interrupt: u8 = int_enable & int_flag;
-
-        if self.halt {
-            if interrupt > 0 {
-                self.cycles += 4;
-                return;
-            }
-        }
-
-        if interrupt > 0 {
-            self.halt = false;
-        }
-
-        if self.ime && interrupt > 0 {
-            // ToDo: Timer cycle
-            // ToDo: Timer cycle
-
-            self.write8(self.regs.sp, (self.regs.pc >> 8) as u8);
-            self.regs.sp -= 1;
-            self.write8(self.regs.sp, (self.regs.pc & 0xFF) as u8);
-            self.regs.sp -= 1;
-
-            if interrupt & (IntFlag::VBLANK as u8) > 0 {
-                self.regs.pc = 0x40;
-                int_flag &= !(IntFlag::VBLANK as u8);
-            } else if interrupt & (IntFlag::STAT as u8) > 0 {
-                self.regs.pc = 0x48;
-                int_flag &= !(IntFlag::STAT as u8);
-            } else if interrupt & (IntFlag::TIMER as u8) > 0 {
-                self.regs.pc = 0x58;
-                int_flag &= !(IntFlag::SERIAL as u8);
-            } else if interrupt & (IntFlag::JOYPAD as u8) > 0 {
-                self.regs.pc = 0x60;
-                int_flag &= !(IntFlag::JOYPAD as u8);
-            } else {
-                panic!("Failed to handle interrupt.");
-            }
-
-            self.write8(IoRegs::IF as u16, int_flag & 0xFF);
-            self.ime = false;
-
-            // ToDo: Timer cycle
-
-            self.opcode = self.imm8();
-            self.cycles += 20;
-        }
-
-        if self.ei_delay {
-            self.ei_delay = false;
-            self.ime = true;
-        }
-
-        self.regs.pc += 1;
-
         match self.opcode {
             // NOP
             0x00 | 0x10 => {},
@@ -697,13 +689,48 @@ impl CPU {
             // PREFIX CB
             0xCB => self.prefix_cb(),
         }
+
+        if self.opcode != 0xCB {
+            match self.opcode {
+                // JR
+                0x20 => if !self.regs.get_z() { self.cycles += 4 },
+                0x28 => if self.regs.get_z() { self.cycles += 4 },
+                0x30 => if !self.regs.get_c() { self.cycles += 4 },
+                0x38 => if self.regs.get_c() { self.cycles += 4 },
+
+                // JP
+                0xC2 => if !self.regs.get_z() { self.cycles += 4 },
+                0xCA => if self.regs.get_z() { self.cycles += 4 },
+                0xD2 => if !self.regs.get_c() { self.cycles += 4 },
+                0xDA => if self.regs.get_c() { self.cycles += 4 },
+
+                // RET
+                0xC0 => if !self.regs.get_z() { self.cycles += 12 },
+                0xC8 => if self.regs.get_z() { self.cycles += 12 },
+                0xD0 => if !self.regs.get_c() { self.cycles += 12 },
+                0xD8 => if self.regs.get_c() { self.cycles += 12 },
+
+                // CALL
+                0xC4 => if !self.regs.get_z() { self.cycles += 12 },
+                0xCC => if self.regs.get_z() { self.cycles += 12 },
+                0xD4 => if !self.regs.get_c() { self.cycles += 12 },
+                0xDC => if self.regs.get_c() { self.cycles += 12 },
+                
+                _ => {},
+            }
+            self.cycles += CYCLES[self.opcode as usize];
+        } else {
+            self.cycles += CB_CYCLES[self.cb_opcode as usize];
+        }
+
+        self.cycles
     }
 
     pub fn prefix_cb(&mut self) {
-        self.opcode = self.imm8();
+        self.cb_opcode = self.imm8();
         self.regs.pc += 1;
 
-        match self.opcode {
+        match self.cb_opcode {
             // RLC
             0x00 => self.regs.b = self.rlc(self.regs.b),
             0x01 => self.regs.c = self.rlc(self.regs.c),
@@ -749,7 +776,7 @@ impl CPU {
             }
             0x17 => self.regs.a = self.rl(self.regs.a),
 
-            // RL
+            // RR
             0x18 => self.regs.b = self.rr(self.regs.b),
             0x19 => self.regs.c = self.rr(self.regs.c),
             0x1A => self.regs.d = self.rr(self.regs.d),
@@ -824,7 +851,341 @@ impl CPU {
             }
             0x3F => self.regs.a = self.srl(self.regs.a),
 
-            _ => {},
+            // BIT 0 
+            0x40 => self.bit(self.regs.b, 0),
+            0x41 => self.bit(self.regs.c, 0),
+            0x42 => self.bit(self.regs.d, 0),
+            0x43 => self.bit(self.regs.e, 0),
+            0x44 => self.bit(self.regs.h, 0),
+            0x45 => self.bit(self.regs.l, 0),
+            0x46 => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.bit(dat, 0);
+            }
+            0x47 => self.bit(self.regs.a, 0),
+
+            // BIT 1
+            0x48 => self.bit(self.regs.b, 1),
+            0x49 => self.bit(self.regs.c, 1),
+            0x4A => self.bit(self.regs.d, 1),
+            0x4B => self.bit(self.regs.e, 1),
+            0x4C => self.bit(self.regs.h, 1),
+            0x4D => self.bit(self.regs.l, 1),
+            0x4E => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.bit(dat, 1);
+            }
+            0x4F => self.bit(self.regs.a, 1),
+
+            // BIT 2
+            0x50 => self.bit(self.regs.b, 2),
+            0x51 => self.bit(self.regs.c, 2),
+            0x52 => self.bit(self.regs.d, 2),
+            0x53 => self.bit(self.regs.e, 2),
+            0x54 => self.bit(self.regs.h, 2),
+            0x55 => self.bit(self.regs.l, 2),
+            0x56 => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.bit(dat, 2);
+            }
+            0x57 => self.bit(self.regs.a, 2),
+
+            // BIT 3
+            0x58 => self.bit(self.regs.b, 3),
+            0x59 => self.bit(self.regs.c, 3),
+            0x5A => self.bit(self.regs.d, 3),
+            0x5B => self.bit(self.regs.e, 3),
+            0x5C => self.bit(self.regs.h, 3),
+            0x5D => self.bit(self.regs.l, 3),
+            0x5E => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.bit(dat, 3);
+            }
+            0x5F => self.bit(self.regs.a, 3),
+
+            // BIT 4
+            0x60 => self.bit(self.regs.b, 4),
+            0x61 => self.bit(self.regs.c, 4),
+            0x62 => self.bit(self.regs.d, 4),
+            0x63 => self.bit(self.regs.e, 4),
+            0x64 => self.bit(self.regs.h, 4),
+            0x65 => self.bit(self.regs.l, 4),
+            0x66 => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.bit(dat, 4);
+            }
+            0x67 => self.bit(self.regs.a, 4),
+
+            // BIT 5
+            0x68 => self.bit(self.regs.b, 5),
+            0x69 => self.bit(self.regs.c, 5),
+            0x6A => self.bit(self.regs.d, 5),
+            0x6B => self.bit(self.regs.e, 5),
+            0x6C => self.bit(self.regs.h, 5),
+            0x6D => self.bit(self.regs.l, 5),
+            0x6E => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.bit(dat, 5);
+            }
+            0x6F => self.bit(self.regs.a, 5),
+
+            // BIT 6
+            0x70 => self.bit(self.regs.b, 6),
+            0x71 => self.bit(self.regs.c, 6),
+            0x72 => self.bit(self.regs.d, 6),
+            0x73 => self.bit(self.regs.e, 6),
+            0x74 => self.bit(self.regs.h, 6),
+            0x75 => self.bit(self.regs.l, 6),
+            0x76 => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.bit(dat, 6);
+            }
+            0x77 => self.bit(self.regs.a, 6),
+
+            // BIT 7
+            0x78 => self.bit(self.regs.b, 7),
+            0x79 => self.bit(self.regs.c, 7),
+            0x7A => self.bit(self.regs.d, 7),
+            0x7B => self.bit(self.regs.e, 7),
+            0x7C => self.bit(self.regs.h, 7),
+            0x7D => self.bit(self.regs.l, 7),
+            0x7E => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.bit(dat, 7);
+            }
+            0x7F => self.bit(self.regs.a, 7),
+
+            // RES 0
+            0x80 => self.regs.b &= !(0x01),
+            0x81 => self.regs.c &= !(0x01),
+            0x82 => self.regs.d &= !(0x01),
+            0x83 => self.regs.e &= !(0x01),
+            0x84 => self.regs.h &= !(0x01),
+            0x85 => self.regs.l &= !(0x01),
+            0x86 => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.write8(addr, dat & !(0x01));
+            }
+            0x87 => self.regs.a &= !(0x01),
+
+            // RES 1
+            0x88 => self.regs.b &= !(0x01 << 1),
+            0x89 => self.regs.c &= !(0x01 << 1),
+            0x8A => self.regs.d &= !(0x01 << 1),
+            0x8B => self.regs.e &= !(0x01 << 1),
+            0x8C => self.regs.h &= !(0x01 << 1),
+            0x8D => self.regs.l &= !(0x01 << 1),
+            0x8E => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.write8(addr, dat & !(0x01 << 1));
+            }
+            0x8F => self.regs.a &= !(0x01 << 1),
+
+            // RES 2
+            0x90 => self.regs.b &= !(0x01 << 2),
+            0x91 => self.regs.c &= !(0x01 << 2),
+            0x92 => self.regs.d &= !(0x01 << 2),
+            0x93 => self.regs.e &= !(0x01 << 2),
+            0x94 => self.regs.h &= !(0x01 << 2),
+            0x95 => self.regs.l &= !(0x01 << 2),
+            0x96 => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.write8(addr, dat & !(0x01 << 2));
+            }
+            0x97 => self.regs.a &= !(0x01 << 2),
+
+            // RES 3
+            0x98 => self.regs.b &= !(0x01 << 3),
+            0x99 => self.regs.c &= !(0x01 << 3),
+            0x9A => self.regs.d &= !(0x01 << 3),
+            0x9B => self.regs.e &= !(0x01 << 3),
+            0x9C => self.regs.h &= !(0x01 << 3),
+            0x9D => self.regs.l &= !(0x01 << 3),
+            0x9E => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.write8(addr, dat & !(0x01 << 3));
+            }
+            0x9F => self.regs.a &= !(0x01 << 3),
+
+            // RES 4
+            0xA0 => self.regs.b &= !(0x01 << 4),
+            0xA1 => self.regs.c &= !(0x01 << 4),
+            0xA2 => self.regs.d &= !(0x01 << 4),
+            0xA3 => self.regs.e &= !(0x01 << 4),
+            0xA4 => self.regs.h &= !(0x01 << 4),
+            0xA5 => self.regs.l &= !(0x01 << 4),
+            0xA6 => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.write8(addr, dat & !(0x01 << 4));
+            }
+            0xA7 => self.regs.a &= !(0x01 << 4),
+
+            // RES 5
+            0xA8 => self.regs.b &= !(0x01 << 5),
+            0xA9 => self.regs.c &= !(0x01 << 5),
+            0xAA => self.regs.d &= !(0x01 << 5),
+            0xAB => self.regs.e &= !(0x01 << 5),
+            0xAC => self.regs.h &= !(0x01 << 5),
+            0xAD => self.regs.l &= !(0x01 << 5),
+            0xAE => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.write8(addr, dat & !(0x01 << 5));
+            }
+            0xAF => self.regs.a &= !(0x01 << 5),
+
+            // RES 6
+            0xB0 => self.regs.b &= !(0x01 << 6),
+            0xB1 => self.regs.c &= !(0x01 << 6),
+            0xB2 => self.regs.d &= !(0x01 << 6),
+            0xB3 => self.regs.e &= !(0x01 << 6),
+            0xB4 => self.regs.h &= !(0x01 << 6),
+            0xB5 => self.regs.l &= !(0x01 << 6),
+            0xB6 => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.write8(addr, dat & !(0x01 << 6));
+            }
+            0xB7 => self.regs.a &= !(0x01 << 6),
+
+            // RES 7
+            0xB8 => self.regs.b &= !(0x01 << 7),
+            0xB9 => self.regs.c &= !(0x01 << 7),
+            0xBA => self.regs.d &= !(0x01 << 7),
+            0xBB => self.regs.e &= !(0x01 << 7),
+            0xBC => self.regs.h &= !(0x01 << 7),
+            0xBD => self.regs.l &= !(0x01 << 7),
+            0xBE => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.write8(addr, dat & !(0x01 << 7));
+            }
+            0xBF => self.regs.a &= !(0x01 << 7),
+
+            // SET 0
+            0xC0 => self.regs.b |= 0x01,
+            0xC1 => self.regs.c |= 0x01,
+            0xC2 => self.regs.d |= 0x01,
+            0xC3 => self.regs.e |= 0x01,
+            0xC4 => self.regs.h |= 0x01,
+            0xC5 => self.regs.l |= 0x01,
+            0xC6 => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.write8(addr, dat | (0x01));
+            }
+            0xC7 => self.regs.a |= 0x01,
+
+            // SET 1
+            0xC8 => self.regs.b |= 0x01 << 1,
+            0xC9 => self.regs.c |= 0x01 << 1,
+            0xCA => self.regs.d |= 0x01 << 1,
+            0xCB => self.regs.e |= 0x01 << 1,
+            0xCC => self.regs.h |= 0x01 << 1,
+            0xCD => self.regs.l |= 0x01 << 1,
+            0xCE => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.write8(addr, dat | (0x01 << 1));
+            }
+            0xCF => self.regs.a |= 0x01 << 1,
+
+            // SET 2
+            0xD0 => self.regs.b |= 0x01 << 2,
+            0xD1 => self.regs.c |= 0x01 << 2,
+            0xD2 => self.regs.d |= 0x01 << 2,
+            0xD3 => self.regs.e |= 0x01 << 2,
+            0xD4 => self.regs.h |= 0x01 << 2,
+            0xD5 => self.regs.l |= 0x01 << 2,
+            0xD6 => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.write8(addr, dat | (0x01 << 2));
+            }
+            0xD7 => self.regs.a |= 0x01 << 0,
+
+            // SET 3
+            0xD8 => self.regs.b |= 0x01 << 3,
+            0xD9 => self.regs.c |= 0x01 << 3,
+            0xDA => self.regs.d |= 0x01 << 3,
+            0xDB => self.regs.e |= 0x01 << 3,
+            0xDC => self.regs.h |= 0x01 << 3,
+            0xDD => self.regs.l |= 0x01 << 3,
+            0xDE => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.write8(addr, dat | (0x01 << 3));
+            }
+            0xDF => self.regs.a |= 0x01 << 3,
+
+            // SET 4
+            0xE0 => self.regs.b |= 0x01 << 4,
+            0xE1 => self.regs.c |= 0x01 << 4,
+            0xE2 => self.regs.d |= 0x01 << 4,
+            0xE3 => self.regs.e |= 0x01 << 4,
+            0xE4 => self.regs.h |= 0x01 << 4,
+            0xE5 => self.regs.l |= 0x01 << 4,
+            0xE6 => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.write8(addr, dat | (0x01 << 4));
+            }
+            0xE7 => self.regs.a |= 0x01 << 4,
+
+            // SET 5
+            0xE8 => self.regs.b |= 0x01 << 5,
+            0xE9 => self.regs.c |= 0x01 << 5,
+            0xEA => self.regs.d |= 0x01 << 5,
+            0xEB => self.regs.e |= 0x01 << 5,
+            0xEC => self.regs.h |= 0x01 << 5,
+            0xED => self.regs.l |= 0x01 << 5,
+            0xEE => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.write8(addr, dat | (0x01 << 5));
+            }
+            0xEF => self.regs.a |= 0x01 << 5,
+
+            // SET 6
+            0xF0 => self.regs.b |= 0x01 << 6,
+            0xF1 => self.regs.c |= 0x01 << 6,
+            0xF2 => self.regs.d |= 0x01 << 6,
+            0xF3 => self.regs.e |= 0x01 << 6,
+            0xF4 => self.regs.h |= 0x01 << 6,
+            0xF5 => self.regs.l |= 0x01 << 6,
+            0xF6 => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.write8(addr, dat | (0x01 << 6));
+            }
+            0xF7 => self.regs.a |= 0x01 << 6,
+
+            // SET 7
+            0xF8 => self.regs.b |= 0x01 << 7,
+            0xF9 => self.regs.c |= 0x01 << 7,
+            0xFA => self.regs.d |= 0x01 << 7,
+            0xFB => self.regs.e |= 0x01 << 7,
+            0xFC => self.regs.h |= 0x01 << 7,
+            0xFD => self.regs.l |= 0x01 << 7,
+            0xFE => {
+                let addr = self.regs.get_hl();
+                let dat = self.read8(addr);
+                self.write8(addr, dat | (0x01 << 7));
+            }
+            0xFF => self.regs.a |= 0x01 << 7,
         }
     }
 
@@ -1100,5 +1461,54 @@ impl CPU {
         self.regs.set_c(carry);
 
         ret
+    }
+
+    pub fn bit(&mut self, r: u8, n: u8) {
+        let bit = r & (0x01 << n);
+        self.regs.set_z(bit == 0);
+        self.regs.set_n(false);
+        self.regs.set_h(true);
+    }
+
+    pub fn handle_interrupt(&mut self) -> u32 {
+        let int_enable: u8 = self.read8(IoRegs::IE as u16);
+        let mut int_flag: u8 = self.read8(IoRegs::IF as u16);
+        let interrupt: u8 = int_enable & int_flag;
+
+        if !self.halt & !self.ime {
+            return 0;
+        }
+        self.halt = false;
+
+        if !self.ime {
+            return 0;
+        }
+        self.ime = false;
+
+        if interrupt == 0 {
+            return 0;
+        }
+
+        self.push(self.regs.pc);
+        if interrupt > 0 {
+            if interrupt & (IntFlag::VBLANK as u8) > 0 {
+                self.regs.pc = 0x40;
+                int_flag &= !(IntFlag::VBLANK as u8);
+            } else if interrupt & (IntFlag::STAT as u8) > 0 {
+                self.regs.pc = 0x48;
+                int_flag &= !(IntFlag::STAT as u8);
+            } else if interrupt & (IntFlag::TIMER as u8) > 0 {
+                self.regs.pc = 0x58;
+                int_flag &= !(IntFlag::SERIAL as u8);
+            } else if interrupt & (IntFlag::JOYPAD as u8) > 0 {
+                self.regs.pc = 0x60;
+                int_flag &= !(IntFlag::JOYPAD as u8);
+            } else {
+                panic!("Failed to handle interrupt.");
+            }
+        }
+        self.write8(IoRegs::IF as u16, int_flag);
+
+        16
     }
 }

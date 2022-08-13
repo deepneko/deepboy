@@ -42,7 +42,7 @@ impl Gameboy {
     }
 
     pub fn exec_frame(&mut self) {
-        self.cpu.run(0);
+        self.cpu.run();
         self.output.write_screen();
     }
 }
