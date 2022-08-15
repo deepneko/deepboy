@@ -1,5 +1,3 @@
-#![crate_name = "deepboy"]
-
 pub mod gameboy;
 pub mod rom;
 pub mod cpu;
