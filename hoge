@@ -1,0 +1,400 @@
+rom: roms/rockman_world2.gb
+MBC TYPE:1
+ROM SIZE TYPE:3
+RAM SIZE TYPE:0
+MBC1
+PC:0000 SP:0000, A:00 F:00 B:00 C:00 D:00 E:00: H:00 L:00, 0x31 LD SP,nn
+PC:0003 SP:fffe, A:00 F:00 B:00 C:00 D:00 E:00: H:00 L:00, 0xaf XOR A
+PC:0004 SP:fffe, A:00 F:00 B:00 C:00 D:00 E:00: H:00 L:00, 0x21 LD HL,nn
+PC:0007 SP:fffe, A:00 F:00 B:00 C:00 D:00 E:00: H:9f L:ff, 0x32 LD (HL-),A
+PC:0008 SP:fffe, A:00 F:00 B:00 C:00 D:00 E:00: H:9f L:fe, 0xcb7c BIT 7 H
+PC:000b SP:fffe, A:00 F:00 B:00 C:00 D:00 E:00: H:9f L:fe, 0xfb EI
+PC:000c SP:fffe, A:00 F:00 B:00 C:00 D:00 E:00: H:9f L:fe, 0x21 LD HL,nn
+PC:000f SP:fffe, A:00 F:00 B:00 C:00 D:00 E:00: H:ff L:26, 0x0e LD C,n
+PC:0011 SP:fffe, A:00 F:00 B:00 C:11 D:00 E:00: H:ff L:26, 0x3e LDA,n
+PC:0013 SP:fffe, A:80 F:00 B:00 C:11 D:00 E:00: H:ff L:26, 0x32 LD (HL-),A
+PC:0014 SP:fffe, A:80 F:00 B:00 C:11 D:00 E:00: H:ff L:25, 0xe2 LD (0xFF00+C),A
+PC:0015 SP:fffe, A:80 F:00 B:00 C:11 D:00 E:00: H:ff L:25, 0x0c INC C
+PC:0016 SP:fffe, A:80 F:00 B:00 C:12 D:00 E:00: H:ff L:25, 0x3e LDA,n
+PC:0018 SP:fffe, A:f3 F:00 B:00 C:12 D:00 E:00: H:ff L:25, 0xe2 LD (0xFF00+C),A
+PC:0019 SP:fffe, A:f3 F:00 B:00 C:12 D:00 E:00: H:ff L:25, 0x32 LD (HL-),A
+PC:001a SP:fffe, A:f3 F:00 B:00 C:12 D:00 E:00: H:ff L:24, 0x3e LDA,n
+PC:001c SP:fffe, A:77 F:00 B:00 C:12 D:00 E:00: H:ff L:24, 0x77 LD (HL),A
+PC:001d SP:fffe, A:77 F:00 B:00 C:12 D:00 E:00: H:ff L:24, 0x3e LDA,n
+PC:001f SP:fffe, A:fc F:00 B:00 C:12 D:00 E:00: H:ff L:24, 0xe0 LD (0xFF00+n),A
+PC:0021 SP:fffe, A:fc F:00 B:00 C:12 D:00 E:00: H:ff L:24, 0x11 LD DE,nn
+PC:0024 SP:fffe, A:fc F:00 B:00 C:12 D:01 E:04: H:ff L:24, 0x21 LD HL,nn
+PC:0027 SP:fffe, A:fc F:00 B:00 C:12 D:01 E:04: H:80 L:10, 0x1a LD A,(DE)
+PC:0028 SP:fffe, A:ce F:00 B:00 C:12 D:01 E:04: H:80 L:10, 0xcd CALL nn
+PC:0095 SP:fffc, A:ce F:00 B:00 C:12 D:01 E:04: H:80 L:10, 0x4f LD C,A
+PC:0096 SP:fffc, A:ce F:00 B:00 C:ce D:01 E:04: H:80 L:10, 0x06 LD B,n
+PC:0098 SP:fffc, A:ce F:00 B:04 C:ce D:01 E:04: H:80 L:10, 0xc5 PUSH BC
+PC:0099 SP:fffa, A:ce F:00 B:04 C:ce D:01 E:04: H:80 L:10, 0xcb11 RL C
+PC:009c SP:fffa, A:ce F:00 B:04 C:9c D:01 E:04: H:80 L:10, 0xc1 POP BC
+PC:009d SP:fffc, A:ce F:00 B:00 C:00 D:01 E:04: H:80 L:10, 0xcb11 RL C
+PC:00a0 SP:fffc, A:ce F:00 B:00 C:00 D:01 E:04: H:80 L:10, 0x05 DEC B
+PC:00a1 SP:fffc, A:ce F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0x20 JR NZ,n
+PC:0198 SP:fffc, A:ce F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0xc3 JP nn
+PC:22bf SP:fffc, A:ce F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0x3e LDA,n
+PC:22c1 SP:fffc, A:06 F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0xea LD (nn),A
+PC:22c4 SP:fffc, A:06 F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0xea LD (nn),A
+PC:22c7 SP:fffc, A:06 F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0x11 LD DE,nn
+PC:22ca SP:fffc, A:06 F:00 B:ff C:00 D:90 E:00: H:80 L:10, 0x21 LD HL,nn
+PC:22cd SP:fffc, A:06 F:00 B:ff C:00 D:90 E:00: H:03 L:67, 0xcd CALL nn
+PC:2509 SP:fffa, A:06 F:00 B:ff C:00 D:90 E:00: H:03 L:67, 0xcd CALL nn
+PC:2517 SP:fff8, A:06 F:00 B:ff C:00 D:90 E:00: H:03 L:67, 0x2a LD A,(HLI)
+PC:2518 SP:fff8, A:24 F:00 B:ff C:00 D:90 E:00: H:03 L:68, 0x66 LD H,(HL)
+PC:2519 SP:fff8, A:24 F:00 B:ff C:00 D:90 E:00: H:40 L:68, 0x6f LD L,A
+PC:251a SP:fff8, A:24 F:00 B:ff C:00 D:90 E:00: H:40 L:24, 0x2a LD A,(HLI)
+PC:251b SP:fff8, A:44 F:00 B:ff C:00 D:90 E:00: H:40 L:25, 0x66 LD H,(HL)
+PC:251c SP:fff8, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:25, 0x6f LD L,A
+PC:251d SP:fff8, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0xc9 RET
+PC:0000 SP:fffa, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0x31 LD SP,nn
+PC:0003 SP:fffe, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0xaf XOR A
+PC:0004 SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0x21 LD HL,nn
+PC:0007 SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:ff, 0x32 LD (HL-),A
+PC:0008 SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:fe, 0xcb7c BIT 7 H
+PC:000b SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:fe, 0xfb EI
+PC:000c SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:fe, 0x21 LD HL,nn
+PC:000f SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:ff L:26, 0x0e LD C,n
+PC:0011 SP:fffe, A:00 F:00 B:ff C:11 D:90 E:00: H:ff L:26, 0x3e LDA,n
+PC:0013 SP:fffe, A:80 F:00 B:ff C:11 D:90 E:00: H:ff L:26, 0x32 LD (HL-),A
+PC:0014 SP:fffe, A:80 F:00 B:ff C:11 D:90 E:00: H:ff L:25, 0xe2 LD (0xFF00+C),A
+PC:0015 SP:fffe, A:80 F:00 B:ff C:11 D:90 E:00: H:ff L:25, 0x0c INC C
+PC:0016 SP:fffe, A:80 F:00 B:ff C:12 D:90 E:00: H:ff L:25, 0x3e LDA,n
+PC:0018 SP:fffe, A:f3 F:00 B:ff C:12 D:90 E:00: H:ff L:25, 0xe2 LD (0xFF00+C),A
+PC:0019 SP:fffe, A:f3 F:00 B:ff C:12 D:90 E:00: H:ff L:25, 0x32 LD (HL-),A
+PC:001a SP:fffe, A:f3 F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x3e LDA,n
+PC:001c SP:fffe, A:77 F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x77 LD (HL),A
+PC:001d SP:fffe, A:77 F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x3e LDA,n
+PC:001f SP:fffe, A:fc F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0xe0 LD (0xFF00+n),A
+PC:0021 SP:fffe, A:fc F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x11 LD DE,nn
+PC:0024 SP:fffe, A:fc F:00 B:ff C:12 D:01 E:04: H:ff L:24, 0x21 LD HL,nn
+PC:0027 SP:fffe, A:fc F:00 B:ff C:12 D:01 E:04: H:80 L:10, 0x1a LD A,(DE)
+PC:0028 SP:fffe, A:ce F:00 B:ff C:12 D:01 E:04: H:80 L:10, 0xcd CALL nn
+PC:0095 SP:fffc, A:ce F:00 B:ff C:12 D:01 E:04: H:80 L:10, 0x4f LD C,A
+PC:0096 SP:fffc, A:ce F:00 B:ff C:ce D:01 E:04: H:80 L:10, 0x06 LD B,n
+PC:0098 SP:fffc, A:ce F:00 B:04 C:ce D:01 E:04: H:80 L:10, 0xc5 PUSH BC
+PC:0099 SP:fffa, A:ce F:00 B:04 C:ce D:01 E:04: H:80 L:10, 0xcb11 RL C
+PC:009c SP:fffa, A:ce F:00 B:04 C:9c D:01 E:04: H:80 L:10, 0xc1 POP BC
+PC:009d SP:fffc, A:ce F:00 B:00 C:00 D:01 E:04: H:80 L:10, 0xcb11 RL C
+PC:00a0 SP:fffc, A:ce F:00 B:00 C:00 D:01 E:04: H:80 L:10, 0x05 DEC B
+PC:00a1 SP:fffc, A:ce F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0x20 JR NZ,n
+PC:0198 SP:fffc, A:ce F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0xc3 JP nn
+PC:22bf SP:fffc, A:ce F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0x3e LDA,n
+PC:22c1 SP:fffc, A:06 F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0xea LD (nn),A
+PC:22c4 SP:fffc, A:06 F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0xea LD (nn),A
+PC:22c7 SP:fffc, A:06 F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0x11 LD DE,nn
+PC:22ca SP:fffc, A:06 F:00 B:ff C:00 D:90 E:00: H:80 L:10, 0x21 LD HL,nn
+PC:22cd SP:fffc, A:06 F:00 B:ff C:00 D:90 E:00: H:03 L:67, 0xcd CALL nn
+PC:2509 SP:fffa, A:06 F:00 B:ff C:00 D:90 E:00: H:03 L:67, 0xcd CALL nn
+PC:2517 SP:fff8, A:06 F:00 B:ff C:00 D:90 E:00: H:03 L:67, 0x2a LD A,(HLI)
+PC:2518 SP:fff8, A:24 F:00 B:ff C:00 D:90 E:00: H:03 L:68, 0x66 LD H,(HL)
+PC:2519 SP:fff8, A:24 F:00 B:ff C:00 D:90 E:00: H:40 L:68, 0x6f LD L,A
+PC:251a SP:fff8, A:24 F:00 B:ff C:00 D:90 E:00: H:40 L:24, 0x2a LD A,(HLI)
+PC:251b SP:fff8, A:44 F:00 B:ff C:00 D:90 E:00: H:40 L:25, 0x66 LD H,(HL)
+PC:251c SP:fff8, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:25, 0x6f LD L,A
+PC:251d SP:fff8, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0xc9 RET
+PC:0000 SP:fffa, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0x31 LD SP,nn
+PC:0003 SP:fffe, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0xaf XOR A
+PC:0004 SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0x21 LD HL,nn
+PC:0007 SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:ff, 0x32 LD (HL-),A
+PC:0008 SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:fe, 0xcb7c BIT 7 H
+PC:000b SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:fe, 0xfb EI
+PC:000c SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:fe, 0x21 LD HL,nn
+PC:000f SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:ff L:26, 0x0e LD C,n
+PC:0011 SP:fffe, A:00 F:00 B:ff C:11 D:90 E:00: H:ff L:26, 0x3e LDA,n
+PC:0013 SP:fffe, A:80 F:00 B:ff C:11 D:90 E:00: H:ff L:26, 0x32 LD (HL-),A
+PC:0014 SP:fffe, A:80 F:00 B:ff C:11 D:90 E:00: H:ff L:25, 0xe2 LD (0xFF00+C),A
+PC:0015 SP:fffe, A:80 F:00 B:ff C:11 D:90 E:00: H:ff L:25, 0x0c INC C
+PC:0016 SP:fffe, A:80 F:00 B:ff C:12 D:90 E:00: H:ff L:25, 0x3e LDA,n
+PC:0018 SP:fffe, A:f3 F:00 B:ff C:12 D:90 E:00: H:ff L:25, 0xe2 LD (0xFF00+C),A
+PC:0019 SP:fffe, A:f3 F:00 B:ff C:12 D:90 E:00: H:ff L:25, 0x32 LD (HL-),A
+PC:001a SP:fffe, A:f3 F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x3e LDA,n
+PC:001c SP:fffe, A:77 F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x77 LD (HL),A
+PC:001d SP:fffe, A:77 F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x3e LDA,n
+PC:001f SP:fffe, A:fc F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0xe0 LD (0xFF00+n),A
+PC:0021 SP:fffe, A:fc F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x11 LD DE,nn
+PC:0024 SP:fffe, A:fc F:00 B:ff C:12 D:01 E:04: H:ff L:24, 0x21 LD HL,nn
+PC:0027 SP:fffe, A:fc F:00 B:ff C:12 D:01 E:04: H:80 L:10, 0x1a LD A,(DE)
+PC:0028 SP:fffe, A:ce F:00 B:ff C:12 D:01 E:04: H:80 L:10, 0xcd CALL nn
+PC:0095 SP:fffc, A:ce F:00 B:ff C:12 D:01 E:04: H:80 L:10, 0x4f LD C,A
+PC:0096 SP:fffc, A:ce F:00 B:ff C:ce D:01 E:04: H:80 L:10, 0x06 LD B,n
+PC:0098 SP:fffc, A:ce F:00 B:04 C:ce D:01 E:04: H:80 L:10, 0xc5 PUSH BC
+PC:0099 SP:fffa, A:ce F:00 B:04 C:ce D:01 E:04: H:80 L:10, 0xcb11 RL C
+PC:009c SP:fffa, A:ce F:00 B:04 C:9c D:01 E:04: H:80 L:10, 0xc1 POP BC
+PC:009d SP:fffc, A:ce F:00 B:00 C:00 D:01 E:04: H:80 L:10, 0xcb11 RL C
+PC:00a0 SP:fffc, A:ce F:00 B:00 C:00 D:01 E:04: H:80 L:10, 0x05 DEC B
+PC:00a1 SP:fffc, A:ce F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0x20 JR NZ,n
+PC:0198 SP:fffc, A:ce F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0xc3 JP nn
+PC:22bf SP:fffc, A:ce F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0x3e LDA,n
+PC:22c1 SP:fffc, A:06 F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0xea LD (nn),A
+PC:22c4 SP:fffc, A:06 F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0xea LD (nn),A
+PC:22c7 SP:fffc, A:06 F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0x11 LD DE,nn
+PC:22ca SP:fffc, A:06 F:00 B:ff C:00 D:90 E:00: H:80 L:10, 0x21 LD HL,nn
+PC:22cd SP:fffc, A:06 F:00 B:ff C:00 D:90 E:00: H:03 L:67, 0xcd CALL nn
+PC:2509 SP:fffa, A:06 F:00 B:ff C:00 D:90 E:00: H:03 L:67, 0xcd CALL nn
+PC:2517 SP:fff8, A:06 F:00 B:ff C:00 D:90 E:00: H:03 L:67, 0x2a LD A,(HLI)
+PC:2518 SP:fff8, A:24 F:00 B:ff C:00 D:90 E:00: H:03 L:68, 0x66 LD H,(HL)
+PC:2519 SP:fff8, A:24 F:00 B:ff C:00 D:90 E:00: H:40 L:68, 0x6f LD L,A
+PC:251a SP:fff8, A:24 F:00 B:ff C:00 D:90 E:00: H:40 L:24, 0x2a LD A,(HLI)
+PC:251b SP:fff8, A:44 F:00 B:ff C:00 D:90 E:00: H:40 L:25, 0x66 LD H,(HL)
+PC:251c SP:fff8, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:25, 0x6f LD L,A
+PC:251d SP:fff8, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0xc9 RET
+PC:0000 SP:fffa, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0x31 LD SP,nn
+PC:0003 SP:fffe, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0xaf XOR A
+PC:0004 SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0x21 LD HL,nn
+PC:0007 SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:ff, 0x32 LD (HL-),A
+PC:0008 SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:fe, 0xcb7c BIT 7 H
+PC:000b SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:fe, 0xfb EI
+PC:000c SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:fe, 0x21 LD HL,nn
+PC:000f SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:ff L:26, 0x0e LD C,n
+PC:0011 SP:fffe, A:00 F:00 B:ff C:11 D:90 E:00: H:ff L:26, 0x3e LDA,n
+PC:0013 SP:fffe, A:80 F:00 B:ff C:11 D:90 E:00: H:ff L:26, 0x32 LD (HL-),A
+PC:0014 SP:fffe, A:80 F:00 B:ff C:11 D:90 E:00: H:ff L:25, 0xe2 LD (0xFF00+C),A
+PC:0015 SP:fffe, A:80 F:00 B:ff C:11 D:90 E:00: H:ff L:25, 0x0c INC C
+PC:0016 SP:fffe, A:80 F:00 B:ff C:12 D:90 E:00: H:ff L:25, 0x3e LDA,n
+PC:0018 SP:fffe, A:f3 F:00 B:ff C:12 D:90 E:00: H:ff L:25, 0xe2 LD (0xFF00+C),A
+PC:0019 SP:fffe, A:f3 F:00 B:ff C:12 D:90 E:00: H:ff L:25, 0x32 LD (HL-),A
+PC:001a SP:fffe, A:f3 F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x3e LDA,n
+PC:001c SP:fffe, A:77 F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x77 LD (HL),A
+PC:001d SP:fffe, A:77 F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x3e LDA,n
+PC:001f SP:fffe, A:fc F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0xe0 LD (0xFF00+n),A
+PC:0021 SP:fffe, A:fc F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x11 LD DE,nn
+PC:0024 SP:fffe, A:fc F:00 B:ff C:12 D:01 E:04: H:ff L:24, 0x21 LD HL,nn
+PC:0027 SP:fffe, A:fc F:00 B:ff C:12 D:01 E:04: H:80 L:10, 0x1a LD A,(DE)
+PC:0028 SP:fffe, A:ce F:00 B:ff C:12 D:01 E:04: H:80 L:10, 0xcd CALL nn
+PC:0095 SP:fffc, A:ce F:00 B:ff C:12 D:01 E:04: H:80 L:10, 0x4f LD C,A
+PC:0096 SP:fffc, A:ce F:00 B:ff C:ce D:01 E:04: H:80 L:10, 0x06 LD B,n
+PC:0098 SP:fffc, A:ce F:00 B:04 C:ce D:01 E:04: H:80 L:10, 0xc5 PUSH BC
+PC:0099 SP:fffa, A:ce F:00 B:04 C:ce D:01 E:04: H:80 L:10, 0xcb11 RL C
+PC:009c SP:fffa, A:ce F:00 B:04 C:9c D:01 E:04: H:80 L:10, 0xc1 POP BC
+PC:009d SP:fffc, A:ce F:00 B:00 C:00 D:01 E:04: H:80 L:10, 0xcb11 RL C
+PC:00a0 SP:fffc, A:ce F:00 B:00 C:00 D:01 E:04: H:80 L:10, 0x05 DEC B
+PC:00a1 SP:fffc, A:ce F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0x20 JR NZ,n
+PC:0198 SP:fffc, A:ce F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0xc3 JP nn
+PC:22bf SP:fffc, A:ce F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0x3e LDA,n
+PC:22c1 SP:fffc, A:06 F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0xea LD (nn),A
+PC:22c4 SP:fffc, A:06 F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0xea LD (nn),A
+PC:22c7 SP:fffc, A:06 F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0x11 LD DE,nn
+PC:22ca SP:fffc, A:06 F:00 B:ff C:00 D:90 E:00: H:80 L:10, 0x21 LD HL,nn
+PC:22cd SP:fffc, A:06 F:00 B:ff C:00 D:90 E:00: H:03 L:67, 0xcd CALL nn
+PC:2509 SP:fffa, A:06 F:00 B:ff C:00 D:90 E:00: H:03 L:67, 0xcd CALL nn
+PC:2517 SP:fff8, A:06 F:00 B:ff C:00 D:90 E:00: H:03 L:67, 0x2a LD A,(HLI)
+PC:2518 SP:fff8, A:24 F:00 B:ff C:00 D:90 E:00: H:03 L:68, 0x66 LD H,(HL)
+PC:2519 SP:fff8, A:24 F:00 B:ff C:00 D:90 E:00: H:40 L:68, 0x6f LD L,A
+PC:251a SP:fff8, A:24 F:00 B:ff C:00 D:90 E:00: H:40 L:24, 0x2a LD A,(HLI)
+PC:251b SP:fff8, A:44 F:00 B:ff C:00 D:90 E:00: H:40 L:25, 0x66 LD H,(HL)
+PC:251c SP:fff8, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:25, 0x6f LD L,A
+PC:251d SP:fff8, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0xc9 RET
+PC:0000 SP:fffa, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0x31 LD SP,nn
+PC:0003 SP:fffe, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0xaf XOR A
+PC:0004 SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0x21 LD HL,nn
+PC:0007 SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:ff, 0x32 LD (HL-),A
+PC:0008 SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:fe, 0xcb7c BIT 7 H
+PC:000b SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:fe, 0xfb EI
+PC:000c SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:fe, 0x21 LD HL,nn
+PC:000f SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:ff L:26, 0x0e LD C,n
+PC:0011 SP:fffe, A:00 F:00 B:ff C:11 D:90 E:00: H:ff L:26, 0x3e LDA,n
+PC:0013 SP:fffe, A:80 F:00 B:ff C:11 D:90 E:00: H:ff L:26, 0x32 LD (HL-),A
+PC:0014 SP:fffe, A:80 F:00 B:ff C:11 D:90 E:00: H:ff L:25, 0xe2 LD (0xFF00+C),A
+PC:0015 SP:fffe, A:80 F:00 B:ff C:11 D:90 E:00: H:ff L:25, 0x0c INC C
+PC:0016 SP:fffe, A:80 F:00 B:ff C:12 D:90 E:00: H:ff L:25, 0x3e LDA,n
+PC:0018 SP:fffe, A:f3 F:00 B:ff C:12 D:90 E:00: H:ff L:25, 0xe2 LD (0xFF00+C),A
+PC:0019 SP:fffe, A:f3 F:00 B:ff C:12 D:90 E:00: H:ff L:25, 0x32 LD (HL-),A
+PC:001a SP:fffe, A:f3 F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x3e LDA,n
+PC:001c SP:fffe, A:77 F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x77 LD (HL),A
+PC:001d SP:fffe, A:77 F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x3e LDA,n
+PC:001f SP:fffe, A:fc F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0xe0 LD (0xFF00+n),A
+PC:0021 SP:fffe, A:fc F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x11 LD DE,nn
+PC:0024 SP:fffe, A:fc F:00 B:ff C:12 D:01 E:04: H:ff L:24, 0x21 LD HL,nn
+PC:0027 SP:fffe, A:fc F:00 B:ff C:12 D:01 E:04: H:80 L:10, 0x1a LD A,(DE)
+PC:0028 SP:fffe, A:ce F:00 B:ff C:12 D:01 E:04: H:80 L:10, 0xcd CALL nn
+PC:0095 SP:fffc, A:ce F:00 B:ff C:12 D:01 E:04: H:80 L:10, 0x4f LD C,A
+PC:0096 SP:fffc, A:ce F:00 B:ff C:ce D:01 E:04: H:80 L:10, 0x06 LD B,n
+PC:0098 SP:fffc, A:ce F:00 B:04 C:ce D:01 E:04: H:80 L:10, 0xc5 PUSH BC
+PC:0099 SP:fffa, A:ce F:00 B:04 C:ce D:01 E:04: H:80 L:10, 0xcb11 RL C
+PC:009c SP:fffa, A:ce F:00 B:04 C:9c D:01 E:04: H:80 L:10, 0xc1 POP BC
+PC:009d SP:fffc, A:ce F:00 B:00 C:00 D:01 E:04: H:80 L:10, 0xcb11 RL C
+PC:00a0 SP:fffc, A:ce F:00 B:00 C:00 D:01 E:04: H:80 L:10, 0x05 DEC B
+PC:00a1 SP:fffc, A:ce F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0x20 JR NZ,n
+PC:0198 SP:fffc, A:ce F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0xc3 JP nn
+PC:22bf SP:fffc, A:ce F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0x3e LDA,n
+PC:22c1 SP:fffc, A:06 F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0xea LD (nn),A
+PC:22c4 SP:fffc, A:06 F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0xea LD (nn),A
+PC:22c7 SP:fffc, A:06 F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0x11 LD DE,nn
+PC:22ca SP:fffc, A:06 F:00 B:ff C:00 D:90 E:00: H:80 L:10, 0x21 LD HL,nn
+PC:22cd SP:fffc, A:06 F:00 B:ff C:00 D:90 E:00: H:03 L:67, 0xcd CALL nn
+PC:2509 SP:fffa, A:06 F:00 B:ff C:00 D:90 E:00: H:03 L:67, 0xcd CALL nn
+PC:2517 SP:fff8, A:06 F:00 B:ff C:00 D:90 E:00: H:03 L:67, 0x2a LD A,(HLI)
+PC:2518 SP:fff8, A:24 F:00 B:ff C:00 D:90 E:00: H:03 L:68, 0x66 LD H,(HL)
+PC:2519 SP:fff8, A:24 F:00 B:ff C:00 D:90 E:00: H:40 L:68, 0x6f LD L,A
+PC:251a SP:fff8, A:24 F:00 B:ff C:00 D:90 E:00: H:40 L:24, 0x2a LD A,(HLI)
+PC:251b SP:fff8, A:44 F:00 B:ff C:00 D:90 E:00: H:40 L:25, 0x66 LD H,(HL)
+PC:251c SP:fff8, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:25, 0x6f LD L,A
+PC:251d SP:fff8, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0xc9 RET
+PC:0000 SP:fffa, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0x31 LD SP,nn
+PC:0003 SP:fffe, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0xaf XOR A
+PC:0004 SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0x21 LD HL,nn
+PC:0007 SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:ff, 0x32 LD (HL-),A
+PC:0008 SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:fe, 0xcb7c BIT 7 H
+PC:000b SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:fe, 0xfb EI
+PC:000c SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:fe, 0x21 LD HL,nn
+PC:000f SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:ff L:26, 0x0e LD C,n
+PC:0011 SP:fffe, A:00 F:00 B:ff C:11 D:90 E:00: H:ff L:26, 0x3e LDA,n
+PC:0013 SP:fffe, A:80 F:00 B:ff C:11 D:90 E:00: H:ff L:26, 0x32 LD (HL-),A
+PC:0014 SP:fffe, A:80 F:00 B:ff C:11 D:90 E:00: H:ff L:25, 0xe2 LD (0xFF00+C),A
+PC:0015 SP:fffe, A:80 F:00 B:ff C:11 D:90 E:00: H:ff L:25, 0x0c INC C
+PC:0016 SP:fffe, A:80 F:00 B:ff C:12 D:90 E:00: H:ff L:25, 0x3e LDA,n
+PC:0018 SP:fffe, A:f3 F:00 B:ff C:12 D:90 E:00: H:ff L:25, 0xe2 LD (0xFF00+C),A
+PC:0019 SP:fffe, A:f3 F:00 B:ff C:12 D:90 E:00: H:ff L:25, 0x32 LD (HL-),A
+PC:001a SP:fffe, A:f3 F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x3e LDA,n
+PC:001c SP:fffe, A:77 F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x77 LD (HL),A
+PC:001d SP:fffe, A:77 F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x3e LDA,n
+PC:001f SP:fffe, A:fc F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0xe0 LD (0xFF00+n),A
+PC:0021 SP:fffe, A:fc F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x11 LD DE,nn
+PC:0024 SP:fffe, A:fc F:00 B:ff C:12 D:01 E:04: H:ff L:24, 0x21 LD HL,nn
+PC:0027 SP:fffe, A:fc F:00 B:ff C:12 D:01 E:04: H:80 L:10, 0x1a LD A,(DE)
+PC:0028 SP:fffe, A:ce F:00 B:ff C:12 D:01 E:04: H:80 L:10, 0xcd CALL nn
+PC:0095 SP:fffc, A:ce F:00 B:ff C:12 D:01 E:04: H:80 L:10, 0x4f LD C,A
+PC:0096 SP:fffc, A:ce F:00 B:ff C:ce D:01 E:04: H:80 L:10, 0x06 LD B,n
+PC:0098 SP:fffc, A:ce F:00 B:04 C:ce D:01 E:04: H:80 L:10, 0xc5 PUSH BC
+PC:0099 SP:fffa, A:ce F:00 B:04 C:ce D:01 E:04: H:80 L:10, 0xcb11 RL C
+PC:009c SP:fffa, A:ce F:00 B:04 C:9c D:01 E:04: H:80 L:10, 0xc1 POP BC
+PC:009d SP:fffc, A:ce F:00 B:00 C:00 D:01 E:04: H:80 L:10, 0xcb11 RL C
+PC:00a0 SP:fffc, A:ce F:00 B:00 C:00 D:01 E:04: H:80 L:10, 0x05 DEC B
+PC:00a1 SP:fffc, A:ce F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0x20 JR NZ,n
+PC:0198 SP:fffc, A:ce F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0xc3 JP nn
+PC:22bf SP:fffc, A:ce F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0x3e LDA,n
+PC:22c1 SP:fffc, A:06 F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0xea LD (nn),A
+PC:22c4 SP:fffc, A:06 F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0xea LD (nn),A
+PC:22c7 SP:fffc, A:06 F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0x11 LD DE,nn
+PC:22ca SP:fffc, A:06 F:00 B:ff C:00 D:90 E:00: H:80 L:10, 0x21 LD HL,nn
+PC:22cd SP:fffc, A:06 F:00 B:ff C:00 D:90 E:00: H:03 L:67, 0xcd CALL nn
+PC:2509 SP:fffa, A:06 F:00 B:ff C:00 D:90 E:00: H:03 L:67, 0xcd CALL nn
+PC:2517 SP:fff8, A:06 F:00 B:ff C:00 D:90 E:00: H:03 L:67, 0x2a LD A,(HLI)
+PC:2518 SP:fff8, A:24 F:00 B:ff C:00 D:90 E:00: H:03 L:68, 0x66 LD H,(HL)
+PC:2519 SP:fff8, A:24 F:00 B:ff C:00 D:90 E:00: H:40 L:68, 0x6f LD L,A
+PC:251a SP:fff8, A:24 F:00 B:ff C:00 D:90 E:00: H:40 L:24, 0x2a LD A,(HLI)
+PC:251b SP:fff8, A:44 F:00 B:ff C:00 D:90 E:00: H:40 L:25, 0x66 LD H,(HL)
+PC:251c SP:fff8, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:25, 0x6f LD L,A
+PC:251d SP:fff8, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0xc9 RET
+PC:0000 SP:fffa, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0x31 LD SP,nn
+PC:0003 SP:fffe, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0xaf XOR A
+PC:0004 SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0x21 LD HL,nn
+PC:0007 SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:ff, 0x32 LD (HL-),A
+PC:0008 SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:fe, 0xcb7c BIT 7 H
+PC:000b SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:fe, 0xfb EI
+PC:000c SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:fe, 0x21 LD HL,nn
+PC:000f SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:ff L:26, 0x0e LD C,n
+PC:0011 SP:fffe, A:00 F:00 B:ff C:11 D:90 E:00: H:ff L:26, 0x3e LDA,n
+PC:0013 SP:fffe, A:80 F:00 B:ff C:11 D:90 E:00: H:ff L:26, 0x32 LD (HL-),A
+PC:0014 SP:fffe, A:80 F:00 B:ff C:11 D:90 E:00: H:ff L:25, 0xe2 LD (0xFF00+C),A
+PC:0015 SP:fffe, A:80 F:00 B:ff C:11 D:90 E:00: H:ff L:25, 0x0c INC C
+PC:0016 SP:fffe, A:80 F:00 B:ff C:12 D:90 E:00: H:ff L:25, 0x3e LDA,n
+PC:0018 SP:fffe, A:f3 F:00 B:ff C:12 D:90 E:00: H:ff L:25, 0xe2 LD (0xFF00+C),A
+PC:0019 SP:fffe, A:f3 F:00 B:ff C:12 D:90 E:00: H:ff L:25, 0x32 LD (HL-),A
+PC:001a SP:fffe, A:f3 F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x3e LDA,n
+PC:001c SP:fffe, A:77 F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x77 LD (HL),A
+PC:001d SP:fffe, A:77 F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x3e LDA,n
+PC:001f SP:fffe, A:fc F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0xe0 LD (0xFF00+n),A
+PC:0021 SP:fffe, A:fc F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x11 LD DE,nn
+PC:0024 SP:fffe, A:fc F:00 B:ff C:12 D:01 E:04: H:ff L:24, 0x21 LD HL,nn
+PC:0027 SP:fffe, A:fc F:00 B:ff C:12 D:01 E:04: H:80 L:10, 0x1a LD A,(DE)
+PC:0028 SP:fffe, A:ce F:00 B:ff C:12 D:01 E:04: H:80 L:10, 0xcd CALL nn
+PC:0095 SP:fffc, A:ce F:00 B:ff C:12 D:01 E:04: H:80 L:10, 0x4f LD C,A
+PC:0096 SP:fffc, A:ce F:00 B:ff C:ce D:01 E:04: H:80 L:10, 0x06 LD B,n
+PC:0098 SP:fffc, A:ce F:00 B:04 C:ce D:01 E:04: H:80 L:10, 0xc5 PUSH BC
+PC:0099 SP:fffa, A:ce F:00 B:04 C:ce D:01 E:04: H:80 L:10, 0xcb11 RL C
+PC:009c SP:fffa, A:ce F:00 B:04 C:9c D:01 E:04: H:80 L:10, 0xc1 POP BC
+PC:009d SP:fffc, A:ce F:00 B:00 C:00 D:01 E:04: H:80 L:10, 0xcb11 RL C
+PC:00a0 SP:fffc, A:ce F:00 B:00 C:00 D:01 E:04: H:80 L:10, 0x05 DEC B
+PC:00a1 SP:fffc, A:ce F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0x20 JR NZ,n
+PC:0198 SP:fffc, A:ce F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0xc3 JP nn
+PC:22bf SP:fffc, A:ce F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0x3e LDA,n
+PC:22c1 SP:fffc, A:06 F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0xea LD (nn),A
+PC:22c4 SP:fffc, A:06 F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0xea LD (nn),A
+PC:22c7 SP:fffc, A:06 F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0x11 LD DE,nn
+PC:22ca SP:fffc, A:06 F:00 B:ff C:00 D:90 E:00: H:80 L:10, 0x21 LD HL,nn
+PC:22cd SP:fffc, A:06 F:00 B:ff C:00 D:90 E:00: H:03 L:67, 0xcd CALL nn
+PC:2509 SP:fffa, A:06 F:00 B:ff C:00 D:90 E:00: H:03 L:67, 0xcd CALL nn
+PC:2517 SP:fff8, A:06 F:00 B:ff C:00 D:90 E:00: H:03 L:67, 0x2a LD A,(HLI)
+PC:2518 SP:fff8, A:24 F:00 B:ff C:00 D:90 E:00: H:03 L:68, 0x66 LD H,(HL)
+PC:2519 SP:fff8, A:24 F:00 B:ff C:00 D:90 E:00: H:40 L:68, 0x6f LD L,A
+PC:251a SP:fff8, A:24 F:00 B:ff C:00 D:90 E:00: H:40 L:24, 0x2a LD A,(HLI)
+PC:251b SP:fff8, A:44 F:00 B:ff C:00 D:90 E:00: H:40 L:25, 0x66 LD H,(HL)
+PC:251c SP:fff8, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:25, 0x6f LD L,A
+PC:251d SP:fff8, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0xc9 RET
+PC:0000 SP:fffa, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0x31 LD SP,nn
+PC:0003 SP:fffe, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0xaf XOR A
+PC:0004 SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0x21 LD HL,nn
+PC:0007 SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:ff, 0x32 LD (HL-),A
+PC:0008 SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:fe, 0xcb7c BIT 7 H
+PC:000b SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:fe, 0xfb EI
+PC:000c SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:fe, 0x21 LD HL,nn
+PC:000f SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:ff L:26, 0x0e LD C,n
+PC:0011 SP:fffe, A:00 F:00 B:ff C:11 D:90 E:00: H:ff L:26, 0x3e LDA,n
+PC:0013 SP:fffe, A:80 F:00 B:ff C:11 D:90 E:00: H:ff L:26, 0x32 LD (HL-),A
+PC:0014 SP:fffe, A:80 F:00 B:ff C:11 D:90 E:00: H:ff L:25, 0xe2 LD (0xFF00+C),A
+PC:0015 SP:fffe, A:80 F:00 B:ff C:11 D:90 E:00: H:ff L:25, 0x0c INC C
+PC:0016 SP:fffe, A:80 F:00 B:ff C:12 D:90 E:00: H:ff L:25, 0x3e LDA,n
+PC:0018 SP:fffe, A:f3 F:00 B:ff C:12 D:90 E:00: H:ff L:25, 0xe2 LD (0xFF00+C),A
+PC:0019 SP:fffe, A:f3 F:00 B:ff C:12 D:90 E:00: H:ff L:25, 0x32 LD (HL-),A
+PC:001a SP:fffe, A:f3 F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x3e LDA,n
+PC:001c SP:fffe, A:77 F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x77 LD (HL),A
+PC:001d SP:fffe, A:77 F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x3e LDA,n
+PC:001f SP:fffe, A:fc F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0xe0 LD (0xFF00+n),A
+PC:0021 SP:fffe, A:fc F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x11 LD DE,nn
+PC:0024 SP:fffe, A:fc F:00 B:ff C:12 D:01 E:04: H:ff L:24, 0x21 LD HL,nn
+PC:0027 SP:fffe, A:fc F:00 B:ff C:12 D:01 E:04: H:80 L:10, 0x1a LD A,(DE)
+PC:0028 SP:fffe, A:ce F:00 B:ff C:12 D:01 E:04: H:80 L:10, 0xcd CALL nn
+PC:0095 SP:fffc, A:ce F:00 B:ff C:12 D:01 E:04: H:80 L:10, 0x4f LD C,A
+PC:0096 SP:fffc, A:ce F:00 B:ff C:ce D:01 E:04: H:80 L:10, 0x06 LD B,n
+PC:0098 SP:fffc, A:ce F:00 B:04 C:ce D:01 E:04: H:80 L:10, 0xc5 PUSH BC
+PC:0099 SP:fffa, A:ce F:00 B:04 C:ce D:01 E:04: H:80 L:10, 0xcb11 RL C
+PC:009c SP:fffa, A:ce F:00 B:04 C:9c D:01 E:04: H:80 L:10, 0xc1 POP BC
+PC:009d SP:fffc, A:ce F:00 B:00 C:00 D:01 E:04: H:80 L:10, 0xcb11 RL C
+PC:00a0 SP:fffc, A:ce F:00 B:00 C:00 D:01 E:04: H:80 L:10, 0x05 DEC B
+PC:00a1 SP:fffc, A:ce F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0x20 JR NZ,n
+PC:0198 SP:fffc, A:ce F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0xc3 JP nn
+PC:22bf SP:fffc, A:ce F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0x3e LDA,n
+PC:22c1 SP:fffc, A:06 F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0xea LD (nn),A
+PC:22c4 SP:fffc, A:06 F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0xea LD (nn),A
+PC:22c7 SP:fffc, A:06 F:00 B:ff C:00 D:01 E:04: H:80 L:10, 0x11 LD DE,nn
+PC:22ca SP:fffc, A:06 F:00 B:ff C:00 D:90 E:00: H:80 L:10, 0x21 LD HL,nn
+PC:22cd SP:fffc, A:06 F:00 B:ff C:00 D:90 E:00: H:03 L:67, 0xcd CALL nn
+PC:2509 SP:fffa, A:06 F:00 B:ff C:00 D:90 E:00: H:03 L:67, 0xcd CALL nn
+PC:2517 SP:fff8, A:06 F:00 B:ff C:00 D:90 E:00: H:03 L:67, 0x2a LD A,(HLI)
+PC:2518 SP:fff8, A:24 F:00 B:ff C:00 D:90 E:00: H:03 L:68, 0x66 LD H,(HL)
+PC:2519 SP:fff8, A:24 F:00 B:ff C:00 D:90 E:00: H:40 L:68, 0x6f LD L,A
+PC:251a SP:fff8, A:24 F:00 B:ff C:00 D:90 E:00: H:40 L:24, 0x2a LD A,(HLI)
+PC:251b SP:fff8, A:44 F:00 B:ff C:00 D:90 E:00: H:40 L:25, 0x66 LD H,(HL)
+PC:251c SP:fff8, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:25, 0x6f LD L,A
+PC:251d SP:fff8, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0xc9 RET
+PC:0000 SP:fffa, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0x31 LD SP,nn
+PC:0003 SP:fffe, A:44 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0xaf XOR A
+PC:0004 SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:00 L:44, 0x21 LD HL,nn
+PC:0007 SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:ff, 0x32 LD (HL-),A
+PC:0008 SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:fe, 0xcb7c BIT 7 H
+PC:000b SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:fe, 0xfb EI
+PC:000c SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:9f L:fe, 0x21 LD HL,nn
+PC:000f SP:fffe, A:00 F:00 B:ff C:00 D:90 E:00: H:ff L:26, 0x0e LD C,n
+PC:0011 SP:fffe, A:00 F:00 B:ff C:11 D:90 E:00: H:ff L:26, 0x3e LDA,n
+PC:0013 SP:fffe, A:80 F:00 B:ff C:11 D:90 E:00: H:ff L:26, 0x32 LD (HL-),A
+PC:0014 SP:fffe, A:80 F:00 B:ff C:11 D:90 E:00: H:ff L:25, 0xe2 LD (0xFF00+C),A
+PC:0015 SP:fffe, A:80 F:00 B:ff C:11 D:90 E:00: H:ff L:25, 0x0c INC C
+PC:0016 SP:fffe, A:80 F:00 B:ff C:12 D:90 E:00: H:ff L:25, 0x3e LDA,n
+PC:0018 SP:fffe, A:f3 F:00 B:ff C:12 D:90 E:00: H:ff L:25, 0xe2 LD (0xFF00+C),A
+PC:0019 SP:fffe, A:f3 F:00 B:ff C:12 D:90 E:00: H:ff L:25, 0x32 LD (HL-),A
+PC:001a SP:fffe, A:f3 F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x3e LDA,n
+PC:001c SP:fffe, A:77 F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x77 LD (HL),A
+PC:001d SP:fffe, A:77 F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x3e LDA,n
+PC:001f SP:fffe, A:fc F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0xe0 LD (0xFF00+n),A
+PC:0021 SP:fffe, A:fc F:00 B:ff C:12 D:90 E:00: H:ff L:24, 0x11 LD DE,nn
+PC:0024 SP:fffe, A:fc F:00 B:ff C:12 D:01 E:04: H:ff L:24, 0x21 LD HL,nn
+PC:0027 SP:fffe, A:fc F:00 B:ff C:12 D:01 E:04: H:80 L:10, 0x1a LD A,(DE)
+PC:0028 SP:fffe, A:ce F:00 B:ff C:12 D:01 E:04: H:80 L:10, 0xcd CALL nn
+PC:0095 SP:fffc, A:ce F:00 B:ff C:12 D:01 E:04: H:80 L:10, 0x4f LD C,A
+PC:0096 SP:fffc, A:ce F:00 B:ff C:ce D:01 E:04: H:80 L:10, 0x06 LD B,n
+PC:0098 SP:fffc, A:ce F:00 B:04 C:ce D:01 E:04: H:80 L:10, 0xc5 PUSH BC
+PC:0099 SP:fffa, A:ce F:00 B:04 C:ce D:01 E:04: H:80 L:10, 0xcb11 RL C

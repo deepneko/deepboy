@@ -51,6 +51,7 @@ pub struct CPU {
     pub halt: bool,
     pub ime: bool,
     pub ei_delay: bool,
+    pub debug: bool,
 }
 
 impl CPU {
@@ -63,20 +64,27 @@ impl CPU {
             halt: false,
             ime: false,
             ei_delay: false,
+            debug: false,
         }
+    }
+
+    pub fn set_debug(&mut self) {
+        self.debug = true;
     }
 
     pub fn run(&mut self) -> u32 {
         let mut cycles = self.handle_interrupt();
         if cycles > 0 {
-            println!("cpu::run handle_interrupt");
+            if self.debug { println!("cpu::run handle_interrupt") };
             return cycles;
         } else if self.halt {
-            println!("cpu::run halt");
+            if self.debug { println!("cpu::run halt") };
             return 16;
         }
 
-        self.debug_out();
+        if self.debug {
+            self.debug_out();
+        }
 
         self.opcode = self.imm8();
         match self.opcode {
@@ -1593,7 +1601,7 @@ impl CPU {
         if opcode == 0xCB {
             let cb_opcode = self.read8(self.regs.pc + 1);
             str = cb_inst_name[cb_opcode as usize];
-            str_opcode |= u16::from(cb_opcode) << 8;
+            str_opcode = u16::from(opcode) << 8 | u16::from(cb_opcode);
         }
 
         println!("PC:{:>04x} SP:{:>04x}, A:{:>02x} F:{:>02x} B:{:>02x} C:{:>02x} D:{:>02x} E:{:>02x}: H:{:>02x} L:{:>02x}, 0x{:>02x} {}",

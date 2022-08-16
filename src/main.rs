@@ -14,6 +14,8 @@ fn main() {
 
     let output = Output::new();
     let mut gameboy = Gameboy::new(output);
+    gameboy.cpu.set_debug();
+
     gameboy.load_rom(rom_name);
     // gameboy.load_bootstrap(bootstrap_name);
 
