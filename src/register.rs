@@ -132,7 +132,7 @@ impl Register {
 
     pub fn set_z(&mut self, b: bool) {
         if b {
-          self.f &= 0b11110000;
+          self.f |= 0b10000000;
         } else {
           self.f &= 0b01110000;
         }
@@ -140,7 +140,7 @@ impl Register {
     
     pub fn set_n(&mut self, b: bool) {
         if b {
-          self.f &= 0b11110000;
+          self.f |= 0b01000000;
         } else {
           self.f &= 0b10110000;
         }
@@ -148,7 +148,7 @@ impl Register {
 
     pub fn set_h(&mut self, b: bool) {
         if b {
-          self.f &= 0b11110000;
+          self.f |= 0b00100000;
         } else {
           self.f &= 0b11010000;
         }
@@ -156,7 +156,7 @@ impl Register {
 
     pub fn set_c(&mut self, b: bool) {
         if b {
-          self.f &= 0b11110000;
+          self.f |= 0b00010000;
         } else {
           self.f &= 0b11100000;
         }
