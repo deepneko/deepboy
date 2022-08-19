@@ -674,8 +674,8 @@ impl CPU {
 
             // LD A,(A8)
             0xF0 => {
-                let dat = 0xFF00 | u16::from(self.imm8());
-                self.regs.a = self.read8(dat);
+                let addr = 0xFF00 | u16::from(self.imm8());
+                self.regs.a = self.read8(addr);
             }
             
             // LD A,(C)
@@ -1204,6 +1204,8 @@ impl CPU {
     }
 
     pub fn read16(&mut self, addr: u16) -> u16 {
+        //println!("read8 addr:{:x}, dat:{:x}", addr, self.read8(addr));
+        //println!("read8 addr:{:x}, dat:{:x}", addr+1, self.read8(addr+1));
         u16::from(self.read8(addr)) | u16::from(self.read8(addr + 1)) << 8
     }
 
@@ -1224,6 +1226,8 @@ impl CPU {
     }
 
     pub fn write16(&mut self, addr: u16, dat: u16) {
+        //println!("write8 addr:{:x}, dat:{:x}", addr, dat&0xff);
+        //println!("write8 addr:{:x}, dat:{:x}", addr+1, dat>>8);
         self.write8(addr, (dat & 0xFF) as u8);
         self.write8(addr+1, (dat >> 8) as u8);
     }

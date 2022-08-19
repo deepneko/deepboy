@@ -89,7 +89,7 @@ impl Rom {
     pub fn write(&mut self, addr: u16, dat: u8) {
         let uaddr: usize = addr as usize;
         match uaddr {
-            0x0000..=0x00FF => DMG[uaddr] = dat,
+            0x0000..=0x00FF => {},
             0x0100..=0x7FFF => self.ram[uaddr] = dat,
             _ => {},
         }
