@@ -35,7 +35,7 @@ impl MMC {
     pub fn read(&mut self, addr: u16) -> u8 {
         match addr {
             0x0000..=0x7FFF => self.rom.read(addr),
-            0x8000..=0x9FFF => self.ppu.read(addr),
+            0x8000..=0x9FFF => self.ppu.read(addr - 0x8000),
             0xA000..=0xBFFF => self.rom.read(addr),
             0xC000..=0xCFFF => self.wram[(addr as usize) - 0xC000],
             0xD000..=0xDFFF => self.wram[(addr as usize) - 0xD000 + (0x1000 * self.bank)],
@@ -51,7 +51,7 @@ impl MMC {
     pub fn write(&mut self, addr: u16, dat: u8) {
         match addr {
             0x0000..=0x7FFF => self.rom.write(addr, dat),
-            0x8000..=0x9FFF => self.ppu.write(addr, dat),
+            0x8000..=0x9FFF => self.ppu.write(addr - 0x8000, dat),
             0xa000..=0xBFFF => self.rom.write(addr, dat),
             0xC000..=0xCFFF => self.wram[(addr as usize) - 0xC000] = dat,
             0xD000..=0xDFFF => self.wram[(addr as usize) - 0xD000 + (0x1000 * self.bank)] = dat,

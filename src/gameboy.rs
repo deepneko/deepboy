@@ -37,7 +37,10 @@ impl Gameboy {
     }
 
     pub fn exec_frame(&mut self) {
-        self.elapsed_cycles += self.cpu.run();
+        let cycles = self.cpu.run();
+        self.elapsed_cycles += cycles;
+        self.mmc.borrow_mut().ppu.run(cycles);
+
         self.output.write_screen();
     }
 }
