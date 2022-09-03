@@ -1,3 +1,27 @@
+pub struct ByteRegister {
+    pub data: u8,
+}
+
+impl ByteRegister {
+    pub fn new() -> Self {
+        ByteRegister {
+            data: 0,
+        }
+    }
+
+    pub fn get_bit(&self, bit: u8) -> bool {
+        (self.data >> bit) != 0
+    }
+
+    pub fn set_bit(&mut self, bit: u8, b: bool) {
+        if b {
+            self.data |= 0x1 << bit;
+        } else {
+            self.data &= !(0x1 << bit);
+        }
+    }
+}
+
 pub struct Register {
     pub a: u8,
     pub f: u8,
@@ -156,7 +180,7 @@ impl Register {
 
     pub fn set_c(&mut self, b: bool) {
         if b {
-          self.f |= 0b00010000;
+          self.f &= 0b00010000;
         } else {
           self.f &= 0b11100000;
         }

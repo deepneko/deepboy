@@ -1,3 +1,7 @@
+use std::{cell::RefCell, rc::Rc};
+
+use crate::register::ByteRegister;
+
 pub enum VideoMode {
     ACCESS_OAM,
     ACCESS_VRAM,
@@ -13,58 +17,11 @@ pub const CLOCKS_PER_VBLANK: u32 = 4560;
 pub const SCANLINE_PER_FRAME: u32 = 144;
 pub const CLOCKS_PER_FRAME: u32 = (CLOCKS_PER_SCANLINE * SCANLINE_PER_FRAME) + CLOCKS_PER_VBLANK;
 
-pub struct LCDControl {
-    lcd_control: u8,
-}
-
-impl LCDControl {
-    pub fn new() -> Self {
-        LCDControl {
-            lcd_control: 0,
-        }
-    }
-
-    pub fn get_bit(&self, bit: u8) -> bool {
-        (self.lcd_control >> bit) != 0
-    }
-
-    pub fn set_bit(&mut self, bit: u8, b: bool) {
-        if b {
-            self.lcd_control |= 0x1 << bit;
-        } else {
-            self.lcd_control &= !(0x1 << bit);
-        }
-    }
-}
-
-pub struct LCDStatus {
-    lcd_status: u8,
-}
-
-impl LCDStatus {
-    pub fn new() -> Self {
-        LCDStatus {
-            lcd_status: 0,
-        }
-    }
-
-    pub fn get_bit(&self, bit: u8) -> bool {
-        (self.lcd_status >> bit) != 0
-    }
-
-    pub fn set_bit(&mut self, bit: u8, b: bool) {
-        if b {
-            self.lcd_status |= 0x1 << bit;
-        } else {
-            self.lcd_status &= !(0x1 << bit);
-        }
-    }
-}
-
 pub struct PPU {
     vram: [u8; 0x4000],
-    lcd_control: LCDControl,
-    lcd_status: LCDStatus,
+    int_flag: Rc<RefCell<ByteRegister>>,
+    lcd_control: ByteRegister,
+    lcd_status: ByteRegister,
     scroll_x: u8,
     scroll_y: u8,
     line: u8,
@@ -80,11 +37,12 @@ pub struct PPU {
 }
 
 impl PPU {
-    pub fn new() -> Self {
+    pub fn new(int_flag: Rc<RefCell<ByteRegister>>) -> Self {
         PPU {
             vram: [0; 0x4000],
-            lcd_control: LCDControl::new(),
-            lcd_status: LCDStatus::new(),
+            int_flag: int_flag,
+            lcd_control: ByteRegister::new(),
+            lcd_status: ByteRegister::new(),
             scroll_x: 0,
             scroll_y: 0,
             line: 0,
@@ -110,6 +68,17 @@ impl PPU {
                     self.lcd_status.set_bit(1, true);
                     self.lcd_status.set_bit(0, true);
                     self.mode = VideoMode::ACCESS_VRAM;
+                }
+            }
+
+            VideoMode::ACCESS_VRAM => {
+                if self.cycles >= CLOCKS_PER_SCANLINE_VRAM {
+                    self.cycles %= CLOCKS_PER_SCANLINE_VRAM;
+                    self.mode = VideoMode::HBLANK;
+
+                    if self.lcd_status.get_bit(3) {
+                        self.int_flag.borrow_mut().set_bit(1, true);
+                    }
                 }
             }
 
