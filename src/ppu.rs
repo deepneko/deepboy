@@ -79,16 +79,49 @@ impl PPU {
                     if self.lcd_status.get_bit(3) {
                         self.int_flag.borrow_mut().set_bit(1, true);
                     }
+
+                    let ly_coincidence = self.ly_compare == self.line;
+                    if self.lcd_status.get_bit(6) && ly_coincidence {
+                        self.int_flag.borrow_mut().set_bit(1, true);
+                    }
+
+                    self.lcd_status.set_bit(2, ly_coincidence);
+                    self.lcd_status.set_bit(1, false);
+                    self.lcd_status.set_bit(0, false);
                 }
             }
 
-            VideoMode::ACCESS_VRAM => {
-            }
-
             VideoMode::HBLANK => {
+                if self.cycles >= CLOCKS_PER_HBLANK {
+                    self.write_scanline();
+                    self.line += 1;
+
+                    self.cycles %= CLOCKS_PER_HBLANK;
+
+                    if self.line == 144 {
+                        self.mode = VideoMode::VBLANK;
+                        self.lcd_status.set_bit(1, false);
+                        self.lcd_status.set_bit(0, true);
+                        self.int_flag.borrow_mut().set_bit(0, true);
+                    } else {
+                        self.lcd_status.set_bit(1, true);
+                        self.lcd_status.set_bit(0, false);
+                        self.mode = VideoMode::ACCESS_OAM;
+                    }
+                }
             }
 
             VideoMode::VBLANK => {
+                if self.cycles >= CLOCKS_PER_VBLANK {
+                    self.line += 1;
+
+                    self.cycles %= CLOCKS_PER_VBLANK;
+
+                    if self.line == 154 {
+                        self.wirte_sprites();
+
+                    }
+                }
             }
         }
     }
@@ -101,7 +134,7 @@ impl PPU {
         self.vram[addr as usize] = dat;
     }
 
-    pub fn write_scanline(&mut self, line: u8) {
+    pub fn write_scanline(&mut self) {
 
     }
 
