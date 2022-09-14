@@ -9,8 +9,8 @@ impl ByteRegister {
         }
     }
 
-    pub fn get_bit(&self, bit: u8) -> bool {
-        (self.data >> bit) != 0
+    pub fn get_bit(&self, bit: u8) -> u8 {
+        (self.data >> bit) & 1
     }
 
     pub fn set_bit(&mut self, bit: u8, b: bool) {
@@ -19,6 +19,10 @@ impl ByteRegister {
         } else {
             self.data &= !(0x1 << bit);
         }
+    }
+
+    pub fn check_bit(&self, bit: u8) -> bool {
+        (self.data >> bit) != 0
     }
 }
 

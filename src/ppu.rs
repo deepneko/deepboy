@@ -9,6 +9,9 @@ pub enum VideoMode {
     VBLANK,
 }
 
+pub const GAMEBOY_WIDTH: u32 = 160;
+pub const GAMEBOY_HEIGHT: u32 = 144;
+pub const NUM_SPRITES: u32 = 40;
 pub const CLOCKS_PER_HBLANK: u32 = 204;
 pub const CLOCKS_PER_SCANLINE_OAM: u32 = 80;
 pub const CLOCKS_PER_SCANLINE_VRAM: u32 = 172;
@@ -76,12 +79,12 @@ impl PPU {
                     self.cycles %= CLOCKS_PER_SCANLINE_VRAM;
                     self.mode = VideoMode::HBLANK;
 
-                    if self.lcd_status.get_bit(3) {
+                    if self.lcd_status.check_bit(3) {
                         self.int_flag.borrow_mut().set_bit(1, true);
                     }
 
                     let ly_coincidence = self.ly_compare == self.line;
-                    if self.lcd_status.get_bit(6) && ly_coincidence {
+                    if self.lcd_status.check_bit(6) && ly_coincidence {
                         self.int_flag.borrow_mut().set_bit(1, true);
                     }
 
@@ -93,7 +96,7 @@ impl PPU {
 
             VideoMode::HBLANK => {
                 if self.cycles >= CLOCKS_PER_HBLANK {
-                    self.write_scanline();
+                    self.render_scanline();
                     self.line += 1;
 
                     self.cycles %= CLOCKS_PER_HBLANK;
@@ -118,13 +121,21 @@ impl PPU {
                     self.cycles %= CLOCKS_PER_VBLANK;
 
                     if self.line == 154 {
-                        self.wirte_sprites();
-
+                        self.render_sprites();
                     }
                 }
             }
         }
     }
+
+    pub fn lcd_enabled(&self) -> bool { self.lcd_control.check_bit(7) }
+    pub fn window_tile_map(&self) -> bool { self.lcd_control.check_bit(6) }
+    pub fn window_enabled(&self) -> bool { self.lcd_control.check_bit(5) }
+    pub fn bg_window_tile_data(&self) -> bool { self.lcd_control.check_bit(4) }
+    pub fn bg_tile_map(&self) -> bool { self.lcd_control.check_bit(3) }
+    pub fn sprite_size(&self) -> bool { self.lcd_control.check_bit(2) }
+    pub fn sprite_enabled(&self) -> bool { self.lcd_control.check_bit(1) }
+    pub fn bg_enabled(&self) -> bool { self.lcd_control.check_bit(0) }
 
     pub fn read(&self, addr: u16) -> u8 {
         self.vram[addr as usize]
@@ -134,11 +145,38 @@ impl PPU {
         self.vram[addr as usize] = dat;
     }
 
-    pub fn write_scanline(&mut self) {
+    pub fn render_scanline(&mut self) {
+        if !self.lcd_enabled() {
+            return;
+        }
+
+        if self.bg_enabled() {
+            self.draw_bg();
+        }
+
+        if self.window_enabled() {
+            self.draw_window();
+        }
+    }
+
+    pub fn render_sprites(&mut self) {
+        if !self.sprite_enabled() {
+            return;
+        }
+
+        for n in 0..40 {
+            self.draw_sprite(n);
+        }
+    }
+
+    pub fn draw_bg(&mut self) {
+    }
+
+    pub fn draw_window(&mut self) {
 
     }
 
-    pub fn wirte_sprites(&mut self) {
-        
+    pub fn draw_sprite(&mut self, n: u8) {
+
     }
 }
