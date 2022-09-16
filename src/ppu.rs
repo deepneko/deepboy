@@ -1,24 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
-
+use crate::defs::{*, self};
 use crate::register::ByteRegister;
-
-pub enum VideoMode {
-    ACCESS_OAM,
-    ACCESS_VRAM,
-    HBLANK,
-    VBLANK,
-}
-
-pub const GAMEBOY_WIDTH: u32 = 160;
-pub const GAMEBOY_HEIGHT: u32 = 144;
-pub const NUM_SPRITES: u32 = 40;
-pub const CLOCKS_PER_HBLANK: u32 = 204;
-pub const CLOCKS_PER_SCANLINE_OAM: u32 = 80;
-pub const CLOCKS_PER_SCANLINE_VRAM: u32 = 172;
-pub const CLOCKS_PER_SCANLINE: u32 = 356;
-pub const CLOCKS_PER_VBLANK: u32 = 4560;
-pub const SCANLINE_PER_FRAME: u32 = 144;
-pub const CLOCKS_PER_FRAME: u32 = (CLOCKS_PER_SCANLINE * SCANLINE_PER_FRAME) + CLOCKS_PER_VBLANK;
 
 pub struct PPU {
     vram: [u8; 0x4000],
@@ -31,7 +13,7 @@ pub struct PPU {
     ly_compare: u8,
     window_x: u8,
     window_y: u8,
-    bg_palette: u8,
+    bg_palette: ByteRegister,
     sprite_palette_0: u8,
     sprite_palette_1: u8,
     dma_transfer: u8,
@@ -52,7 +34,7 @@ impl PPU {
             ly_compare: 0,
             window_x: 0,
             window_y: 0,
-            bg_palette: 0,
+            bg_palette: ByteRegister::new(),
             sprite_palette_0: 0,
             sprite_palette_1: 0,
             dma_transfer: 0,
@@ -170,6 +152,7 @@ impl PPU {
     }
 
     pub fn draw_bg(&mut self) {
+        let palette = self.load_palette();
     }
 
     pub fn draw_window(&mut self) {
@@ -178,5 +161,29 @@ impl PPU {
 
     pub fn draw_sprite(&mut self, n: u8) {
 
+    }
+
+    pub fn load_palette(&self) -> Palette {
+        let color0 = self.bg_palette.get_bit(1) << 1 | self.bg_palette.get_bit(0); 
+        let color1 = self.bg_palette.get_bit(3) << 1 | self.bg_palette.get_bit(2); 
+        let color2 = self.bg_palette.get_bit(5) << 1 | self.bg_palette.get_bit(4); 
+        let color3 = self.bg_palette.get_bit(7) << 1 | self.bg_palette.get_bit(6); 
+
+        return Palette::new(
+            self.convert_color(color0),
+            self.convert_color(color1),
+            self.convert_color(color2),
+            self.convert_color(color3)
+        );
+    }
+
+    pub fn convert_color(&self, color: u8) -> Color {
+        match color {
+            0 => return Color::White,
+            1 => return Color::LightGray,
+            2 => return Color::DarkGray,
+            3 => return Color::Gray,
+            _ => panic!("Undefined color."),
+        };
     }
 }

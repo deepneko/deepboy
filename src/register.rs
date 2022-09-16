@@ -9,6 +9,14 @@ impl ByteRegister {
         }
     }
 
+    pub fn get(&self) -> u8 {
+        self.data
+    }
+
+    pub fn set(&mut self, dat: u8) {
+        self.data = dat;
+    }
+
     pub fn get_bit(&self, bit: u8) -> u8 {
         (self.data >> bit) & 1
     }
