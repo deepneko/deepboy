@@ -3,6 +3,7 @@ use crate::defs::{*, self};
 use crate::register::ByteRegister;
 
 pub struct PPU {
+    buffer: [[[u8; 3]; GAMEBOY_WIDTH as usize]; GAMEBOY_HEIGHT as usize],
     vram: [u8; 0x4000],
     int_flag: Rc<RefCell<ByteRegister>>,
     lcd_control: ByteRegister,
@@ -24,6 +25,7 @@ pub struct PPU {
 impl PPU {
     pub fn new(int_flag: Rc<RefCell<ByteRegister>>) -> Self {
         PPU {
+            buffer: [[[0xff; 3]; GAMEBOY_WIDTH as usize]; GAMEBOY_HEIGHT as usize],
             vram: [0; 0x4000],
             int_flag: int_flag,
             lcd_control: ByteRegister::new(),
@@ -127,6 +129,10 @@ impl PPU {
         self.vram[addr as usize] = dat;
     }
 
+    pub fn get_vram(&self, addr: u16) -> u8 {
+        self.vram[addr as usize - 0x8000]
+    }
+
     pub fn render_scanline(&mut self) {
         if !self.lcd_enabled() {
             return;
@@ -152,7 +158,61 @@ impl PPU {
     }
 
     pub fn draw_bg(&mut self) {
-        let palette = self.load_palette();
+        let palette = self.load_palette(self.bg_palette);
+        let mut tile_set_addr: u16 = 0;
+        let mut tile_map_addr: u16 = 0;
+
+        if self.bg_window_tile_data() {
+            tile_set_addr = 0x8000;
+        } else {
+            tile_map_addr = 0x8800;
+        }
+
+        if !self.bg_tile_map() {
+            tile_map_addr = 0x9800;
+        } else {
+            tile_map_addr = 0x9C00;
+        }
+
+        let screen_x: u8 = 0;
+        let screen_y: u8 = self.line;
+
+        for screen_x in 0..GAMEBOY_WIDTH {
+            let scrolled_x = screen_x + self.scroll_x;
+            let scrolled_y = screen_y + self.scroll_y;
+
+            let bg_map_x = scrolled_x % BG_MAP_SIZE;
+            let bg_map_y = scrolled_y % BG_MAP_SIZE;
+
+            let tile_x = bg_map_x / TILE_WIDTH;
+            let tile_y = bg_map_y / TILE_HEIGHT;
+
+            let tile_pixel_x = bg_map_x % TILE_WIDTH;
+            let tile_pixel_y = bg_map_y % TILE_HEIGHT;
+
+            let tile_index = tile_y  * TILES_PER_LINE + tile_x;
+            let tile_id_addr: u16 = tile_map_addr + tile_index as u16;
+
+            let tile_id = self.get_vram(tile_id_addr);
+
+            let tile_offset = if self.bg_window_tile_data() {
+                i16::from(tile_id)
+            } else {
+                i16::from(tile_id as i8) + 128
+            } as u16
+              * 16;
+
+            let tile_line_offset = u16::from(tile_pixel_y) * 2;
+
+            let tile_line_addr = tile_set_addr + tile_offset + tile_line_offset;
+
+            let pixel1 = self.get_vram(tile_line_addr);
+            let pixel2 = self.get_vram(tile_line_addr + 1);
+
+            let pixel_color = (pixel2 << (7 - tile_pixel_x)) << 1 | (pixel1 << (7 - tile_pixel_x));
+
+            self.buffer[screen_y as usize][screen_x as usize] = [pixel_color, pixel_color, pixel_color];
+        }
     }
 
     pub fn draw_window(&mut self) {
@@ -163,18 +223,18 @@ impl PPU {
 
     }
 
-    pub fn load_palette(&self) -> Palette {
-        let color0 = self.bg_palette.get_bit(1) << 1 | self.bg_palette.get_bit(0); 
-        let color1 = self.bg_palette.get_bit(3) << 1 | self.bg_palette.get_bit(2); 
-        let color2 = self.bg_palette.get_bit(5) << 1 | self.bg_palette.get_bit(4); 
-        let color3 = self.bg_palette.get_bit(7) << 1 | self.bg_palette.get_bit(6); 
+    pub fn load_palette(&self, palette_reg: ByteRegister) -> [Color; 4] {
+        let color0 = palette_reg.get_bit(1) << 1 | palette_reg.get_bit(0); 
+        let color1 = palette_reg.get_bit(3) << 1 | palette_reg.get_bit(2); 
+        let color2 = palette_reg.get_bit(5) << 1 | palette_reg.get_bit(4); 
+        let color3 = palette_reg.get_bit(7) << 1 | palette_reg.get_bit(6); 
 
-        return Palette::new(
+        return [ 
             self.convert_color(color0),
             self.convert_color(color1),
             self.convert_color(color2),
             self.convert_color(color3)
-        );
+        ];
     }
 
     pub fn convert_color(&self, color: u8) -> Color {

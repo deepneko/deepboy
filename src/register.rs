@@ -1,3 +1,4 @@
+#[derive (Clone, Copy, Debug)]
 pub struct ByteRegister {
     pub data: u8,
 }
