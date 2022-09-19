@@ -122,11 +122,17 @@ impl PPU {
     pub fn bg_enabled(&self) -> bool { self.lcd_control.check_bit(0) }
 
     pub fn read(&self, addr: u16) -> u8 {
-        self.vram[addr as usize]
+        match addr {
+            0x8000..=0x9FFF => self.vram[addr as usize - 0x8000],
+            _ => panic!("PPU: Unknown address."),
+        }
     }
 
     pub fn write(&mut self, addr: u16, dat: u8) {
-        self.vram[addr as usize] = dat;
+        match addr {
+            0x8000..=0x9FFF => self.vram[addr as usize - 0x8000] = dat,
+            _ => panic!("PPU: Unknown address."),
+        }
     }
 
     pub fn get_vram(&self, addr: u16) -> u8 {

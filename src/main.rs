@@ -19,7 +19,10 @@ fn main() {
     gameboy.load_rom(rom_name);
     // gameboy.load_bootstrap(bootstrap_name);
 
+    let mut count: u32 = 0;
     loop {
+        if count == 600000 { panic!("For debug.") }
+        count = count + 1;
         gameboy.exec_frame();
         //::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }

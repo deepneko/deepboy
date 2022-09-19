@@ -193,7 +193,7 @@ impl Register {
 
     pub fn set_c(&mut self, b: bool) {
         if b {
-          self.f &= 0b00010000;
+          self.f |= 0b00010000;
         } else {
           self.f &= 0b11100000;
         }
