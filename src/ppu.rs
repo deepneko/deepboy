@@ -5,6 +5,7 @@ use crate::register::ByteRegister;
 pub struct PPU {
     buffer: [[[u8; 3]; GAMEBOY_WIDTH as usize]; GAMEBOY_HEIGHT as usize],
     vram: [u8; 0x4000],
+    oamram: [u8; 0xa0],
     int_flag: Rc<RefCell<ByteRegister>>,
     lcd_control: ByteRegister,
     lcd_status: ByteRegister,
@@ -15,8 +16,8 @@ pub struct PPU {
     window_x: u8,
     window_y: u8,
     bg_palette: ByteRegister,
-    sprite_palette_0: u8,
-    sprite_palette_1: u8,
+    sprite_palette0: ByteRegister,
+    sprite_palette1: ByteRegister,
     dma_transfer: u8,
     mode: VideoMode,
     cycles: u32,
@@ -27,6 +28,7 @@ impl PPU {
         PPU {
             buffer: [[[0xff; 3]; GAMEBOY_WIDTH as usize]; GAMEBOY_HEIGHT as usize],
             vram: [0; 0x4000],
+            oamram: [0; 0xa0],
             int_flag: int_flag,
             lcd_control: ByteRegister::new(),
             lcd_status: ByteRegister::new(),
@@ -37,8 +39,8 @@ impl PPU {
             window_x: 0,
             window_y: 0,
             bg_palette: ByteRegister::new(),
-            sprite_palette_0: 0,
-            sprite_palette_1: 0,
+            sprite_palette0: ByteRegister::new(),
+            sprite_palette1: ByteRegister::new(),
             dma_transfer: 0,
             mode: VideoMode::ACCESS_OAM,
             cycles: 0,
@@ -122,15 +124,41 @@ impl PPU {
     pub fn bg_enabled(&self) -> bool { self.lcd_control.check_bit(0) }
 
     pub fn read(&self, addr: u16) -> u8 {
+        // print!("ppu.read {:x}", addr);
         match addr {
             0x8000..=0x9FFF => self.vram[addr as usize - 0x8000],
+            0xFE00..=0xFE9F => self.oamram[addr as usize - 0xFE00],
+            0xFF40 => self.lcd_control.get(),
+            0xFF41 => self.lcd_status.get(),
+            0xFF42 => self.scroll_y,
+            0xFF43 => self.scroll_x,
+            0xFF44 => self.line,
+            0xFF45 => self.ly_compare,
+            0xFF47 => self.bg_palette.get(),
+            0xFF48 => self.sprite_palette0.get(),
+            0xFF49 => self.sprite_palette1.get(),
+            0xFF4A => self.window_y,
+            0xFF4B => self.window_x,
             _ => panic!("PPU: Unknown address."),
         }
     }
 
     pub fn write(&mut self, addr: u16, dat: u8) {
+        // print!("ppu.write {:x}", addr);
         match addr {
             0x8000..=0x9FFF => self.vram[addr as usize - 0x8000] = dat,
+            0xFE00..=0xFE9F => self.oamram[addr as usize - 0xFE00] = dat,
+            0xFF40 => self.lcd_control.set(dat),
+            0xFF41 => self.lcd_status.set(dat),
+            0xFF42 => self.scroll_y = dat,
+            0xFF43 => self.scroll_x = dat,
+            0xFF44 => self.line = dat,
+            0xFF45 => self.ly_compare = dat,
+            0xFF47 => self.bg_palette.set(dat),
+            0xFF48 => self.sprite_palette0.set(dat),
+            0xFF49 => self.sprite_palette1.set(dat),
+            0xFF4A => self.window_y = dat,
+            0xFF4B => self.window_x = dat,
             _ => panic!("PPU: Unknown address."),
         }
     }

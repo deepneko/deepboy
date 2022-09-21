@@ -50,8 +50,11 @@ impl MMC {
             0xFE00..=0xFE9F => self.ppu.read(addr),
             0xFF40..=0xFF45 => self.ppu.read(addr),
             0xFF47..=0xFF4B => self.ppu.read(addr),
+            /*
             0xFF4F => self.ppu.read(addr),
             0xFF68..=0xFF6B => self.ppu.read(addr),
+            0xFF70 => self.bank as u8,
+            */
             0xFF80..=0xFFFE => self.hram[(addr as usize) - 0xFF80],
             0xFF0F => self.int_flag.borrow_mut().data,
             0xFFFF => self.int_enable,
@@ -71,8 +74,17 @@ impl MMC {
             0xFE00..=0xFE9F => self.ppu.write(addr, dat),
             0xFF40..=0xFF45 => self.ppu.write(addr, dat),
             0xFF47..=0xFF4B => self.ppu.write(addr, dat),
+            /*
             0xFF4F => self.ppu.write(addr, dat),
             0xFF68..=0xFF6B => self.ppu.write(addr, dat),
+            0xFF70 => {
+                if self.bank & 0x7 > 0 {
+                    self.bank &= 0x7;
+                } else {
+                    self.bank = 1;
+                }
+            }
+            */
             0xFF80..=0xFFFE => self.hram[(addr as usize) - 0xFF80] = dat,
             0xFF0F => self.int_flag.borrow_mut().data = dat,
             0xFFFF => self.int_enable = dat,

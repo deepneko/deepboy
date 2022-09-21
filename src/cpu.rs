@@ -626,12 +626,14 @@ impl CPU {
             // LD (A8),A
             0xE0 => {
                 let addr = 0xFF00 | u16::from(self.imm8());
+                println!("0xE0, addr:0x{:x}", addr);
                 self.write8(addr, self.regs.a);
             }
 
             // LD (C),A
             0xE2 => {
                 let addr = 0xFF00 | u16::from(self.regs.c);
+                println!("0xE2, addr:0x{:x}", addr);
                 self.write8(addr, self.regs.a);
             }
 
@@ -675,6 +677,7 @@ impl CPU {
             // LD A,(A8)
             0xF0 => {
                 let addr = 0xFF00 | u16::from(self.imm8());
+                // print!("0xF0 LD A addr:0x{:x}", addr);
                 self.regs.a = self.read8(addr);
             }
             
