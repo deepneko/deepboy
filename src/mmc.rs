@@ -63,6 +63,7 @@ impl MMC {
     }
 
     pub fn write(&mut self, addr: u16, dat: u8) {
+        // println!("addr:0x{:x}, dat:0x{:x}", addr, dat);
         match addr {
             0x0000..=0x7FFF => self.rom.write(addr, dat),
             0x8000..=0x9FFF => self.ppu.write(addr, dat),

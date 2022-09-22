@@ -1,3 +1,5 @@
+use std::borrow::Borrow;
+use std::io::Read;
 use std::{cell::RefCell, rc::Rc};
 use crate::mmc::MMC;
 use crate::register::*;
@@ -677,7 +679,7 @@ impl CPU {
             // LD A,(A8)
             0xF0 => {
                 let addr = 0xFF00 | u16::from(self.imm8());
-                // print!("0xF0 LD A addr:0x{:x}", addr);
+                println!("0xF0 LD A addr:0x{:x}", addr);
                 self.regs.a = self.read8(addr);
             }
             
@@ -736,6 +738,9 @@ impl CPU {
             cycles += CB_CYCLES[self.cb_opcode as usize];
         }
 
+        if self.debug {
+            println!("cpu cycles: {:x}", cycles)
+        }
         cycles
     }
 
@@ -1613,5 +1618,6 @@ impl CPU {
 
         println!("PC:{:>04x} SP:{:>04x}, A:{:>02x} F:{:>02x} B:{:>02x} C:{:>02x} D:{:>02x} E:{:>02x} H:{:>02x} L:{:>02x}, 0x{:>02x} {}",
                 self.regs.pc, self.regs.sp, self.regs.a, self.regs.f, self.regs.b, self.regs.c, self.regs.d, self.regs.e, self.regs.h, self.regs.l, str_opcode, str);
+        // println!("0xFF44: {:>02x}", self.mmc.borrow_mut().read(0xFF44));
     }
 }

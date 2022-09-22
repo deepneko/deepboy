@@ -49,6 +49,7 @@ impl PPU {
 
     pub fn run(&mut self, cycles: u32) {
         self.cycles += cycles;
+        // println!("ppu run cycles:{:x}", self.cycles);
 
         match self.mode {
             VideoMode::ACCESS_OAM => {
@@ -84,6 +85,7 @@ impl PPU {
                 if self.cycles >= CLOCKS_PER_HBLANK {
                     self.render_scanline();
                     self.line += 1;
+                    // println!("ppu run HBLANK line:{:x}", self.line);
 
                     self.cycles %= CLOCKS_PER_HBLANK;
 
@@ -101,13 +103,18 @@ impl PPU {
             }
 
             VideoMode::VBLANK => {
-                if self.cycles >= CLOCKS_PER_VBLANK {
+                if self.cycles >= CLOCKS_PER_SCANLINE {
                     self.line += 1;
+                    // println!("ppu run VBLANK line:{:x}", self.line);
 
-                    self.cycles %= CLOCKS_PER_VBLANK;
+                    self.cycles %= CLOCKS_PER_SCANLINE;
 
                     if self.line == 154 {
                         self.render_sprites();
+                        self.line = 0;
+                        self.mode = VideoMode::ACCESS_OAM;
+                        self.lcd_status.set_bit(1, true);
+                        self.lcd_status.set_bit(0, false);
                     }
                 }
             }
