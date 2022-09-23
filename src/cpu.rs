@@ -1,5 +1,3 @@
-use std::borrow::Borrow;
-use std::io::Read;
 use std::{cell::RefCell, rc::Rc};
 use crate::mmc::MMC;
 use crate::register::*;
@@ -21,6 +19,26 @@ pub const CYCLES: [u32; 0x100] = [
     1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, // Bx
     2, 3, 3, 4, 3, 4, 2, 4, 2, 4, 3, 0, 3, 6, 2, 4, // Cx
     2, 3, 3, 0, 3, 4, 2, 4, 2, 4, 3, 0, 3, 0, 2, 4, // Dx
+    3, 3, 2, 0, 0, 4, 2, 4, 4, 1, 4, 0, 0, 0, 2, 4, // Ex
+    3, 3, 2, 1, 0, 4, 2, 4, 3, 2, 4, 1, 0, 0, 2, 4, // Fx
+];
+
+pub const CYCLES_BRANCHED: [u32; 0x100] = [
+  //x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 xA xB xC xD xE xF
+    1, 3, 2, 2, 1, 1, 2, 1, 5, 2, 2, 2, 1, 1, 2, 1, // 0x
+    1, 3, 2, 2, 1, 1, 2, 1, 3, 2, 2, 2, 1, 1, 2, 1, // 1x
+    3, 3, 2, 2, 1, 1, 2, 1, 3, 2, 2, 2, 1, 1, 2, 1, // 2x
+    3, 3, 2, 2, 3, 3, 3, 1, 3, 2, 2, 2, 1, 1, 2, 1, // 3x
+    1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, // 4x
+    1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, // 5x
+    1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, // 6x
+    2, 2, 2, 2, 2, 2, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, // 7x
+    1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, // 8x
+    1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, // 9x
+    1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, // Ax
+    1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, // Bx
+    5, 3, 4, 4, 6, 4, 2, 4, 5, 4, 4, 0, 6, 6, 2, 4, // Cx
+    5, 3, 4, 0, 6, 4, 2, 4, 5, 4, 4, 0, 6, 0, 2, 4, // Dx
     3, 3, 2, 0, 0, 4, 2, 4, 4, 1, 4, 0, 0, 0, 2, 4, // Ex
     3, 3, 2, 1, 0, 4, 2, 4, 3, 2, 4, 1, 0, 0, 2, 4, // Fx
 ];
@@ -627,14 +645,12 @@ impl CPU {
             // LD (A8),A
             0xE0 => {
                 let addr = 0xFF00 | u16::from(self.imm8());
-                println!("0xE0, addr:0x{:x}", addr);
                 self.write8(addr, self.regs.a);
             }
 
             // LD (C),A
             0xE2 => {
                 let addr = 0xFF00 | u16::from(self.regs.c);
-                println!("0xE2, addr:0x{:x}", addr);
                 self.write8(addr, self.regs.a);
             }
 
@@ -678,7 +694,6 @@ impl CPU {
             // LD A,(A8)
             0xF0 => {
                 let addr = 0xFF00 | u16::from(self.imm8());
-                println!("0xF0 LD A addr:0x{:x}", addr);
                 self.regs.a = self.read8(addr);
             }
             
@@ -704,43 +719,32 @@ impl CPU {
             0xCB => self.prefix_cb(),
         }
 
-        if self.opcode != 0xCB {
-            match self.opcode {
-                // JR
-                0x20 => if !self.regs.get_z() { cycles += 4 },
-                0x28 => if self.regs.get_z() { cycles += 4 },
-                0x30 => if !self.regs.get_c() { cycles += 4 },
-                0x38 => if self.regs.get_c() { cycles += 4 },
-
-                // JP
-                0xC2 => if !self.regs.get_z() { cycles += 4 },
-                0xCA => if self.regs.get_z() { cycles += 4 },
-                0xD2 => if !self.regs.get_c() { cycles += 4 },
-                0xDA => if self.regs.get_c() { cycles += 4 },
-
-                // RET
-                0xC0 => if !self.regs.get_z() { cycles += 12 },
-                0xC8 => if self.regs.get_z() { cycles += 12 },
-                0xD0 => if !self.regs.get_c() { cycles += 12 },
-                0xD8 => if self.regs.get_c() { cycles += 12 },
-
-                // CALL
-                0xC4 => if !self.regs.get_z() { cycles += 12 },
-                0xCC => if self.regs.get_z() { cycles += 12 },
-                0xD4 => if !self.regs.get_c() { cycles += 12 },
-                0xDC => if self.regs.get_c() { cycles += 12 },
-                
-                _ => {},
-            }
-            cycles += CYCLES[self.opcode as usize];
-        } else {
+        if self.opcode == 0xCB {
             cycles += CB_CYCLES[self.cb_opcode as usize];
+        } else {
+            match self.opcode {
+                // JR | JP | RET | CALL
+                0x20 | 0xC2 | 0xC0 | 0xC4 => cycles += self.branched_cycles(!self.regs.get_z()),
+                0x28 | 0xCA | 0xC8 | 0xCC => cycles += self.branched_cycles(self.regs.get_z()),
+                0x30 | 0xD2 | 0xD0 | 0xD4 => cycles += self.branched_cycles(!self.regs.get_c()),
+                0x38 | 0xDA | 0xD8 | 0xDC => cycles += self.branched_cycles(self.regs.get_c()),
+
+                _ => cycles += CYCLES[self.opcode as usize],
+            }
         }
 
         if self.debug {
             println!("cpu cycles: {:x}", cycles)
         }
         cycles
+    }
+
+    pub fn branched_cycles(&self, cond: bool) -> u32 {
+        if cond {
+            CYCLES_BRANCHED[self.opcode as usize]
+        } else {
+            CYCLES[self.opcode as usize]
+        }
     }
 
     pub fn prefix_cb(&mut self) {
