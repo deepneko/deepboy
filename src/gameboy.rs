@@ -14,9 +14,9 @@ pub struct Gameboy {
 
 impl Gameboy {
     pub fn new(output: Output) -> Self {
-        let mut mmc = Rc::new(RefCell::new(MMC::new()));
-        let mut cpu = CPU::new(mmc.clone());
-        let mut timer = Timer::new();
+        let mmc = Rc::new(RefCell::new(MMC::new()));
+        let cpu = CPU::new(mmc.clone());
+        let timer = Timer::new();
 
         Gameboy {
             mmc: mmc,

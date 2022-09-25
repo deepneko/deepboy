@@ -1,52 +1,91 @@
-use sdl2::render::Canvas;
-use sdl2::video::Window;
-use sdl2::Sdl;
-use sdl2::pixels::Color;
-use sdl2::event::Event;
-use sdl2::keyboard::Keycode;
+use std::{ptr::null_mut, ffi::c_void};
+use sdl2::{sys::*, render::SdlError, get_error};
+
+use crate::defs::{SCREEN_WIDTH, SCREEN_HEIGHT};
 
 pub struct Output {
-    pub sdl_context: Sdl,
-    pub canvas: Canvas<Window>,
+    _window: *mut SDL_Window,
+    _renderer: *mut SDL_Renderer,
+    _screen_texture: *mut SDL_Texture,
 }
 
 impl Output {
-    const SCREEN_W: u32 = 640;
-    const SCREEN_H: u32 = 576;
-
     pub fn new() -> Self {
-        let sdl_context = sdl2::init().unwrap();
-        let video = sdl_context.video().unwrap();
-        let window = video.window("deepboy", Self::SCREEN_W, Self::SCREEN_H)
-            .position_centered()
-            .build()
-            .unwrap();
-        
-        let mut canvas = window.into_canvas().build().unwrap();
-        canvas.set_draw_color(Color::RGB(0, 255, 255));
-        canvas.clear();
-        canvas.present();
+        let mut window: *mut SDL_Window = null_mut();
+        let mut renderer: *mut SDL_Renderer = null_mut();
+        let mut screen_texture: *mut SDL_Texture = null_mut();
+
+        unsafe {
+            if SDL_Init(SDL_INIT_VIDEO) < 0 {
+                panic!("Failed to initialize sdl2.");
+            }
+
+            window = SDL_CreateWindow(
+                "deepboy" as *const _ as *const i8,
+                SDL_WINDOWPOS_UNDEFINED_MASK as i32,
+                SDL_WINDOWPOS_UNDEFINED_MASK as i32,
+                SCREEN_WIDTH,
+                SCREEN_HEIGHT,
+                SDL_WindowFlags::SDL_WINDOW_OPENGL as u32
+            );
+            if window.is_null() {
+                panic!("Failed to create window.");
+            }
+
+            renderer = SDL_CreateRenderer(
+                window,
+                -1,
+                SDL_RendererFlags::SDL_RENDERER_ACCELERATED as u32 | SDL_RendererFlags::SDL_RENDERER_PRESENTVSYNC as u32,
+            );
+            if renderer.is_null() {
+                panic!("Failed to create renderer.");
+            }
+
+            screen_texture = SDL_CreateTexture(
+                renderer,
+                SDL_PixelFormatEnum::SDL_PIXELFORMAT_ABGR8888 as u32,
+                SDL_TextureAccess::SDL_TEXTUREACCESS_STREAMING as i32,
+                SCREEN_WIDTH as i32,
+                SCREEN_HEIGHT as i32
+            );
+            if screen_texture.is_null() {
+                panic!("Failed to create texture.");
+            }
+        }
 
         Output {
-            sdl_context: sdl_context,
-            canvas: canvas,
+            _window: window,
+            _renderer: renderer,
+            _screen_texture: screen_texture,
         }
     }
 
     pub fn write_screen(&mut self) {
-        self.canvas.set_draw_color(Color::RGB(100, 255, 255));
-        self.canvas.clear();
+        self.event_handling();
 
-        let mut event_pump = self.sdl_context.event_pump().unwrap();
-        for event in event_pump.poll_iter() {
-            match event {
-                Event::Quit {..} |
-                Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
-                    std::process::exit(0);
-                },
-                _ => {}
+        unsafe {
+            SDL_RenderClear(self._renderer);
+
+            let mut pixels = null_mut();
+            let mut pitch = 0;
+            SDL_LockTexture(self._screen_texture, null_mut(), &mut pixels, &mut pitch);
+
+            SDL_UnlockTexture(self._screen_texture);
+
+            SDL_RenderCopy(self._renderer, self._screen_texture, null_mut(), null_mut());
+            SDL_RenderPresent(self._renderer);
+        }
+    }
+
+    pub fn event_handling(&self) {
+        unsafe {
+            let mut event: *mut SDL_Event = null_mut();
+            while SDL_PollEvent(event) > 0 {
+                match (*event).type_ {
+                    SDL_QuitEvent => { SDL_Quit() },
+                    _ => {},
+                }
             }
         }
-        self.canvas.present();
     }
 }

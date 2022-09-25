@@ -1606,7 +1606,6 @@ impl CPU {
             "SET 7 B", "SET 7 C", "SET 7 D", "SET 7 E", "SET 7 H", "SET 7 L", "SET 7 (HL)", "SET 7 A",
         ];
 
-        let opcode = self.read8(self.regs.pc);
         let mut str = inst_name[opcode as usize];
         let mut str_opcode: u16 = opcode as u16;
         if opcode == 0xCB {

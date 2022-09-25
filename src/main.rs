@@ -1,6 +1,5 @@
 #![crate_name = "deepboy"]
 
-use std::time::Duration;
 use deepboy::gameboy::Gameboy;
 use deepboy::output::Output;
 
@@ -24,6 +23,5 @@ fn main() {
         if count == 600000 { panic!("For debug.") }
         count = count + 1;
         gameboy.exec_frame();
-        //::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }
 }

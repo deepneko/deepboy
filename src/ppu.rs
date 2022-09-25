@@ -1,5 +1,5 @@
 use std::{cell::RefCell, rc::Rc};
-use crate::defs::{*, self};
+use crate::defs::*;
 use crate::register::ByteRegister;
 
 pub struct PPU {
@@ -18,7 +18,6 @@ pub struct PPU {
     bg_palette: ByteRegister,
     sprite_palette0: ByteRegister,
     sprite_palette1: ByteRegister,
-    dma_transfer: u8,
     mode: VideoMode,
     cycles: u32,
 }
@@ -41,7 +40,6 @@ impl PPU {
             bg_palette: ByteRegister::new(),
             sprite_palette0: ByteRegister::new(),
             sprite_palette1: ByteRegister::new(),
-            dma_transfer: 0,
             mode: VideoMode::ACCESS_OAM,
             cycles: 0,
         }
@@ -199,7 +197,7 @@ impl PPU {
     }
 
     pub fn draw_bg(&mut self) {
-        let palette = self.load_palette(self.bg_palette);
+        // let palette = self.load_palette(self.bg_palette);
         let mut tile_set_addr: u16 = 0;
         let mut tile_map_addr: u16 = 0;
 
@@ -215,10 +213,8 @@ impl PPU {
             tile_map_addr = 0x9C00;
         }
 
-        let screen_x: u8 = 0;
         let screen_y: u8 = self.line;
-
-        for screen_x in 0..GAMEBOY_WIDTH {
+        (0..GAMEBOY_WIDTH).for_each(|screen_x| {
             let scrolled_x = screen_x + self.scroll_x;
             let scrolled_y = screen_y + self.scroll_y;
 
@@ -253,7 +249,7 @@ impl PPU {
             let pixel_color = (pixel2 << (7 - tile_pixel_x)) << 1 | (pixel1 << (7 - tile_pixel_x));
 
             self.buffer[screen_y as usize][screen_x as usize] = [pixel_color, pixel_color, pixel_color];
-        }
+        });
     }
 
     pub fn draw_window(&mut self) {

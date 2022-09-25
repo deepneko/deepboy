@@ -1,5 +1,8 @@
 pub const GAMEBOY_WIDTH: u8 = 160;
 pub const GAMEBOY_HEIGHT: u8 = 144;
+pub const SCREEN_WIDTH: i32 = 640;
+pub const SCREEN_HEIGHT: i32 = 576;
+
 pub const TILES_PER_LINE: u8 = 32;
 pub const TILE_HEIGHT: u8 = 8;
 pub const TILE_WIDTH: u8 = 8;
@@ -17,6 +20,7 @@ pub const CLOCKS_PER_FRAME: u32 = (CLOCKS_PER_SCANLINE * SCANLINE_PER_FRAME) + C
 
 pub const CLOCK_RATE:i32 = 4194304;
 
+#[allow(non_camel_case_types)]
 pub enum VideoMode {
     ACCESS_OAM,
     ACCESS_VRAM,
