@@ -1,7 +1,8 @@
 pub const GAMEBOY_WIDTH: u8 = 160;
 pub const GAMEBOY_HEIGHT: u8 = 144;
-pub const SCREEN_WIDTH: i32 = 640;
-pub const SCREEN_HEIGHT: i32 = 576;
+pub const SCREEN_WIDTH: usize = 640;
+pub const SCREEN_HEIGHT: usize = 576;
+pub const PIXEL_AREA_SIZE: usize = SCREEN_WIDTH * SCREEN_HEIGHT;
 
 pub const TILES_PER_LINE: u8 = 32;
 pub const TILE_HEIGHT: u8 = 8;
