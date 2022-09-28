@@ -3,7 +3,7 @@ use crate::defs::*;
 use crate::register::ByteRegister;
 
 pub struct PPU {
-    buffer: [[[u8; 3]; GAMEBOY_WIDTH as usize]; GAMEBOY_HEIGHT as usize],
+    pub frame_buffer: [[[u8; 3]; GAMEBOY_WIDTH as usize]; GAMEBOY_HEIGHT as usize],
     vram: [u8; 0x4000],
     oamram: [u8; 0xa0],
     int_flag: Rc<RefCell<ByteRegister>>,
@@ -25,7 +25,7 @@ pub struct PPU {
 impl PPU {
     pub fn new(int_flag: Rc<RefCell<ByteRegister>>) -> Self {
         PPU {
-            buffer: [[[0xff; 3]; GAMEBOY_WIDTH as usize]; GAMEBOY_HEIGHT as usize],
+            frame_buffer: [[[0xff; 3]; GAMEBOY_WIDTH as usize]; GAMEBOY_HEIGHT as usize],
             vram: [0; 0x4000],
             oamram: [0; 0xa0],
             int_flag: int_flag,
@@ -214,7 +214,7 @@ impl PPU {
         }
 
         let screen_y: u8 = self.line;
-        (0..GAMEBOY_WIDTH).for_each(|screen_x| {
+        (0..GAMEBOY_WIDTH as u8).for_each(|screen_x| {
             let scrolled_x = screen_x + self.scroll_x;
             let scrolled_y = screen_y + self.scroll_y;
 
@@ -248,7 +248,7 @@ impl PPU {
 
             let pixel_color = (pixel2 << (7 - tile_pixel_x)) << 1 | (pixel1 << (7 - tile_pixel_x));
 
-            self.buffer[screen_y as usize][screen_x as usize] = [pixel_color, pixel_color, pixel_color];
+            self.frame_buffer[screen_y as usize][screen_x as usize] = [pixel_color, pixel_color, pixel_color];
         });
     }
 

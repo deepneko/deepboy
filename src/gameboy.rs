@@ -13,9 +13,10 @@ pub struct Gameboy {
 }
 
 impl Gameboy {
-    pub fn new(output: Output) -> Self {
+    pub fn new() -> Self {
         let mmc = Rc::new(RefCell::new(MMC::new()));
         let cpu = CPU::new(mmc.clone());
+        let output = Output::new(mmc.clone());
         let timer = Timer::new();
 
         Gameboy {

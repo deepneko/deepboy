@@ -1,5 +1,5 @@
-pub const GAMEBOY_WIDTH: u8 = 160;
-pub const GAMEBOY_HEIGHT: u8 = 144;
+pub const GAMEBOY_WIDTH: usize = 160;
+pub const GAMEBOY_HEIGHT: usize = 144;
 pub const SCREEN_WIDTH: usize = 640;
 pub const SCREEN_HEIGHT: usize = 576;
 pub const PIXEL_AREA_SIZE: usize = SCREEN_WIDTH * SCREEN_HEIGHT;

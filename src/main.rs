@@ -11,8 +11,7 @@ fn main() {
     // let bootstrap_name = &args[2];
     // println!("boot_strap: {boot}", boot=bootstrap_name);
 
-    let output = Output::new();
-    let mut gameboy = Gameboy::new(output);
+    let mut gameboy = Gameboy::new();
     gameboy.cpu.set_debug();
 
     gameboy.load_rom(rom_name);
