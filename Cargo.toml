@@ -7,3 +7,4 @@ edition = "2018"
 
 [dependencies]
 minifb = { version = "0.23.0", default-features = true }
+gperftools = "0.2.0"

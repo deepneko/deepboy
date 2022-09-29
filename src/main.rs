@@ -1,7 +1,6 @@
 #![crate_name = "deepboy"]
 
 use deepboy::gameboy::Gameboy;
-use deepboy::output::Output;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -19,7 +18,9 @@ fn main() {
 
     let mut count: u32 = 0;
     loop {
-        if count == 600000 { panic!("For debug.") }
+        if count == 1000000 {
+            panic!("For debug.")
+        }
         count = count + 1;
         gameboy.exec_frame();
     }

@@ -18,7 +18,7 @@ pub struct PPU {
     bg_palette: ByteRegister,
     sprite_palette0: ByteRegister,
     sprite_palette1: ByteRegister,
-    mode: VideoMode,
+    pub mode: VideoMode,
     cycles: u32,
 }
 
