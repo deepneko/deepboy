@@ -18,7 +18,8 @@ fn main() {
 
     let mut count: u32 = 0;
     loop {
-        if count == 1000000 {
+        println!("count:{}", count);
+        if count == 600000 {
             panic!("For debug.")
         }
         count = count + 1;

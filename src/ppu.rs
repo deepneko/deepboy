@@ -230,6 +230,10 @@ impl PPU {
             let tile_index = tile_y  * TILES_PER_LINE + tile_x;
             let tile_id_addr: u16 = tile_map_addr + tile_index as u16;
 
+            println!("scrolled_x:{} scrolled_y:{}", scrolled_x, scrolled_y);
+            println!("bg_map_x:{} bg_map_y:{}", bg_map_x, bg_map_y);
+            println!("tile_index:{} tile_id_addr:{}", tile_index, tile_id_addr);
+
             let tile_id = self.get_vram(tile_id_addr);
 
             let tile_offset = if self.bg_window_tile_data() {
