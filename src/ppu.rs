@@ -129,27 +129,30 @@ impl PPU {
     pub fn bg_enabled(&self) -> bool { self.lcd_control.check_bit(0) }
 
     pub fn read(&self, addr: u16) -> u8 {
-        // print!("ppu.read {:x}", addr);
+        let mut result: u8 = 0;
         match addr {
-            0x8000..=0x9FFF => self.vram[addr as usize - 0x8000],
-            0xFE00..=0xFE9F => self.oamram[addr as usize - 0xFE00],
-            0xFF40 => self.lcd_control.get(),
-            0xFF41 => self.lcd_status.get(),
-            0xFF42 => self.scroll_y,
-            0xFF43 => self.scroll_x,
-            0xFF44 => self.line,
-            0xFF45 => self.ly_compare,
-            0xFF47 => self.bg_palette.get(),
-            0xFF48 => self.sprite_palette0.get(),
-            0xFF49 => self.sprite_palette1.get(),
-            0xFF4A => self.window_y,
-            0xFF4B => self.window_x,
+            0x8000..=0x9FFF => result = self.vram[addr as usize - 0x8000],
+            0xFE00..=0xFE9F => result = self.oamram[addr as usize - 0xFE00],
+            0xFF40 => result = self.lcd_control.get(),
+            0xFF41 => result = self.lcd_status.get(),
+            0xFF42 => result = self.scroll_y,
+            0xFF43 => result = self.scroll_x,
+            0xFF44 => result = self.line,
+            0xFF45 => result = self.ly_compare,
+            0xFF47 => result = self.bg_palette.get(),
+            0xFF48 => result = self.sprite_palette0.get(),
+            0xFF49 => result = self.sprite_palette1.get(),
+            0xFF4A => result = self.window_y,
+            0xFF4B => result = self.window_x,
             _ => panic!("PPU: Unknown address."),
         }
+        println!("ppu.read {:x} {:x}", addr, result);
+
+        result
     }
 
     pub fn write(&mut self, addr: u16, dat: u8) {
-        // print!("ppu.write {:x}", addr);
+        println!("ppu.write {:x} {:x}", addr, dat);
         match addr {
             0x8000..=0x9FFF => self.vram[addr as usize - 0x8000] = dat,
             0xFE00..=0xFE9F => self.oamram[addr as usize - 0xFE00] = dat,
@@ -213,10 +216,10 @@ impl PPU {
             tile_map_addr = 0x9C00;
         }
 
-        let screen_y: u8 = self.line;
-        (0..GAMEBOY_WIDTH as u8).for_each(|screen_x| {
-            let scrolled_x = screen_x + self.scroll_x;
-            let scrolled_y = screen_y + self.scroll_y;
+        let screen_y: u16 = self.line as u16;
+        (0..GAMEBOY_WIDTH as u16).for_each(|screen_x| {
+            let scrolled_x = screen_x + self.scroll_x as u16;
+            let scrolled_y = screen_y + self.scroll_y as u16;
 
             let bg_map_x = scrolled_x % BG_MAP_SIZE;
             let bg_map_y = scrolled_y % BG_MAP_SIZE;
@@ -230,11 +233,13 @@ impl PPU {
             let tile_index = tile_y  * TILES_PER_LINE + tile_x;
             let tile_id_addr: u16 = tile_map_addr + tile_index as u16;
 
-            println!("scrolled_x:{} scrolled_y:{}", scrolled_x, scrolled_y);
-            println!("bg_map_x:{} bg_map_y:{}", bg_map_x, bg_map_y);
-            println!("tile_index:{} tile_id_addr:{}", tile_index, tile_id_addr);
+            println!("scrolled_x:{:x} scrolled_y:{:x}", scrolled_x, scrolled_y);
+            println!("bg_map_x:{:x} bg_map_y:{:x}", bg_map_x, bg_map_y);
+            println!("tile_index:{:x} tile_id_addr:{:x}", tile_index, tile_id_addr);
+            println!("lcd_control:{:x} lcd_status:{:x}", self.lcd_control.get(), self.lcd_status.get());
 
             let tile_id = self.get_vram(tile_id_addr);
+            println!("ppu.read {:x} {:x}", tile_id_addr, tile_id);
 
             let tile_offset = if self.bg_window_tile_data() {
                 i16::from(tile_id)
@@ -249,6 +254,8 @@ impl PPU {
 
             let pixel1 = self.get_vram(tile_line_addr);
             let pixel2 = self.get_vram(tile_line_addr + 1);
+            println!("ppu.read {:x} {:x}", tile_line_addr, pixel1);
+            println!("ppu.read {:x} {:x}", tile_line_addr+1, pixel2);
 
             let pixel_color = (pixel2 << (7 - tile_pixel_x)) << 1 | (pixel1 << (7 - tile_pixel_x));
 

@@ -31,7 +31,7 @@ impl ByteRegister {
     }
 
     pub fn check_bit(&self, bit: u8) -> bool {
-        (self.data >> bit) != 0
+        (self.data & (1 << bit)) != 0
     }
 }
 

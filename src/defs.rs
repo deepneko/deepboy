@@ -4,11 +4,11 @@ pub const SCREEN_WIDTH: usize = 640;
 pub const SCREEN_HEIGHT: usize = 576;
 pub const PIXEL_AREA_SIZE: usize = SCREEN_WIDTH * SCREEN_HEIGHT;
 
-pub const TILES_PER_LINE: u8 = 32;
-pub const TILE_HEIGHT: u8 = 8;
-pub const TILE_WIDTH: u8 = 8;
-pub const TILE_BYTES: u8 = 16;
-pub const BG_MAP_SIZE: u8 = 255; // It is actually 256 but not a problem.
+pub const TILES_PER_LINE: u16 = 32;
+pub const TILE_HEIGHT: u16 = 8;
+pub const TILE_WIDTH: u16 = 8;
+pub const TILE_BYTES: u16 = 16;
+pub const BG_MAP_SIZE: u16 = 255; // It is actually 256 but not a problem.
 pub const NUM_SPRITES: u32 = 40;
 
 pub const CLOCKS_PER_HBLANK: u32 = 204;
