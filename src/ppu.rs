@@ -20,6 +20,7 @@ pub struct PPU {
     sprite_palette1: ByteRegister,
     pub mode: VideoMode,
     cycles: u32,
+    debug: bool,
 }
 
 impl PPU {
@@ -42,7 +43,12 @@ impl PPU {
             sprite_palette1: ByteRegister::new(),
             mode: VideoMode::ACCESS_OAM,
             cycles: 0,
+            debug: false,
         }
+    }
+
+    pub fn set_debug(&mut self) {
+        self.debug = true;
     }
 
     pub fn run(&mut self, cycles: u32) {
@@ -146,13 +152,19 @@ impl PPU {
             0xFF4B => result = self.window_x,
             _ => panic!("PPU: Unknown address."),
         }
-        println!("ppu.read {:x} {:x}", addr, result);
+
+        if self.debug {
+            println!("ppu.read {:x} {:x}", addr, result);
+        }
 
         result
     }
 
     pub fn write(&mut self, addr: u16, dat: u8) {
-        println!("ppu.write {:x} {:x}", addr, dat);
+        if self.debug {
+            println!("ppu.write {:x} {:x}", addr, dat);
+        }
+
         match addr {
             0x8000..=0x9FFF => self.vram[addr as usize - 0x8000] = dat,
             0xFE00..=0xFE9F => self.oamram[addr as usize - 0xFE00] = dat,
@@ -203,6 +215,7 @@ impl PPU {
         // let palette = self.load_palette(self.bg_palette);
         let mut tile_set_addr: u16 = 0;
         let mut tile_map_addr: u16 = 0;
+        let palette = self.load_palette(self.bg_palette);
 
         if self.bg_window_tile_data() {
             tile_set_addr = 0x8000;
@@ -233,13 +246,7 @@ impl PPU {
             let tile_index = tile_y  * TILES_PER_LINE + tile_x;
             let tile_id_addr: u16 = tile_map_addr + tile_index as u16;
 
-            println!("scrolled_x:{:x} scrolled_y:{:x}", scrolled_x, scrolled_y);
-            println!("bg_map_x:{:x} bg_map_y:{:x}", bg_map_x, bg_map_y);
-            println!("tile_index:{:x} tile_id_addr:{:x}", tile_index, tile_id_addr);
-            println!("lcd_control:{:x} lcd_status:{:x}", self.lcd_control.get(), self.lcd_status.get());
-
             let tile_id = self.get_vram(tile_id_addr);
-            println!("ppu.read {:x} {:x}", tile_id_addr, tile_id);
 
             let tile_offset = if self.bg_window_tile_data() {
                 i16::from(tile_id)
@@ -249,17 +256,24 @@ impl PPU {
               * 16;
 
             let tile_line_offset = u16::from(tile_pixel_y) * 2;
-
             let tile_line_addr = tile_set_addr + tile_offset + tile_line_offset;
 
             let pixel1 = self.get_vram(tile_line_addr);
             let pixel2 = self.get_vram(tile_line_addr + 1);
-            println!("ppu.read {:x} {:x}", tile_line_addr, pixel1);
-            println!("ppu.read {:x} {:x}", tile_line_addr+1, pixel2);
+            let pixel_color = (((pixel2 >> (7 - tile_pixel_x)) & 1) << 1) | ((pixel1 >> (7 - tile_pixel_x) & 1));
+            let real_color = self.convert_color(palette[pixel_color as usize]) as u8;
+            self.frame_buffer[screen_y as usize][screen_x as usize] = [real_color, real_color, real_color];
 
-            let pixel_color = (pixel2 << (7 - tile_pixel_x)) << 1 | (pixel1 << (7 - tile_pixel_x));
-
-            self.frame_buffer[screen_y as usize][screen_x as usize] = [pixel_color, pixel_color, pixel_color];
+            if self.debug {
+                println!("scrolled_x:{:x} scrolled_y:{:x}", scrolled_x, scrolled_y);
+                println!("bg_map_x:{:x} bg_map_y:{:x}", bg_map_x, bg_map_y);
+                println!("tile_index:{:x} tile_id_addr:{:x}", tile_index, tile_id_addr);
+                println!("lcd_control:{:x} lcd_status:{:x}", self.lcd_control.get(), self.lcd_status.get());
+                println!("ppu.read {:x} {:x}", tile_id_addr, tile_id);
+                println!("ppu.read {:x} {:x}", tile_line_addr, pixel1);
+                println!("ppu.read {:x} {:x}", tile_line_addr+1, pixel2);
+                println!("pixel_color:{:x}", pixel_color);
+            }
         });
     }
 
@@ -271,18 +285,13 @@ impl PPU {
 
     }
 
-    pub fn load_palette(&self, palette_reg: ByteRegister) -> [Color; 4] {
+    pub fn load_palette(&self, palette_reg: ByteRegister) -> [u8; 4] {
         let color0 = palette_reg.get_bit(1) << 1 | palette_reg.get_bit(0); 
         let color1 = palette_reg.get_bit(3) << 1 | palette_reg.get_bit(2); 
         let color2 = palette_reg.get_bit(5) << 1 | palette_reg.get_bit(4); 
         let color3 = palette_reg.get_bit(7) << 1 | palette_reg.get_bit(6); 
 
-        return [ 
-            self.convert_color(color0),
-            self.convert_color(color1),
-            self.convert_color(color2),
-            self.convert_color(color3)
-        ];
+        return [color0, color1, color2, color3];
     }
 
     pub fn convert_color(&self, color: u8) -> Color {

@@ -11,18 +11,22 @@ fn main() {
     // println!("boot_strap: {boot}", boot=bootstrap_name);
 
     let mut gameboy = Gameboy::new();
-    gameboy.cpu.set_debug();
+    let debug = false;
+    // gameboy.cpu.set_debug();
+    // gameboy.mmc.borrow_mut().ppu.set_debug();
 
     gameboy.load_rom(rom_name);
     // gameboy.load_bootstrap(bootstrap_name);
 
     let mut count: u32 = 0;
     loop {
-        println!("count:{}", count);
-        if count == 600000 {
-            panic!("For debug.")
+        if debug {
+            println!("count:{}", count);
+            if count == 10000000 {
+                panic!("For debug.")
+            }
+            count = count + 1;
         }
-        count = count + 1;
         gameboy.exec_frame();
     }
 }

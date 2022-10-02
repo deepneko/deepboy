@@ -31,28 +31,8 @@ pub enum VideoMode {
 
 #[derive(Clone)]
 pub enum Color {
-    White,
-    LightGray,
-    DarkGray,
-    Gray,
+    White = 0xff,
+    LightGray = 0xc0,
+    DarkGray = 0x60,
+    Gray = 0x00,
 }
-
-/*
-pub struct Palette {
-    pub color0: Color,
-    pub color1: Color,
-    pub color2: Color,
-    pub color3: Color,
-}
-
-impl Palette {
-    pub fn new(c0: Color, c1: Color, c2: Color, c3: Color) -> Self {
-        Palette {
-            color0: c0,
-            color1: c1,
-            color2: c2,
-            color3: c3,
-        }
-    }
-}
-*/
