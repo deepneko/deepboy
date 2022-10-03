@@ -1,5 +1,4 @@
 use std::{cell::RefCell, rc::Rc};
-use crate::defs::VideoMode;
 
 use super::cpu::CPU;
 use super::mmc::MMC;
@@ -44,8 +43,9 @@ impl Gameboy {
         self.elapsed_cycles += cycles;
         self.mmc.borrow_mut().ppu.run(cycles);
 
-        if matches!(self.mmc.borrow_mut().ppu.mode, VideoMode::VBLANK) {
+        if self.mmc.borrow_mut().ppu.v_blank {
             self.output.write_screen();
+            self.mmc.borrow_mut().ppu.v_blank = false;
         }
     }
 }

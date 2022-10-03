@@ -1376,14 +1376,14 @@ impl CPU {
 
     pub fn pop(&mut self) -> u16 {
         let ret = self.read16(self.regs.sp);
-        println!("pop {:x} {:x}", self.regs.sp, ret);
+        // println!("pop {:x} {:x}", self.regs.sp, ret);
         self.regs.sp += 2;
         ret
     }
 
     pub fn push(&mut self, dat: u16) {
         self.regs.sp -= 2;
-        println!("push {:x} {:x}", self.regs.sp, dat);
+        // println!("push {:x} {:x}", self.regs.sp, dat);
         self.write16(self.regs.sp, dat);
     }
 

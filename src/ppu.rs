@@ -18,7 +18,8 @@ pub struct PPU {
     bg_palette: ByteRegister,
     sprite_palette0: ByteRegister,
     sprite_palette1: ByteRegister,
-    pub mode: VideoMode,
+    mode: VideoMode,
+    pub v_blank: bool,
     cycles: u32,
     debug: bool,
 }
@@ -42,6 +43,7 @@ impl PPU {
             sprite_palette0: ByteRegister::new(),
             sprite_palette1: ByteRegister::new(),
             mode: VideoMode::ACCESS_OAM,
+            v_blank: false,
             cycles: 0,
             debug: false,
         }
@@ -53,7 +55,11 @@ impl PPU {
 
     pub fn run(&mut self, cycles: u32) {
         self.cycles += cycles;
-        // println!("ppu run cycles:{:x}", self.cycles);
+        if self.debug {
+            println!("ppu.mode: {}", self.mode as usize);
+            println!("ppu.line: {}", self.line);
+            println!("ppu.cycles: {}", self.cycles);
+        }
 
         match self.mode {
             VideoMode::ACCESS_OAM => {
@@ -89,12 +95,12 @@ impl PPU {
                 if self.cycles >= CLOCKS_PER_HBLANK {
                     self.render_scanline();
                     self.line += 1;
-                    // println!("ppu run HBLANK line:{:x}", self.line);
 
                     self.cycles %= CLOCKS_PER_HBLANK;
 
                     if self.line == 144 {
                         self.mode = VideoMode::VBLANK;
+                        self.v_blank = true;
                         self.lcd_status.set_bit(1, false);
                         self.lcd_status.set_bit(0, true);
                         self.int_flag.borrow_mut().set_bit(0, true);
@@ -109,7 +115,6 @@ impl PPU {
             VideoMode::VBLANK => {
                 if self.cycles >= CLOCKS_PER_SCANLINE {
                     self.line += 1;
-                    // println!("ppu run VBLANK line:{:x}", self.line);
 
                     self.cycles %= CLOCKS_PER_SCANLINE;
 
@@ -212,10 +217,10 @@ impl PPU {
     }
 
     pub fn draw_bg(&mut self) {
-        // let palette = self.load_palette(self.bg_palette);
+        let palette = self.load_palette(self.bg_palette);
+
         let mut tile_set_addr: u16 = 0;
         let mut tile_map_addr: u16 = 0;
-        let palette = self.load_palette(self.bg_palette);
 
         if self.bg_window_tile_data() {
             tile_set_addr = 0x8000;

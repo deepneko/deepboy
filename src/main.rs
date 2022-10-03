@@ -11,7 +11,7 @@ fn main() {
     // println!("boot_strap: {boot}", boot=bootstrap_name);
 
     let mut gameboy = Gameboy::new();
-    let debug = false;
+    let debug = true;
     // gameboy.cpu.set_debug();
     // gameboy.mmc.borrow_mut().ppu.set_debug();
 
@@ -22,7 +22,7 @@ fn main() {
     loop {
         if debug {
             println!("count:{}", count);
-            if count == 10000000 {
+            if count == 5000000 {
                 panic!("For debug.")
             }
             count = count + 1;

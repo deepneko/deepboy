@@ -23,10 +23,10 @@ pub const CLOCK_RATE:i32 = 4194304;
 
 #[allow(non_camel_case_types)]
 pub enum VideoMode {
-    ACCESS_OAM,
-    ACCESS_VRAM,
     HBLANK,
     VBLANK,
+    ACCESS_OAM,
+    ACCESS_VRAM,
 }
 
 #[derive(Clone)]
