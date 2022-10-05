@@ -12,7 +12,7 @@ fn main() {
 
     let mut gameboy = Gameboy::new();
     let debug = true;
-    // gameboy.cpu.set_debug();
+    gameboy.cpu.set_debug();
     // gameboy.mmc.borrow_mut().ppu.set_debug();
 
     gameboy.load_rom(rom_name);

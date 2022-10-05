@@ -8,11 +8,14 @@ pub struct Output {
 
 impl Output {
     pub fn new(mmc: Rc<RefCell<MMC>>) -> Self {
+        let mut window_option = minifb::WindowOptions::default();
+        window_option.resize = true;
+        window_option.scale = minifb::Scale::X2;
         let mut window = minifb::Window::new(
             "deepboy",
             GAMEBOY_WIDTH,
             GAMEBOY_HEIGHT,
-            minifb::WindowOptions::default(),
+            window_option,
         ).unwrap();
 
         let buffer = vec![0; GAMEBOY_WIDTH * GAMEBOY_HEIGHT];
