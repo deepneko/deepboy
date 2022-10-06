@@ -694,6 +694,7 @@ impl CPU {
             // LD A,(A8)
             0xF0 => {
                 let addr = 0xFF00 | u16::from(self.imm8());
+                println!("0xF0, addr:{:x}", addr);
                 self.regs.a = self.read8(addr);
             }
             

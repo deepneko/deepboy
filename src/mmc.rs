@@ -1,6 +1,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
+use crate::joypad::Joypad;
 use crate::register::ByteRegister;
 
 use super::rom::Rom;
@@ -9,6 +10,7 @@ use super::ppu::PPU;
 pub struct MMC {
     pub rom: Rom, 
     pub ppu: PPU,
+    pub joypad: Joypad,
     pub wram: [u8; 0x8000],
     pub bank: usize,
     pub hram: [u8; 0x7F],
@@ -23,6 +25,7 @@ impl MMC {
         MMC {
             rom: Rom::new(),
             ppu: PPU::new(int_flag.clone()),
+            joypad: Joypad::new(),
             wram: [0x00; 0x8000],
             bank: 0x01,
             hram: [0x00; 0x7F],
@@ -50,6 +53,7 @@ impl MMC {
             0xE000..=0xEFFF => self.wram[addr as usize - 0xE000],
             0xF000..=0xFDFF => self.wram[(addr as usize) - 0xF000 + (0x1000 * self.bank)],
             0xFE00..=0xFE9F => self.ppu.read(addr),
+            0xFF00 => self.joypad.read(addr),
             0xFF0F => self.int_flag.borrow_mut().data,
             0xFF40..=0xFF45 => self.ppu.read(addr),
             0xFF47..=0xFF4B => self.ppu.read(addr),
@@ -71,6 +75,7 @@ impl MMC {
             0xE000..=0xEFFF => self.wram[addr as usize - 0xE000] = dat,
             0xF000..=0xFDFF => self.wram[(addr as usize) - 0xF000 + (0x1000 * self.bank)] = dat,
             0xFE00..=0xFE9F => self.ppu.write(addr, dat),
+            0xFF00 => self.joypad.write(addr, dat),
             0xFF0F => self.int_flag.borrow_mut().data = dat,
             0xFF40..=0xFF45 => self.ppu.write(addr, dat),
             0xFF47..=0xFF4B => self.ppu.write(addr, dat),

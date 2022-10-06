@@ -8,3 +8,4 @@ pub mod register;
 pub mod mmc;
 pub mod output;
 pub mod defs;
+pub mod joypad;
