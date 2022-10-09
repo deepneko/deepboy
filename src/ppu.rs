@@ -225,7 +225,7 @@ impl PPU {
         if self.bg_window_tile_data() {
             tile_set_addr = 0x8000;
         } else {
-            tile_map_addr = 0x8800;
+            tile_set_addr = 0x8800;
         }
 
         if !self.bg_tile_map() {
@@ -278,6 +278,13 @@ impl PPU {
                 println!("ppu.read {:x} {:x}", tile_line_addr, pixel1);
                 println!("ppu.read {:x} {:x}", tile_line_addr+1, pixel2);
                 println!("pixel_color:{:x}", pixel_color);
+
+                println!("tile_id:{:x}", tile_id);
+                println!("tile_pixel_y:{:x}", tile_pixel_y);
+                println!("tile_set_addr:{:x}", tile_set_addr);
+                println!("tile_offset:{:x}", tile_line_offset);
+                println!("tile_line_offset:{:x}", tile_offset);
+                println!("tile_line_addr:{:x}", tile_line_addr);
             }
         });
     }

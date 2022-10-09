@@ -1,8 +1,8 @@
 use crate::register::ByteRegister;
 
 pub struct Joypad {
-    action_select: bool,
     direction_select: bool,    
+    action_select: bool,
     right: bool,
     left: bool,
     up: bool,
@@ -16,8 +16,8 @@ pub struct Joypad {
 impl Joypad {
     pub fn new() -> Self {
         Joypad {
-            action_select: false,
             direction_select: false,
+            action_select: false,
             right: false,
             left: false,
             up: false,
@@ -54,7 +54,7 @@ impl Joypad {
     }
 
     pub fn write(&mut self, addr: u16, dat: u8) {
-        self.action_select = (dat >> 4) & 0x1 == 0;
-        self.direction_select = (dat >> 5) & 0x1 == 0;
+        self.direction_select = (dat >> 4) & 0x1 == 0;
+        self.action_select = (dat >> 5) & 0x1 == 0;
     }
 }

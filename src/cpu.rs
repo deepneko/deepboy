@@ -568,11 +568,11 @@ impl CPU {
             }
 
             // JP
-            0xC2 => if !self.regs.get_z() { self.regs.pc = self.imm16() },
+            0xC2 => if !self.regs.get_z() { self.regs.pc = self.imm16() } else { self.regs.pc += 2 },
             0xC3 => self.regs.pc = self.imm16(),
-            0xCA => if self.regs.get_z() { self.regs.pc = self.imm16() },
-            0xD2 => if !self.regs.get_c() { self.regs.pc = self.imm16() },
-            0xDA => if self.regs.get_c() { self.regs.pc = self.imm16() },
+            0xCA => if self.regs.get_z() { self.regs.pc = self.imm16() } else { self.regs.pc += 2 },
+            0xD2 => if !self.regs.get_c() { self.regs.pc = self.imm16() } else { self.regs.pc += 2 },
+            0xDA => if self.regs.get_c() { self.regs.pc = self.imm16() } else { self.regs.pc += 2 },
             0xE9 => self.regs.pc = self.regs.get_hl(),  // For real??
 
             // CALL
