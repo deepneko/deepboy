@@ -28,6 +28,7 @@ pub struct Rom {
     pub ram_size: u16,
     pub boot_rom: Vec<u8>,
     pub boot_rom_size: u16,
+    pub disable_boot_rom: u8,
 }
 
 impl Rom {
@@ -40,6 +41,7 @@ impl Rom {
             ram_size: 0,
             boot_rom: Vec::new(),
             boot_rom_size: 0,
+            disable_boot_rom: 0,
         }
     }
 
@@ -80,7 +82,13 @@ impl Rom {
     pub fn read(&self, addr: u16) -> u8 {
         let uaddr: usize = addr as usize;
         match uaddr {
-            0x0000..=0x00FF => DMG[uaddr],
+            0x0000..=0x00FF => {
+                if self.disable_boot_rom != 0 {
+                    self.ram[uaddr]
+                } else {
+                    DMG[uaddr]
+                }
+            }
             0x0100..=0x7FFF => self.ram[uaddr],
             _ => 0,
         }
@@ -89,8 +97,7 @@ impl Rom {
     pub fn write(&mut self, addr: u16, dat: u8) {
         let uaddr: usize = addr as usize;
         match uaddr {
-            0x0000..=0x00FF => {},
-            0x0100..=0x7FFF => self.ram[uaddr] = dat,
+            0x0000..=0x7FFF => self.ram[uaddr] = dat,
             _ => {},
         }
     }

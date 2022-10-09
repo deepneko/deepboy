@@ -16,7 +16,6 @@ pub struct MMC {
     pub hram: [u8; 0x7F],
     pub int_enable: u8,
     pub int_flag: Rc<RefCell<ByteRegister>>,
-    pub disable_boot_rom: u8,
 }
 
 impl MMC {
@@ -31,7 +30,6 @@ impl MMC {
             hram: [0x00; 0x7F],
             int_enable: 0,
             int_flag: int_flag.clone(),
-            disable_boot_rom: 0,
         }
     }
 
@@ -44,6 +42,7 @@ impl MMC {
     }
 
     pub fn read(&mut self, addr: u16) -> u8 {
+        // println!("mmc read addr:0x{:x}", addr);
         match addr {
             0x0000..=0x7FFF => self.rom.read(addr),
             0x8000..=0x9FFF => self.ppu.read(addr),
@@ -57,15 +56,15 @@ impl MMC {
             0xFF0F => self.int_flag.borrow_mut().data,
             0xFF40..=0xFF45 => self.ppu.read(addr),
             0xFF47..=0xFF4B => self.ppu.read(addr),
+            0xFF50 => self.rom.disable_boot_rom,
             0xFF80..=0xFFFE => self.hram[(addr as usize) - 0xFF80],
             0xFFFF => self.int_enable,
-            0xFF50.. => self.disable_boot_rom,
             _ => 0,
         }
     }
 
     pub fn write(&mut self, addr: u16, dat: u8) {
-        // println!("addr:0x{:x}, dat:0x{:x}", addr, dat);
+        // println!("mmc write addr:0x{:x}, dat:0x{:x}", addr, dat);
         match addr {
             0x0000..=0x7FFF => self.rom.write(addr, dat),
             0x8000..=0x9FFF => self.ppu.write(addr, dat),
@@ -79,9 +78,9 @@ impl MMC {
             0xFF0F => self.int_flag.borrow_mut().data = dat,
             0xFF40..=0xFF45 => self.ppu.write(addr, dat),
             0xFF47..=0xFF4B => self.ppu.write(addr, dat),
+            0xFF50 => self.rom.disable_boot_rom = dat,
             0xFF80..=0xFFFE => self.hram[(addr as usize) - 0xFF80] = dat,
             0xFFFF => self.int_enable = dat,
-            0xFF50 => self.disable_boot_rom = dat,
             _ => {},
         }
     }
