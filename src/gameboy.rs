@@ -14,8 +14,8 @@ pub struct Gameboy {
 }
 
 impl Gameboy {
-    pub fn new() -> Self {
-        let mmc = Rc::new(RefCell::new(MMC::new()));
+    pub fn new(fname: &String) -> Self {
+        let mmc = Rc::new(RefCell::new(MMC::new(fname)));
         let cpu = CPU::new(mmc.clone());
         let output = Output::new(mmc.clone());
         let timer = Timer::new();
@@ -29,14 +29,11 @@ impl Gameboy {
         }
     }
 
+    /*
     pub fn load_rom(&mut self, fname: &String) {
         self.mmc.borrow_mut().rom.load(fname);
     }
-
-    // Not used
-    pub fn load_bootstrap(&mut self, fname: &String) {
-        self.mmc.borrow_mut().load_bootstrap(fname);
-    }
+    */
 
     pub fn exec_frame(&mut self) {
         let cycles = self.cpu.run();

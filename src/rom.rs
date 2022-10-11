@@ -1,5 +1,9 @@
 use std::fs::File;
 use std::io::prelude::*;
+use crate::mapper::mbc1::Mbc1;
+use crate::mapper::mbc3::Mbc3;
+
+use super::mapper::Mapper;
 
 pub const DMG: [u8; 0x100] = [
     0x31, 0xFE, 0xFF, 0xAF, 0x21, 0xFF, 0x9F, 0x32, 0xCB, 0x7C, 0x20, 0xFB, 0x21, 0x26, 0xFF, 0x0E,
@@ -26,57 +30,53 @@ pub struct Rom {
     pub ram_size_type: u8,
     pub ram: Vec<u8>,
     pub ram_size: u16,
-    pub boot_rom: Vec<u8>,
-    pub boot_rom_size: u16,
     pub disable_boot_rom: u8,
+    pub mapper: Box<dyn Mapper>,
 }
 
 impl Rom {
-    pub fn new() -> Self {
-        Rom {
-            mbc_type: 0,
-            rom_size_type: 0,
-            ram_size_type: 0,
-            ram: Vec::new(),
-            ram_size: 0,
-            boot_rom: Vec::new(),
-            boot_rom_size: 0,
-            disable_boot_rom: 0,
-        }
-    }
-
-    pub fn load(&mut self, fname: &String) {
+    pub fn new(fname: &String) -> Self {
         let mut f = File::open(fname).expect("File not found.");
-        f.read_to_end(&mut self.ram).unwrap();
+        let mut ram = Vec::new();
+        f.read_to_end(&mut ram).unwrap();
 
-        self.mbc_type = self.ram[0x147];
-        self.rom_size_type = self.ram[0x148];
-        self.ram_size_type = self.ram[0x149];
+        let mbc_type = ram[0x147];
+        let rom_size_type = ram[0x148];
+        let ram_size_type = ram[0x149];
+        let mut ram_size = 0;
 
-        println!("MBC TYPE:{m}", m=self.mbc_type);
-        println!("ROM SIZE TYPE:{m}", m=self.rom_size_type);
-        println!("RAM SIZE TYPE:{m}", m=self.ram_size_type);
+        println!("MBC TYPE:{m}", m=mbc_type);
+        println!("ROM SIZE TYPE:{m}", m=rom_size_type);
+        println!("RAM SIZE TYPE:{m}", m=ram_size_type);
 
-        match self.mbc_type {
-            0 => {println!("NO MBC")},
-            1 => {println!("MBC1")},
-            3 => {println!("MBC3")},
-            _ => {println!("Invalid MBC TYPE")}
-        }
+        let mapper: Box<dyn Mapper> = match mbc_type {
+            1 => {
+                println!("MBC1");
+                Box::new(Mbc1::new())
+            },
+            3 => {
+                println!("MBC3");
+                Box::new(Mbc3::new())
+            },
+            _n => panic!("Invalid mapper."),
+        };
 
-        match self.ram_size_type {
-            0 => self.ram_size = 0x200,
-            1 => self.ram_size = 0,
-            3 => self.ram_size = 0x8000,
+        match ram_size_type {
+            0 => ram_size = 0x200,
+            1 => ram_size = 0,
+            3 => ram_size = 0x8000,
             _ => println!("Invalid RAM SIZE TYPE")
         }
-    }
 
-    // Not used
-    pub fn load_bootstrap(&mut self, fname: &String) {
-        let mut f = File::open(fname).expect("File not found.");
-        f.read_to_end(&mut self.boot_rom).unwrap();
-        self.boot_rom_size = self.boot_rom.len() as u16;
+        Rom {
+            mbc_type: mbc_type,
+            rom_size_type: rom_size_type,
+            ram_size_type: ram_size_type,
+            ram: ram,
+            ram_size: ram_size,
+            disable_boot_rom: 0,
+            mapper: mapper,
+        }
     }
 
     pub fn read(&self, addr: u16) -> u8 {

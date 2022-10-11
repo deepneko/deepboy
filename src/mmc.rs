@@ -19,10 +19,10 @@ pub struct MMC {
 }
 
 impl MMC {
-    pub fn new() -> Self {
+    pub fn new(fname: &String) -> Self {
         let int_flag = Rc::new(RefCell::new(ByteRegister::new()));
         MMC {
-            rom: Rom::new(),
+            rom: Rom::new(fname),
             ppu: PPU::new(int_flag.clone()),
             joypad: Joypad::new(),
             wram: [0x00; 0x8000],
@@ -31,14 +31,6 @@ impl MMC {
             int_enable: 0,
             int_flag: int_flag.clone(),
         }
-    }
-
-    pub fn load_rom(&mut self, fname: &String) {
-        self.rom.load(fname);
-    }
-
-    pub fn load_bootstrap(&mut self, fname: &String) {
-        self.rom.load_bootstrap(fname);
     }
 
     pub fn read(&mut self, addr: u16) -> u8 {

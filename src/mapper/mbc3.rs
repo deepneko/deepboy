@@ -1,10 +1,10 @@
-pub struct Mbc1 {
+pub struct Mbc3 {
 
 }
 
-impl Mbc1 {
+impl Mbc3 {
     pub fn new() -> Self {
-        Mbc1 {
+        Mbc3 {
 
         }
     }

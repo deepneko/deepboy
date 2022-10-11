@@ -7,16 +7,10 @@ fn main() {
     let rom_name = &args[1];
     println!("rom: {rom}", rom=rom_name);
 
-    // let bootstrap_name = &args[2];
-    // println!("boot_strap: {boot}", boot=bootstrap_name);
-
-    let mut gameboy = Gameboy::new();
+    let mut gameboy = Gameboy::new(rom_name);
     let debug = true;
     gameboy.cpu.set_debug();
     // gameboy.mmc.borrow_mut().ppu.set_debug();
-
-    gameboy.load_rom(rom_name);
-    // gameboy.load_bootstrap(bootstrap_name);
 
     let mut count: u32 = 0;
     loop {
