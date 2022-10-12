@@ -1,8 +1,7 @@
 use std::fs::File;
 use std::io::prelude::*;
-use crate::mapper::mbc1::Mbc1;
-use crate::mapper::mbc3::Mbc3;
 
+use crate::mapper::mbc1::Mbc1;
 use super::mapper::Mapper;
 
 pub const DMG: [u8; 0x100] = [
@@ -28,7 +27,6 @@ pub struct Rom {
     pub mbc_type: u8,
     pub rom_size_type: u8,
     pub ram_size_type: u8,
-    pub ram: Vec<u8>,
     pub ram_size: u16,
     pub disable_boot_rom: u8,
     pub mapper: Box<dyn Mapper>,
@@ -52,11 +50,7 @@ impl Rom {
         let mapper: Box<dyn Mapper> = match mbc_type {
             1 => {
                 println!("MBC1");
-                Box::new(Mbc1::new())
-            },
-            3 => {
-                println!("MBC3");
-                Box::new(Mbc3::new())
+                Box::new(Mbc1::new(ram))
             },
             _n => panic!("Invalid mapper."),
         };
@@ -72,7 +66,6 @@ impl Rom {
             mbc_type: mbc_type,
             rom_size_type: rom_size_type,
             ram_size_type: ram_size_type,
-            ram: ram,
             ram_size: ram_size,
             disable_boot_rom: 0,
             mapper: mapper,
@@ -84,12 +77,12 @@ impl Rom {
         match uaddr {
             0x0000..=0x00FF => {
                 if self.disable_boot_rom != 0 {
-                    self.ram[uaddr]
+                    self.mapper.read(addr)
                 } else {
                     DMG[uaddr]
                 }
             }
-            0x0100..=0x7FFF => self.ram[uaddr],
+            0x0100..=0x7FFF => self.mapper.read(addr),
             _ => 0,
         }
     }
@@ -97,7 +90,7 @@ impl Rom {
     pub fn write(&mut self, addr: u16, dat: u8) {
         let uaddr: usize = addr as usize;
         match uaddr {
-            0x0000..=0x7FFF => self.ram[uaddr] = dat,
+            0x0000..=0x7FFF => self.mapper.write(addr, dat),
             _ => {},
         }
     }

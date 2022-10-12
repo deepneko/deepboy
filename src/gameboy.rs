@@ -29,12 +29,6 @@ impl Gameboy {
         }
     }
 
-    /*
-    pub fn load_rom(&mut self, fname: &String) {
-        self.mmc.borrow_mut().rom.load(fname);
-    }
-    */
-
     pub fn exec_frame(&mut self) {
         let cycles = self.cpu.run();
         self.elapsed_cycles += cycles;
