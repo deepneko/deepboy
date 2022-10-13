@@ -2,6 +2,7 @@ use std::fs::File;
 use std::io::prelude::*;
 
 use crate::mapper::mbc1::Mbc1;
+use crate::mapper::nombc::NoMbc;
 use super::mapper::Mapper;
 
 pub const DMG: [u8; 0x100] = [
@@ -48,6 +49,10 @@ impl Rom {
         println!("RAM SIZE TYPE:{m}", m=ram_size_type);
 
         let mapper: Box<dyn Mapper> = match mbc_type {
+            0 => {
+                println!("NoMBC");
+                Box::new(NoMbc::new(ram))
+            }
             1 => {
                 println!("MBC1");
                 Box::new(Mbc1::new(ram))

@@ -3,5 +3,6 @@ pub trait Mapper {
     fn write(&mut self, addr: u16, dat: u8);
 }
 
+pub mod nombc;
 pub mod mbc1;
 pub mod mbc3;

@@ -4,7 +4,6 @@ pub struct Mbc1 {
     ram: Vec<u8>,
     ram_enable: bool,
     rom_bank: u8,
-    banking_mode: u8,
 }
 
 impl Mbc1 {
@@ -13,7 +12,6 @@ impl Mbc1 {
             ram: ram,
             ram_enable: false,
             rom_bank: 0x01,
-            banking_mode: 0,
         }
     }
 }

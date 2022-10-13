@@ -580,11 +580,15 @@ impl CPU {
                 let dat = self.imm16();
                 self.push(self.regs.pc);
                 self.regs.pc = dat;
+            } else {
+                self.regs.pc += 2;
             }
             0xCC => if self.regs.get_z() {
                 let dat = self.imm16();
                 self.push(self.regs.pc);
                 self.regs.pc = dat;
+            } else {
+                self.regs.pc += 2;
             }
             0xCD => {
                 let dat = self.imm16();
@@ -595,11 +599,15 @@ impl CPU {
                 let dat = self.imm16();
                 self.push(self.regs.pc);
                 self.regs.pc = dat;
+            } else {
+                self.regs.pc += 2;
             }
             0xDC => if self.regs.get_c() {
                 let dat = self.imm16();
                 self.push(self.regs.pc);
                 self.regs.pc = dat;
+            } else {
+                self.regs.pc += 2;
             }
 
             // PUSH
@@ -1229,6 +1237,7 @@ impl CPU {
 
     pub fn imm16(&mut self) -> u16 {
         let ret = self.read16(self.regs.pc);
+        // println!("imm16 pc:{:x} ret:{:x}", self.regs.pc, ret);
         self.regs.pc += 2;
         ret
     }
@@ -1292,8 +1301,8 @@ impl CPU {
     }
 
     pub fn adc(&mut self, r: u8) -> u8 {
-        let ret = self.regs.a.wrapping_add(r);
         let c = self.regs.get_c() as u8;
+        let ret = self.regs.a.wrapping_add(r).wrapping_add(c);
         let half_carry = (self.regs.a & 0xF) + (r & 0xF) + (c & 0xF) > 0xF;
         let carry = u16::from(self.regs.a) + u16::from(r) + u16::from(c) > 0xFF;
 
@@ -1319,8 +1328,8 @@ impl CPU {
     }
 
     pub fn sbc(&mut self, r: u8) -> u8 {
-        let ret = self.regs.a.wrapping_sub(r);
         let c = self.regs.get_c() as u8;
+        let ret = self.regs.a.wrapping_sub(r).wrapping_sub(c);
         let half_carry = (self.regs.a & 0xF) < (r & 0xF) + (c & 0xF);
         let carry = u16::from(self.regs.a) < u16::from(r) + u16::from(c);
 
