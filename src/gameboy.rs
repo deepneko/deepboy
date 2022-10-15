@@ -38,5 +38,7 @@ impl Gameboy {
             self.output.write_screen();
             self.mmc.borrow_mut().ppu.v_blank = false;
         }
+
+        self.output.handle_keys();
     }
 }

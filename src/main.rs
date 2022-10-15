@@ -16,7 +16,7 @@ fn main() {
     loop {
         if debug {
             println!("count:{}", count);
-            if count == 3000000 {
+            if count == 5000000 {
                 panic!("For debug.")
             }
             count = count + 1;

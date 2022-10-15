@@ -29,28 +29,50 @@ impl Joypad {
         }
     }
 
+    pub fn key_down(&mut self, keys: u8) {
+        self.right = keys & 0x1 == 0;
+        self.left = (keys >> 1) & 0x1 == 0;
+        self.up = (keys >> 2) & 0x1 == 0;
+        self.down = (keys >> 3) & 0x1 == 0;
+        self.a = (keys >> 4) & 0x1 == 0;
+        self.b = (keys >> 5) & 0x1 == 0;
+        self.select = (keys >> 6) & 0x1 == 0;
+        self.start = (keys >> 7) & 0x1 == 0;
+    }
+
+    pub fn key_up(&mut self, keys: u8) {
+        self.right = keys & 0x1 != 0;
+        self.left = (keys >> 1) & 0x1 != 0;
+        self.up = (keys >> 2) & 0x1 != 0;
+        self.down = (keys >> 3) & 0x1 != 0;
+        self.a = (keys >> 4) & 0x1 != 0;
+        self.b = (keys >> 5) & 0x1 != 0;
+        self.select = (keys >> 6) & 0x1 != 0;
+        self.start = (keys >> 7) & 0x1 != 0;
+    }
+
     pub fn read(&self, addr: u16) -> u8 {
-        let mut buttons = ByteRegister::new();
-        buttons.set(0b1111);
+        let mut keys = ByteRegister::new();
+        keys.set(0b1111);
 
         if self.direction_select {
-            buttons.set_bit(0, !self.right);
-            buttons.set_bit(1, !self.left);
-            buttons.set_bit(2, !self.up);
-            buttons.set_bit(3, !self.down);
+            keys.set_bit(0, !self.right);
+            keys.set_bit(1, !self.left);
+            keys.set_bit(2, !self.up);
+            keys.set_bit(3, !self.down);
         }
 
         if self.action_select {
-            buttons.set_bit(0, !self.a);
-            buttons.set_bit(1, !self.b);
-            buttons.set_bit(2, !self.select);
-            buttons.set_bit(3, !self.start);
+            keys.set_bit(0, !self.a);
+            keys.set_bit(1, !self.b);
+            keys.set_bit(2, !self.select);
+            keys.set_bit(3, !self.start);
         }
 
-        buttons.set_bit(4, !self.direction_select);
-        buttons.set_bit(5, !self.action_select);
+        keys.set_bit(4, !self.direction_select);
+        keys.set_bit(5, !self.action_select);
 
-        buttons.get()
+        keys.get()
     }
 
     pub fn write(&mut self, addr: u16, dat: u8) {
