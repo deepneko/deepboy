@@ -30,17 +30,7 @@ impl Joypad {
     }
 
     pub fn key_down(&mut self, keys: u8) {
-        self.right = keys & 0x1 == 0;
-        self.left = (keys >> 1) & 0x1 == 0;
-        self.up = (keys >> 2) & 0x1 == 0;
-        self.down = (keys >> 3) & 0x1 == 0;
-        self.a = (keys >> 4) & 0x1 == 0;
-        self.b = (keys >> 5) & 0x1 == 0;
-        self.select = (keys >> 6) & 0x1 == 0;
-        self.start = (keys >> 7) & 0x1 == 0;
-    }
-
-    pub fn key_up(&mut self, keys: u8) {
+        // println!("joypad key_down:{:b}", keys);
         self.right = keys & 0x1 != 0;
         self.left = (keys >> 1) & 0x1 != 0;
         self.up = (keys >> 2) & 0x1 != 0;
@@ -49,6 +39,18 @@ impl Joypad {
         self.b = (keys >> 5) & 0x1 != 0;
         self.select = (keys >> 6) & 0x1 != 0;
         self.start = (keys >> 7) & 0x1 != 0;
+    }
+
+    pub fn key_up(&mut self, keys: u8) {
+        // println!("joypad key_up:{:b}", keys);
+        self.right = !(keys & 0x1 != 0);
+        self.left = !((keys >> 1) & 0x1 != 0);
+        self.up = !((keys >> 2) & 0x1 != 0);
+        self.down = !((keys >> 3) & 0x1 != 0);
+        self.a = !((keys >> 4) & 0x1 != 0);
+        self.b = !((keys >> 5) & 0x1 != 0);
+        self.select = !((keys >> 6) & 0x1 != 0);
+        self.start = !((keys >> 7) & 0x1 != 0);
     }
 
     pub fn read(&self, addr: u16) -> u8 {
@@ -72,6 +74,11 @@ impl Joypad {
         keys.set_bit(4, !self.direction_select);
         keys.set_bit(5, !self.action_select);
 
+        /*
+        println!("joypad read: down:{}", self.down);
+        println!("joypad read: start:{}", self.start);
+        println!("joypad read: keys:{:8b}", keys.data);
+        */
         keys.get()
     }
 

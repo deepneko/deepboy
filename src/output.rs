@@ -23,10 +23,10 @@ impl Output {
         window.update_with_buffer(buffer.as_slice(), GAMEBOY_WIDTH, GAMEBOY_HEIGHT).unwrap();
 
         let joypad_keys: Vec<(minifb::Key, u8)> = vec![
-            (minifb::Key::Right, 0b0001),
-            (minifb::Key::Left, 0b0010),
-            (minifb::Key::Up, 0b0100),
-            (minifb::Key::Down, 0b1000),
+            (minifb::Key::Right, 0b0000_0001),
+            (minifb::Key::Left, 0b0000_0010),
+            (minifb::Key::Up, 0b0000_0100),
+            (minifb::Key::Down, 0b0000_1000),
             (minifb::Key::A, 0b0001_0000),
             (minifb::Key::B, 0b0010_0000),
             (minifb::Key::Space, 0b0100_0000),
@@ -62,8 +62,10 @@ impl Output {
     pub fn handle_keys(&mut self) {
         for (joypad_key, key) in &self.joypad_keys {
             if self.window.is_key_down(*joypad_key) {
+                // println!("output key_down:{:?}", *joypad_key);
                 self.mmc.borrow_mut().joypad.key_down(*key);
-            } else {
+            } else if self.window.is_key_released(*joypad_key) {
+                // println!("output key_up:{:?}", *joypad_key);
                 self.mmc.borrow_mut().joypad.key_up(*key);
             }
         }
