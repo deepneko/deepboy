@@ -144,12 +144,12 @@ impl CPU {
             0x22 => {
                 let addr = self.regs.get_hl();
                 self.write8(addr, self.regs.a);
-                self.regs.set_hl(addr + 1);
+                self.regs.set_hl(addr.wrapping_add(1));
             }
             0x32 => {
                 let addr = self.regs.get_hl();
                 self.write8(addr, self.regs.a);
-                self.regs.set_hl(addr - 1);
+                self.regs.set_hl(addr.wrapping_sub(1));
             }
 
             // INC R16
@@ -269,12 +269,12 @@ impl CPU {
             0x2A => {
                 let addr = self.regs.get_hl();
                 self.regs.a = self.read8(addr);
-                self.regs.set_hl(addr + 1);
+                self.regs.set_hl(addr.wrapping_add(1));
             }
             0x3A => {
                 let addr = self.regs.get_hl();
                 self.regs.a = self.read8(addr);
-                self.regs.set_hl(addr - 1);
+                self.regs.set_hl(addr.wrapping_sub(1));
             }
 
             // DEC A,(R16)

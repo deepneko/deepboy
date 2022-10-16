@@ -81,11 +81,12 @@ impl Rom {
         let uaddr: usize = addr as usize;
         match uaddr {
             0x0000..=0x00FF => {
-                if self.disable_boot_rom != 0 {
-                    self.mapper.read(addr)
-                } else {
-                    DMG[uaddr]
+                /*
+                if self.disable_boot_rom == 0 {
+                    return DMG[uaddr];
                 }
+                */
+                self.mapper.read(addr)
             }
             0x0100..=0x7FFF => self.mapper.read(addr),
             _ => 0,
