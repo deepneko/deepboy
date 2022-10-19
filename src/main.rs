@@ -16,6 +16,9 @@ fn main() {
     loop {
         if debug {
             println!("count:{}", count);
+            if count == 500000 {
+                gameboy.mmc.borrow_mut().joypad.key_down(0b1000_0000);
+            }
             if count == 1000000 {
                 panic!("For debug.")
             }

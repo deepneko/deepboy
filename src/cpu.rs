@@ -96,7 +96,7 @@ impl CPU {
         self.handle_interrupt();
 
         if self.halt {
-            if self.debug { println!("cpu::run halt") };
+            // if self.debug { println!("cpu::run halt") };
             return 1;
         }
 
@@ -1225,7 +1225,7 @@ impl CPU {
     pub fn read16(&mut self, addr: u16) -> u16 {
         //println!("read8 addr:{:x}, dat:{:x}", addr, self.read8(addr));
         //println!("read8 addr:{:x}, dat:{:x}", addr+1, self.read8(addr+1));
-        u16::from(self.read8(addr)) | u16::from(self.read8(addr + 1)) << 8
+        u16::from(self.read8(addr)) | u16::from(self.read8(addr.wrapping_add(1))) << 8
     }
 
     pub fn imm8(&mut self) -> u8 {
@@ -1248,8 +1248,8 @@ impl CPU {
     pub fn write16(&mut self, addr: u16, dat: u16) {
         //println!("write8 addr:{:x}, dat:{:x}", addr, dat&0xff);
         //println!("write8 addr:{:x}, dat:{:x}", addr+1, dat>>8);
+        self.write8(addr.wrapping_add(1), (dat >> 8) as u8);
         self.write8(addr, (dat & 0xFF) as u8);
-        self.write8(addr+1, (dat >> 8) as u8);
     }
 
     pub fn inc(&mut self, r: u8) -> u8 {
@@ -1627,7 +1627,7 @@ impl CPU {
 
         println!("PC:{:>04x} SP:{:>04x}, A:{:>02x} F:{:>02x} B:{:>02x} C:{:>02x} D:{:>02x} E:{:>02x} H:{:>02x} L:{:>02x}, 0x{:>02x} {}",
                 self.regs.pc, self.regs.sp, self.regs.a, self.regs.f, self.regs.b, self.regs.c, self.regs.d, self.regs.e, self.regs.h, self.regs.l, str_opcode, str);
-        self.mmc.borrow_mut().read(0xFF40);
-        println!("0xFF00: {:>02x}", self.mmc.borrow_mut().read(0xFF00));
+        // self.mmc.borrow_mut().read(0xFF40);
+        // println!("0xFF00: {:>02x}", self.mmc.borrow_mut().read(0xFF00));
     }
 }
