@@ -55,14 +55,14 @@ impl MMC {
         }
 
         if addr != 0xFFFF && addr != 0xFF0F {
-            println!("mmc read addr:0x{:x}, ret:0x{:x}", addr, result);
+            // println!("mmc read addr:0x{:x}, ret:0x{:x}", addr, result);
         }
 
         result
     }
 
     pub fn write(&mut self, addr: u16, dat: u8) {
-        println!("mmc write addr:0x{:x}, dat:0x{:x}", addr, dat);
+        // println!("mmc write addr:0x{:x}, dat:0x{:x}", addr, dat);
         match addr {
             0x0000..=0x7FFF => self.rom.write(addr, dat),
             0x8000..=0x9FFF => self.ppu.write(addr, dat),

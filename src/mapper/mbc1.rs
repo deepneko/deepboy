@@ -60,6 +60,5 @@ impl Mapper for Mbc1 {
             }
             _ => panic!("Mbc1 write: Invalid address."),
         }
-        self.ram[addr as usize] = dat;
     }
 }
