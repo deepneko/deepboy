@@ -19,7 +19,16 @@ fn main() {
             if count == 500000 {
                 gameboy.mmc.borrow_mut().joypad.key_down(0b1000_0000);
             }
+            if count == 600000 {
+                gameboy.mmc.borrow_mut().joypad.key_up(0b1000_0000);
+            }
             if count == 1000000 {
+                gameboy.mmc.borrow_mut().joypad.key_down(0b1000_0000);
+            }
+            if count == 1100000 {
+                gameboy.mmc.borrow_mut().joypad.key_up(0b1000_0000);
+            }
+            if count == 22000000 {
                 panic!("For debug.")
             }
             count = count + 1;
