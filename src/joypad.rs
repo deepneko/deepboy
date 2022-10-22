@@ -43,14 +43,14 @@ impl Joypad {
 
     pub fn key_up(&mut self, keys: u8) {
         // println!("joypad key_up:{:b}", keys);
-        self.right = !(keys & 0x1 != 0);
-        self.left = !((keys >> 1) & 0x1 != 0);
-        self.up = !((keys >> 2) & 0x1 != 0);
-        self.down = !((keys >> 3) & 0x1 != 0);
-        self.a = !((keys >> 4) & 0x1 != 0);
-        self.b = !((keys >> 5) & 0x1 != 0);
-        self.select = !((keys >> 6) & 0x1 != 0);
-        self.start = !((keys >> 7) & 0x1 != 0);
+        if (keys & 0x1) != 0 { self.right = false }
+        if (keys >> 1) & 0x1 != 0 { self.left = false };
+        if (keys >> 2) & 0x1 != 0 { self.up = false };
+        if (keys >> 3) & 0x1 != 0 { self.down = false };
+        if (keys >> 4) & 0x1 != 0 { self.a = false };
+        if (keys >> 5) & 0x1 != 0 { self.b = false };
+        if (keys >> 6) & 0x1 != 0 { self.select = false };
+        if (keys >> 7) & 0x1 != 0 { self.start = false };
     }
 
     pub fn read(&self, addr: u16) -> u8 {
