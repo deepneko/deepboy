@@ -29,28 +29,32 @@ impl Joypad {
         }
     }
 
-    pub fn key_down(&mut self, keys: u8) {
-        // println!("joypad key_down:{:b}", keys);
-        self.right = keys & 0x1 != 0;
-        self.left = (keys >> 1) & 0x1 != 0;
-        self.up = (keys >> 2) & 0x1 != 0;
-        self.down = (keys >> 3) & 0x1 != 0;
-        self.a = (keys >> 4) & 0x1 != 0;
-        self.b = (keys >> 5) & 0x1 != 0;
-        self.select = (keys >> 6) & 0x1 != 0;
-        self.start = (keys >> 7) & 0x1 != 0;
+    pub fn key_down(&mut self, key: minifb::Key) {
+        match key {
+            minifb::Key::Right => { self.right = true },
+            minifb::Key::Left => { self.left = true },
+            minifb::Key::Up => { self.up = true },
+            minifb::Key::Down => { self.down = true },
+            minifb::Key::A => { self.a = true },
+            minifb::Key::B => { self.b = true },
+            minifb::Key::Space => { self.select = true },
+            minifb::Key::Enter => { self.start = true },
+            _ => {}
+        } 
     }
 
-    pub fn key_up(&mut self, keys: u8) {
-        // println!("joypad key_up:{:b}", keys);
-        if (keys & 0x1) != 0 { self.right = false }
-        if (keys >> 1) & 0x1 != 0 { self.left = false };
-        if (keys >> 2) & 0x1 != 0 { self.up = false };
-        if (keys >> 3) & 0x1 != 0 { self.down = false };
-        if (keys >> 4) & 0x1 != 0 { self.a = false };
-        if (keys >> 5) & 0x1 != 0 { self.b = false };
-        if (keys >> 6) & 0x1 != 0 { self.select = false };
-        if (keys >> 7) & 0x1 != 0 { self.start = false };
+    pub fn key_up(&mut self, key: minifb::Key) {
+        match key {
+            minifb::Key::Right => { self.right = false },
+            minifb::Key::Left => { self.left = false },
+            minifb::Key::Up => { self.up = false },
+            minifb::Key::Down => { self.down = false },
+            minifb::Key::A => { self.a = false },
+            minifb::Key::B => { self.b = false },
+            minifb::Key::Space => { self.select = false },
+            minifb::Key::Enter => { self.start = false },
+            _ => {}
+        } 
     }
 
     pub fn read(&self, addr: u16) -> u8 {

@@ -268,8 +268,10 @@ impl PPU {
 
             let pixel1 = self.get_vram(tile_line_addr);
             let pixel2 = self.get_vram(tile_line_addr + 1);
+
             let pixel_color = (((pixel2 >> (7 - tile_pixel_x)) & 1) << 1) | ((pixel1 >> (7 - tile_pixel_x) & 1));
             let real_color = self.convert_color(palette[pixel_color as usize]) as u8;
+
             self.frame_buffer[screen_y as usize][screen_x as usize] = [real_color, real_color, real_color];
 
             if self.debug {
@@ -293,7 +295,59 @@ impl PPU {
     }
 
     pub fn draw_window(&mut self) {
+        let palette = self.load_palette(self.bg_palette);
 
+        let mut tile_set_addr: u16 = 0;
+        let mut tile_map_addr: u16 = 0;
+
+        if self.bg_window_tile_data() {
+            tile_set_addr = 0x8000;
+        } else {
+            tile_set_addr = 0x8800;
+        }
+
+        if !self.window_tile_map() {
+            tile_map_addr = 0x9800;
+        } else {
+            tile_map_addr = 0x9C00;
+        }
+
+        let screen_y: u16 = self.line as u16;
+        let scrolled_y: u16 = screen_y.wrapping_sub(self.window_y as u16);
+        if scrolled_y > GAMEBOY_HEIGHT as u16 { return; }
+
+        (0..GAMEBOY_WIDTH as u16).for_each(|screen_x| {
+            let scrolled_x = screen_x + self.window_x as u16 - 7;
+
+            let tile_x = scrolled_x / TILE_WIDTH;
+            let tile_y = scrolled_y / TILE_HEIGHT;
+
+            let tile_pixel_x = scrolled_x % TILE_WIDTH;
+            let tile_pixel_y = scrolled_y % TILE_HEIGHT;
+
+            let tile_index = tile_y  * TILES_PER_LINE + tile_x;
+            let tile_id_addr: u16 = tile_map_addr + tile_index as u16;
+
+            let tile_id = self.get_vram(tile_id_addr);
+
+            let tile_offset = if self.bg_window_tile_data() {
+                i16::from(tile_id)
+            } else {
+                i16::from(tile_id as i8) + 128
+            } as u16
+              * 16;
+
+            let tile_line_offset = u16::from(tile_pixel_y) * 2;
+            let tile_line_addr = tile_set_addr + tile_offset + tile_line_offset;
+
+            let pixel1 = self.get_vram(tile_line_addr);
+            let pixel2 = self.get_vram(tile_line_addr + 1);
+
+            let pixel_color = (((pixel2 >> (7 - tile_pixel_x)) & 1) << 1) | ((pixel1 >> (7 - tile_pixel_x) & 1));
+            let real_color = self.convert_color(palette[pixel_color as usize]) as u8;
+
+            self.frame_buffer[screen_y as usize][screen_x as usize] = [real_color, real_color, real_color];
+        });
     }
 
     pub fn draw_sprite(&mut self, n: u8) {
