@@ -214,7 +214,7 @@ impl PPU {
             return;
         }
 
-        for n in 0..40 {
+        for n in 0..NUM_SPRITES {
             self.draw_sprite(n);
         }
     }
@@ -222,20 +222,17 @@ impl PPU {
     pub fn draw_bg(&mut self) {
         let palette = self.load_palette(self.bg_palette);
 
-        let mut tile_set_addr: u16 = 0;
-        let mut tile_map_addr: u16 = 0;
-
-        if self.bg_window_tile_data() {
-            tile_set_addr = 0x8000;
+        let tile_set_addr: u16 = if self.bg_window_tile_data() {
+            0x8000
         } else {
-            tile_set_addr = 0x8800;
-        }
+            0x8800
+        };
 
-        if !self.bg_tile_map() {
-            tile_map_addr = 0x9800;
+        let tile_map_addr: u16 = if !self.bg_tile_map() {
+            0x9800
         } else {
-            tile_map_addr = 0x9C00;
-        }
+            0x9C00
+        };
 
         let screen_y: u16 = self.line as u16;
         (0..GAMEBOY_WIDTH as u16).for_each(|screen_x| {
@@ -297,20 +294,17 @@ impl PPU {
     pub fn draw_window(&mut self) {
         let palette = self.load_palette(self.bg_palette);
 
-        let mut tile_set_addr: u16 = 0;
-        let mut tile_map_addr: u16 = 0;
-
-        if self.bg_window_tile_data() {
-            tile_set_addr = 0x8000;
+        let tile_set_addr: u16 = if self.bg_window_tile_data() {
+            0x8000
         } else {
-            tile_set_addr = 0x8800;
-        }
+            0x8800
+        };
 
-        if !self.window_tile_map() {
-            tile_map_addr = 0x9800;
+        let tile_map_addr: u16 = if !self.window_tile_map() {
+            0x9800
         } else {
-            tile_map_addr = 0x9C00;
-        }
+            0x9C00
+        };
 
         let screen_y: u16 = self.line as u16;
         let scrolled_y: u16 = screen_y.wrapping_sub(self.window_y as u16);
@@ -350,8 +344,71 @@ impl PPU {
         });
     }
 
-    pub fn draw_sprite(&mut self, n: u8) {
+    pub fn draw_sprite(&mut self, n: u16) {
+        let oam_offset = n * SPRITE_BYTRES;
 
+        let sprite_y = self.oamram[oam_offset as usize] as u16;
+        if sprite_y == 0 || sprite_y >= 160 { return; }
+
+        let sprite_x = self.oamram[oam_offset as usize + 1] as u16;
+        if sprite_x == 0 || sprite_x >= 168 { return; }
+
+        let sprite_size = if self.sprite_size() {
+            2
+        } else {
+            1
+        };
+
+        let tile_location = 0x8000;
+
+        let pattern = self.oamram[oam_offset as usize + 2];
+        let sprite_attr = self.oamram[oam_offset as usize + 3];
+
+        let palette = if sprite_attr << 4 & 0x1 != 0 {
+            self.load_palette(self.sprite_palette1)
+        } else {
+            self.load_palette(self.sprite_palette0)
+        };
+
+        let flip_y: bool = sprite_attr << 5 & 0x1 != 0;
+        let flip_x: bool = sprite_attr << 6 & 0x1 != 0;
+        let behind_bg: bool = sprite_attr << 7 & 0x1 != 0;
+
+        let tile_offset = pattern as u16 * TILE_BYTES;
+
+        let pattern_addr = tile_location + tile_offset;
+
+        let start_y = sprite_y - 16;
+        let start_x = sprite_x - 8;
+
+        (0..(sprite_size * TILE_HEIGHT)).for_each(|y: u16|{
+            (0..TILE_WIDTH).for_each(|x: u16| {
+                let flipped_y = if flip_y {
+                    y
+                } else {
+                    sprite_size * TILE_HEIGHT -y - 1
+                };
+
+                let flipped_x = if flip_x {
+                    x
+                } else {
+                    TILE_WIDTH - x - 1
+                };
+
+                // ToDo: Tile impl
+
+                let screen_x = start_x + x;
+                let screen_y = start_y + y;
+                if(screen_x >= GAMEBOY_WIDTH as u16 && screen_y >= GAMEBOY_HEIGHT as u16) {
+                    return;
+                }
+
+
+            });
+        });
+
+
+        
     }
 
     pub fn load_palette(&self, palette_reg: ByteRegister) -> [u8; 4] {

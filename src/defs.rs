@@ -9,7 +9,8 @@ pub const TILE_HEIGHT: u16 = 8;
 pub const TILE_WIDTH: u16 = 8;
 pub const TILE_BYTES: u16 = 16;
 pub const BG_MAP_SIZE: u16 = 255; // It is actually 256 but not a problem.
-pub const NUM_SPRITES: u32 = 40;
+pub const SPRITE_BYTRES: u16 = 4;
+pub const NUM_SPRITES: u16 = 40;
 
 pub const CLOCKS_PER_HBLANK: u32 = 204;
 pub const CLOCKS_PER_SCANLINE_OAM: u32 = 80;
