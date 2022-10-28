@@ -378,34 +378,54 @@ impl PPU {
 
         let pattern_addr = tile_location + tile_offset;
 
+        /* Create Tile */
+        let mut tile_buffer: [u8; (TILE_HEIGHT * 2 + TILE_WIDTH) as usize] = Default::default();
+        (0..TILE_HEIGHT).for_each(|x: u16|{
+            (0..(sprite_size * TILE_HEIGHT)).for_each(|y: u16|{
+                tile_buffer[(y * TILE_HEIGHT + x) as usize] = 0;
+            });
+        });
+
+        (0..(TILE_HEIGHT * sprite_size)).for_each(|tile_line: u16|{
+            let index = tile_line * 2;
+            let start = pattern_addr + index;
+
+            let pixel1 = self.get_vram(start);
+            let pixel2 = self.get_vram(start + 1);
+
+            let mut pixel_line: Vec<u8> = Vec::new();
+            (0..8).for_each(|i: u8|{
+                let pixel_color = (((pixel2 >> (7 - i)) & 1) << 1) | ((pixel1 >> (7 - i) & 1));
+                pixel_line.push(pixel_color);
+            });
+
+            (0..TILE_WIDTH).for_each(|x: u16|{
+                tile_buffer[(tile_line * TILE_HEIGHT + x) as usize] = pixel_line[x as usize];
+            });
+        });
+        /* Create Tile done */
+
         let start_y = sprite_y - 16;
         let start_x = sprite_x - 8;
 
-        (0..(sprite_size * TILE_HEIGHT)).for_each(|y: u16|{
-            (0..TILE_WIDTH).for_each(|x: u16| {
-                let flipped_y = if flip_y {
-                    y
-                } else {
-                    sprite_size * TILE_HEIGHT -y - 1
-                };
+        for y in 0..(sprite_size * TILE_HEIGHT) {
+            for x in 0..TILE_WIDTH {
+                let flipped_y = if flip_y { y } else {sprite_size * TILE_HEIGHT - y - 1};
+                let flipped_x = if flip_x { x } else { TILE_WIDTH - x - 1 };
 
-                let flipped_x = if flip_x {
-                    x
-                } else {
-                    TILE_WIDTH - x - 1
-                };
-
-                // ToDo: Tile impl
+                let pixel_color = tile_buffer[((flipped_y * TILE_HEIGHT) + flipped_x) as usize];
+                if pixel_color == 0 {
+                    continue;
+                }
 
                 let screen_x = start_x + x;
                 let screen_y = start_y + y;
                 if(screen_x >= GAMEBOY_WIDTH as u16 && screen_y >= GAMEBOY_HEIGHT as u16) {
-                    return;
+                    continue;
                 }
 
-
-            });
-        });
+            }
+        }
 
 
         
