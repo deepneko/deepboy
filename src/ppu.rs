@@ -407,13 +407,14 @@ impl PPU {
 
         let start_y = sprite_y - 16;
         let start_x = sprite_x - 8;
+        let white = [Color::White as u8, Color::White as u8, Color::White as u8];
 
         for y in 0..(sprite_size * TILE_HEIGHT) {
             for x in 0..TILE_WIDTH {
-                let flipped_y = if flip_y { y } else {sprite_size * TILE_HEIGHT - y - 1};
+                let flipped_y = if flip_y { y } else { sprite_size * TILE_HEIGHT - y - 1 };
                 let flipped_x = if flip_x { x } else { TILE_WIDTH - x - 1 };
 
-                let pixel_color = tile_buffer[((flipped_y * TILE_HEIGHT) + flipped_x) as usize];
+                let pixel_color = tile_buffer[(flipped_y * TILE_HEIGHT + flipped_x) as usize];
                 if pixel_color == 0 {
                     continue;
                 }
@@ -424,11 +425,16 @@ impl PPU {
                     continue;
                 }
 
+                if behind_bg {
+                    if self.frame_buffer[screen_x as usize][screen_y as usize] != white {
+                        continue;
+                    }
+                }
+
+                let real_color = self.convert_color(palette[pixel_color as usize]) as u8;
+                self.frame_buffer[screen_y as usize][screen_x as usize] = [real_color, real_color, real_color];
             }
         }
-
-
-        
     }
 
     pub fn load_palette(&self, palette_reg: ByteRegister) -> [u8; 4] {
