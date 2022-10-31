@@ -169,9 +169,9 @@ impl PPU {
     }
 
     pub fn write(&mut self, addr: u16, dat: u8) {
-        if self.debug {
+        //if self.debug {
             println!("ppu.write {:x} {:x}", addr, dat);
-        }
+        //}
 
         match addr {
             0x8000..=0x9FFF => self.vram[addr as usize - 0x8000] = dat,
@@ -346,11 +346,13 @@ impl PPU {
 
     pub fn draw_sprite(&mut self, n: u16) {
         let oam_offset = n * SPRITE_BYTRES;
-
         let sprite_y = self.oamram[oam_offset as usize] as u16;
-        if sprite_y == 0 || sprite_y >= 160 { return; }
-
         let sprite_x = self.oamram[oam_offset as usize + 1] as u16;
+        println!("oam_offset:{:x}", oam_offset);
+        println!("sprite_y:{:x}, sprite_x:{:x}", sprite_y, sprite_x);
+        self.debug_oam_out();
+
+        if sprite_y == 0 || sprite_y >= 160 { return; }
         if sprite_x == 0 || sprite_x >= 168 { return; }
 
         let sprite_size = if self.sprite_size() {
@@ -377,6 +379,16 @@ impl PPU {
         let tile_offset = pattern as u16 * TILE_BYTES;
 
         let pattern_addr = tile_location + tile_offset;
+
+        println!("sprite_y:{:x}, sprite_x:{:x}", sprite_y, sprite_x);
+        println!("sprite_size:{:x}", sprite_size);
+        println!("tile_location:{:x}", tile_location);
+        println!("pattern:{:x}", pattern);
+        println!("sprite_attr:{:x}", sprite_attr);
+        println!("flip_y:{}, flip_x:{}", flip_y, flip_x);
+        println!("behind_bg:{}", behind_bg);
+        println!("tile_offset:{:x}", tile_offset);
+        println!("pattern_addr:{:x}", pattern_addr);
 
         /* Create Tile */
         let mut tile_buffer: [u8; (TILE_HEIGHT * 2 + TILE_WIDTH) as usize] = Default::default();
@@ -454,5 +466,13 @@ impl PPU {
             3 => return Color::Gray,
             _ => panic!("Undefined color."),
         };
+    }
+
+    pub fn debug_oam_out(&self) {
+        print!("oam_out:");
+        for v in self.oamram.iter() {
+            print!("{:x}", v);
+        }
+        println!("");
     }
 }
