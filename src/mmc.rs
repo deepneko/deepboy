@@ -75,11 +75,22 @@ impl MMC {
             0xFF00 => self.joypad.write(addr, dat),
             0xFF0F => self.int_flag.borrow_mut().data = dat,
             0xFF40..=0xFF45 => self.ppu.write(addr, dat),
+            0xFF46 => self.oam_dma_transfer(dat),
             0xFF47..=0xFF4B => self.ppu.write(addr, dat),
             0xFF50 => self.rom.disable_boot_rom = dat,
             0xFF80..=0xFFFE => self.hram[(addr as usize) - 0xFF80] = dat,
             0xFFFF => self.int_enable = dat,
             _ => {},
+        }
+    }
+
+    pub fn oam_dma_transfer(&mut self, dat: u8) {
+        let start_addr = 0x100 * dat as u16;
+
+        for i in 0..=0x9F {
+            let oam_addr = 0xFE00 + i;
+            let oam_dat = self.read(start_addr + i);
+            self.ppu.write(oam_addr, oam_dat);
         }
     }
 }

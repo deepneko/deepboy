@@ -391,7 +391,7 @@ impl PPU {
         println!("pattern_addr:{:x}", pattern_addr);
 
         /* Create Tile */
-        let mut tile_buffer: [u8; (TILE_HEIGHT * 2 + TILE_WIDTH) as usize] = Default::default();
+        let mut tile_buffer: [u8; (TILE_HEIGHT * 2 * TILE_WIDTH) as usize] = [0; (TILE_HEIGHT * 2 * TILE_WIDTH) as usize];
         (0..TILE_HEIGHT).for_each(|x: u16|{
             (0..(sprite_size * TILE_HEIGHT)).for_each(|y: u16|{
                 tile_buffer[(y * TILE_HEIGHT + x) as usize] = 0;
