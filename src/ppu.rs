@@ -366,15 +366,15 @@ impl PPU {
         let pattern = self.oamram[oam_offset as usize + 2];
         let sprite_attr = self.oamram[oam_offset as usize + 3];
 
-        let palette = if sprite_attr << 4 & 0x1 != 0 {
+        let palette = if sprite_attr >> 4 & 0x1 != 0 {
             self.load_palette(self.sprite_palette1)
         } else {
             self.load_palette(self.sprite_palette0)
         };
 
-        let flip_y: bool = sprite_attr << 5 & 0x1 != 0;
-        let flip_x: bool = sprite_attr << 6 & 0x1 != 0;
-        let behind_bg: bool = sprite_attr << 7 & 0x1 != 0;
+        let flip_x: bool = sprite_attr >> 5 & 0x1 != 0;
+        let flip_y: bool = sprite_attr >> 6 & 0x1 != 0;
+        let behind_bg: bool = sprite_attr >> 7 & 0x1 != 0;
 
         let tile_offset = pattern as u16 * TILE_BYTES;
 
@@ -415,6 +415,8 @@ impl PPU {
                 tile_buffer[(tile_line * TILE_HEIGHT + x) as usize] = pixel_line[x as usize];
             });
         });
+
+        self.debug_tile_out(&tile_buffer);
         /* Create Tile done */
 
         let start_y = sprite_y - 16;
@@ -423,27 +425,31 @@ impl PPU {
 
         for y in 0..(sprite_size * TILE_HEIGHT) {
             for x in 0..TILE_WIDTH {
-                let flipped_y = if flip_y { y } else { sprite_size * TILE_HEIGHT - y - 1 };
-                let flipped_x = if flip_x { x } else { TILE_WIDTH - x - 1 };
+                let flipped_y = if !flip_y { y } else { sprite_size * TILE_HEIGHT - y - 1 };
+                let flipped_x = if !flip_x { x } else { TILE_WIDTH - x - 1 };
 
                 let pixel_color = tile_buffer[(flipped_y * TILE_HEIGHT + flipped_x) as usize];
+                println!("flipped_y:{:x}, flipped_x:{:x}", flipped_y, flipped_x);
+                //println!("pixel_color:{:x}", pixel_color);
                 if pixel_color == 0 {
                     continue;
                 }
 
                 let screen_x = start_x + x;
                 let screen_y = start_y + y;
-                if(screen_x >= GAMEBOY_WIDTH as u16 && screen_y >= GAMEBOY_HEIGHT as u16) {
+                println!("screen_x:{:x}, screen_y:{:x}", screen_x, screen_y);
+                if(screen_x >= GAMEBOY_WIDTH as u16 || screen_y >= GAMEBOY_HEIGHT as u16) {
                     continue;
                 }
 
                 if behind_bg {
-                    if self.frame_buffer[screen_x as usize][screen_y as usize] != white {
+                    if self.frame_buffer[screen_y as usize][screen_x as usize] != white {
                         continue;
                     }
                 }
 
                 let real_color = self.convert_color(palette[pixel_color as usize]) as u8;
+                println!("real_color:{:x}", real_color);
                 self.frame_buffer[screen_y as usize][screen_x as usize] = [real_color, real_color, real_color];
             }
         }
@@ -471,6 +477,14 @@ impl PPU {
     pub fn debug_oam_out(&self) {
         print!("oam_out:");
         for v in self.oamram.iter() {
+            print!("{:x}", v);
+        }
+        println!("");
+    }
+
+    pub fn debug_tile_out(&self, tile: &[u8]) {
+        print!("tile_out:");
+        for v in tile.iter() {
             print!("{:x}", v);
         }
         println!("");
