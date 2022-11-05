@@ -1,5 +1,5 @@
 use std::{cell::RefCell, rc::Rc};
-use crate::{defs::{GAMEBOY_WIDTH, GAMEBOY_HEIGHT}, mmc::MMC};
+use crate::{defs::{GAMEBOY_WIDTH, GAMEBOY_HEIGHT, Color}, mmc::MMC};
 
 pub struct Output {
     window: minifb::Window,
@@ -41,10 +41,17 @@ impl Output {
     }
 
     pub fn write_screen(&mut self) {
+        let mut color_buffer = [[[0x0; 3]; GAMEBOY_WIDTH as usize]; GAMEBOY_HEIGHT as usize];
+        for y in 0..GAMEBOY_HEIGHT {
+            for x in 0..GAMEBOY_WIDTH {
+                let color= self.convert_color(self.mmc.borrow_mut().ppu.frame_buffer[y][x][0]) as u8;
+                color_buffer[y][x] = [color, color, color];
+            }
+        }
+
         let mut screen_buffer = vec![0; GAMEBOY_WIDTH * GAMEBOY_HEIGHT];
         let mut i: usize = 0;
-
-        for buffer in self.mmc.borrow_mut().ppu.frame_buffer.iter() {
+        for buffer in color_buffer.iter() {
             for rgb in buffer.iter() {
                 let a = 0xff << 24;
                 let b = rgb[0] as u32;
@@ -57,6 +64,16 @@ impl Output {
         }
 
         self.window.update_with_buffer(screen_buffer.as_slice(), GAMEBOY_WIDTH, GAMEBOY_HEIGHT).unwrap();
+    }
+
+    pub fn convert_color(&self, color: u8) -> Color {
+        match color {
+            0 => return Color::White,
+            1 => return Color::LightGray,
+            2 => return Color::DarkGray,
+            3 => return Color::Gray,
+            _ => panic!("Undefined color."),
+        };
     }
 
     pub fn handle_keys(&mut self) {

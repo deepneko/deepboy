@@ -27,7 +27,7 @@ pub struct PPU {
 impl PPU {
     pub fn new(int_flag: Rc<RefCell<ByteRegister>>) -> Self {
         PPU {
-            frame_buffer: [[[0xff; 3]; GAMEBOY_WIDTH as usize]; GAMEBOY_HEIGHT as usize],
+            frame_buffer: [[[0x0; 3]; GAMEBOY_WIDTH as usize]; GAMEBOY_HEIGHT as usize],
             vram: [0; 0x4000],
             oamram: [0; 0xa0],
             int_flag: int_flag,
@@ -123,6 +123,8 @@ impl PPU {
 
                     if self.line == 154 {
                         self.render_sprites();
+
+                        // self.frame_buffer = [[[0xff; 3]; GAMEBOY_WIDTH as usize]; GAMEBOY_HEIGHT as usize];
                         self.line = 0;
                         self.mode = VideoMode::ACCESS_OAM;
                         self.lcd_status.set_bit(1, true);
@@ -267,7 +269,7 @@ impl PPU {
             let pixel2 = self.get_vram(tile_line_addr + 1);
 
             let pixel_color = (((pixel2 >> (7 - tile_pixel_x)) & 1) << 1) | ((pixel1 >> (7 - tile_pixel_x) & 1));
-            let real_color = self.convert_color(palette[pixel_color as usize]) as u8;
+            let real_color = palette[pixel_color as usize];
 
             self.frame_buffer[screen_y as usize][screen_x as usize] = [real_color, real_color, real_color];
 
@@ -289,6 +291,8 @@ impl PPU {
                 println!("tile_line_addr:{:x}", tile_line_addr);
             }
         });
+
+        self.debug_frame_out("draw_bg");
     }
 
     pub fn draw_window(&mut self) {
@@ -338,10 +342,12 @@ impl PPU {
             let pixel2 = self.get_vram(tile_line_addr + 1);
 
             let pixel_color = (((pixel2 >> (7 - tile_pixel_x)) & 1) << 1) | ((pixel1 >> (7 - tile_pixel_x) & 1));
-            let real_color = self.convert_color(palette[pixel_color as usize]) as u8;
+            let real_color = palette[pixel_color as usize];
 
             self.frame_buffer[screen_y as usize][screen_x as usize] = [real_color, real_color, real_color];
         });
+
+        self.debug_frame_out("draw_window");
     }
 
     pub fn draw_sprite(&mut self, n: u16) {
@@ -448,11 +454,13 @@ impl PPU {
                     }
                 }
 
-                let real_color = self.convert_color(palette[pixel_color as usize]) as u8;
+                let real_color = palette[pixel_color as usize];
                 println!("real_color:{:x}", real_color);
                 self.frame_buffer[screen_y as usize][screen_x as usize] = [real_color, real_color, real_color];
             }
         }
+
+        self.debug_frame_out("draw_sprite");
     }
 
     pub fn load_palette(&self, palette_reg: ByteRegister) -> [u8; 4] {
@@ -462,16 +470,6 @@ impl PPU {
         let color3 = palette_reg.get_bit(7) << 1 | palette_reg.get_bit(6); 
 
         return [color0, color1, color2, color3];
-    }
-
-    pub fn convert_color(&self, color: u8) -> Color {
-        match color {
-            0 => return Color::White,
-            1 => return Color::LightGray,
-            2 => return Color::DarkGray,
-            3 => return Color::Gray,
-            _ => panic!("Undefined color."),
-        };
     }
 
     pub fn debug_oam_out(&self) {
@@ -488,5 +486,14 @@ impl PPU {
             print!("{:x}", v);
         }
         println!("");
+    }
+    
+    pub fn debug_frame_out(&self, s: &str) {
+        println!("{}:", s);
+        for y in 0..GAMEBOY_HEIGHT {
+            for x in 0..GAMEBOY_WIDTH {
+                println!("y:{:x}, x:{:x}, color:{:x}", y, x, self.frame_buffer[y][x][0]);
+            }
+        }
     }
 }

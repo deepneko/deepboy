@@ -30,7 +30,7 @@ fn main() {
             if count == 1100000 {
                 gameboy.mmc.borrow_mut().joypad.key_up(minifb::Key::Enter);
             }
-            if count == 900000 {
+            if count == 400000 {
                 panic!("For debug.")
             }
             count = count + 1;
