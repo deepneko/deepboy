@@ -49,6 +49,8 @@ impl Output {
             }
         }
 
+        self.mmc.borrow_mut().ppu.reset_buffer();
+
         let mut screen_buffer = vec![0; GAMEBOY_WIDTH * GAMEBOY_HEIGHT];
         let mut i: usize = 0;
         for buffer in color_buffer.iter() {

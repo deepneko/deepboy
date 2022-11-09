@@ -124,7 +124,6 @@ impl PPU {
                     if self.line == 154 {
                         self.render_sprites();
 
-                        // self.frame_buffer = [[[0xff; 3]; GAMEBOY_WIDTH as usize]; GAMEBOY_HEIGHT as usize];
                         self.line = 0;
                         self.mode = VideoMode::ACCESS_OAM;
                         self.lcd_status.set_bit(1, true);
@@ -191,6 +190,10 @@ impl PPU {
             0xFF4B => self.window_x = dat,
             _ => panic!("PPU: Unknown address."),
         }
+    }
+
+    pub fn reset_buffer(&mut self) {
+        self.frame_buffer = [[[0x0; 3]; GAMEBOY_WIDTH as usize]; GAMEBOY_HEIGHT as usize];
     }
 
     pub fn get_vram(&self, addr: u16) -> u8 {
@@ -272,27 +275,35 @@ impl PPU {
             let real_color = palette[pixel_color as usize];
 
             self.frame_buffer[screen_y as usize][screen_x as usize] = [real_color, real_color, real_color];
+            if screen_x == 0 && screen_y == 0xe {
+                println!("who! y:{:x}, x:{:x}, color:{:x}", screen_y, screen_x, real_color);
+            }
 
             if self.debug {
+                println!("screen_x:{:x} screen_y:{:x}", screen_x, screen_y);
                 println!("scrolled_x:{:x} scrolled_y:{:x}", scrolled_x, scrolled_y);
                 println!("bg_map_x:{:x} bg_map_y:{:x}", bg_map_x, bg_map_y);
-                println!("tile_index:{:x} tile_id_addr:{:x}", tile_index, tile_id_addr);
                 println!("lcd_control:{:x} lcd_status:{:x}", self.lcd_control.get(), self.lcd_status.get());
+                /*
                 println!("ppu.read {:x} {:x}", tile_id_addr, tile_id);
                 println!("ppu.read {:x} {:x}", tile_line_addr, pixel1);
                 println!("ppu.read {:x} {:x}", tile_line_addr+1, pixel2);
-                println!("pixel_color:{:x}", pixel_color);
+                */
 
+                println!("tile_index:{:x} tile_id_addr:{:x}", tile_index, tile_id_addr);
                 println!("tile_id:{:x}", tile_id);
                 println!("tile_pixel_y:{:x}", tile_pixel_y);
                 println!("tile_set_addr:{:x}", tile_set_addr);
-                println!("tile_offset:{:x}", tile_line_offset);
-                println!("tile_line_offset:{:x}", tile_offset);
+                println!("tile_offset:{:x}", tile_offset);
+                println!("tile_line_offset:{:x}", tile_line_offset);
                 println!("tile_line_addr:{:x}", tile_line_addr);
+
+                println!("real_color:{:x}", real_color);
             }
         });
 
-        self.debug_frame_out("draw_bg");
+        println!("who! color:{:x}", self.frame_buffer[0xe][0][0]);
+        // self.debug_frame_out("draw_bg");
     }
 
     pub fn draw_window(&mut self) {
