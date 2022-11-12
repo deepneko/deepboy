@@ -32,11 +32,12 @@ impl Gameboy {
     pub fn exec_frame(&mut self) {
         let cycles = self.cpu.run();
         self.elapsed_cycles += cycles;
-        self.mmc.borrow_mut().ppu.run(cycles);
 
+        self.mmc.borrow_mut().ppu.run(cycles);
+        // println!("v_blank:{}", self.mmc.borrow_mut().ppu.v_blank);
         if self.mmc.borrow_mut().ppu.v_blank {
-            self.output.write_screen();
             self.mmc.borrow_mut().ppu.v_blank = false;
+            self.output.write_screen();
         }
 
         self.output.handle_keys();

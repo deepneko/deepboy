@@ -55,16 +55,18 @@ impl Output {
         let mut i: usize = 0;
         for buffer in color_buffer.iter() {
             for rgb in buffer.iter() {
-                let a = 0xff << 24;
-                let b = rgb[0] as u32;
-                let g = (rgb[1] as u32) << 8;
+                // let a = 0xff << 24;
                 let r = (rgb[2] as u32) << 16;
+                let g = (rgb[1] as u32) << 8;
+                let b = rgb[0] as u32;
 
-                screen_buffer[i] = a | b | g | r;
+                screen_buffer[i] = r | g | b;
+                // screen_buffer[i] = a | b | g | r;
                 i += 1;
             }
         }
 
+        // screen_buffer = self.debug_screen_out(screen_buffer);
         self.window.update_with_buffer(screen_buffer.as_slice(), GAMEBOY_WIDTH, GAMEBOY_HEIGHT).unwrap();
     }
 
@@ -88,5 +90,14 @@ impl Output {
                 self.mmc.borrow_mut().joypad.key_up(*key);
             }
         }
+    }
+
+    pub fn debug_screen_out(&self, buf: Vec<u32>) -> Vec<u32>{
+        println!("screen_out:");
+        for v in buf.iter() {
+            println!("{:x}", v);
+        }
+
+        return buf;
     }
 }

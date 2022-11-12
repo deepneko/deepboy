@@ -62,7 +62,9 @@ impl PPU {
 
         match self.mode {
             VideoMode::ACCESS_OAM => {
-                if self.debug {println!("ppu.mode: OAM")}
+                if self.debug {
+                    println!("ppu.mode: OAM");
+                }
                 if self.cycles >= CLOCKS_PER_SCANLINE_OAM {
                     self.cycles %= CLOCKS_PER_SCANLINE_OAM;
                     self.lcd_status.set_bit(1, true);
@@ -72,7 +74,9 @@ impl PPU {
             }
 
             VideoMode::ACCESS_VRAM => {
-                if self.debug {println!("ppu.mode: VRAM")}
+                if self.debug {
+                    println!("ppu.mode: VRAM");
+                }
                 if self.cycles >= CLOCKS_PER_SCANLINE_VRAM {
                     self.cycles %= CLOCKS_PER_SCANLINE_VRAM;
                     self.mode = VideoMode::HBLANK;
@@ -93,7 +97,9 @@ impl PPU {
             }
 
             VideoMode::HBLANK => {
-                if self.debug {println!("ppu.mode: HBLANK")};
+                if self.debug {
+                    println!("ppu.mode: HBLANK");
+                }
                 if self.cycles >= CLOCKS_PER_HBLANK {
                     self.render_scanline();
                     self.line += 1;
@@ -102,7 +108,6 @@ impl PPU {
 
                     if self.line == 144 {
                         self.mode = VideoMode::VBLANK;
-                        self.v_blank = true;
                         self.lcd_status.set_bit(1, false);
                         self.lcd_status.set_bit(0, true);
                         self.int_flag.borrow_mut().set_bit(0, true);
@@ -115,7 +120,9 @@ impl PPU {
             }
 
             VideoMode::VBLANK => {
-                if self.debug {println!("ppu.mode: VBLANK")}
+                if self.debug {
+                    println!("ppu.mode: VBLANK");
+                }
                 if self.cycles >= CLOCKS_PER_SCANLINE {
                     self.line += 1;
 
@@ -123,7 +130,7 @@ impl PPU {
 
                     if self.line == 154 {
                         self.render_sprites();
-
+                        self.v_blank = true;
                         self.line = 0;
                         self.mode = VideoMode::ACCESS_OAM;
                         self.lcd_status.set_bit(1, true);
@@ -163,21 +170,27 @@ impl PPU {
         }
 
         if self.debug {
-            println!("ppu.read {:x} {:x}", addr, result);
+            // println!("ppu.read {:x} {:x}", addr, result);
         }
 
         result
     }
 
     pub fn write(&mut self, addr: u16, dat: u8) {
-        //if self.debug {
+        if self.debug {
             println!("ppu.write {:x} {:x}", addr, dat);
-        //}
+        }
 
         match addr {
             0x8000..=0x9FFF => self.vram[addr as usize - 0x8000] = dat,
             0xFE00..=0xFE9F => self.oamram[addr as usize - 0xFE00] = dat,
-            0xFF40 => self.lcd_control.set(dat),
+            0xFF40 => {
+                self.lcd_control.set(dat);
+                if !self.lcd_enabled() {
+                    self.reset_buffer();
+                    self.v_blank = true;
+                }
+            }
             0xFF41 => self.lcd_status.set(dat),
             0xFF42 => self.scroll_y = dat,
             0xFF43 => self.scroll_x = dat,
@@ -201,6 +214,9 @@ impl PPU {
     }
 
     pub fn render_scanline(&mut self) {
+        if self.debug {
+            println!("render_scanline bg_enabled:{} window_enabled:{}", self.bg_enabled(), self.window_enabled());
+        }
         if !self.lcd_enabled() {
             return;
         }
@@ -275,21 +291,12 @@ impl PPU {
             let real_color = palette[pixel_color as usize];
 
             self.frame_buffer[screen_y as usize][screen_x as usize] = [real_color, real_color, real_color];
-            if screen_x == 0 && screen_y == 0xe {
-                println!("who! y:{:x}, x:{:x}, color:{:x}", screen_y, screen_x, real_color);
-            }
 
             if self.debug {
                 println!("screen_x:{:x} screen_y:{:x}", screen_x, screen_y);
                 println!("scrolled_x:{:x} scrolled_y:{:x}", scrolled_x, scrolled_y);
                 println!("bg_map_x:{:x} bg_map_y:{:x}", bg_map_x, bg_map_y);
                 println!("lcd_control:{:x} lcd_status:{:x}", self.lcd_control.get(), self.lcd_status.get());
-                /*
-                println!("ppu.read {:x} {:x}", tile_id_addr, tile_id);
-                println!("ppu.read {:x} {:x}", tile_line_addr, pixel1);
-                println!("ppu.read {:x} {:x}", tile_line_addr+1, pixel2);
-                */
-
                 println!("tile_index:{:x} tile_id_addr:{:x}", tile_index, tile_id_addr);
                 println!("tile_id:{:x}", tile_id);
                 println!("tile_pixel_y:{:x}", tile_pixel_y);
@@ -297,13 +304,14 @@ impl PPU {
                 println!("tile_offset:{:x}", tile_offset);
                 println!("tile_line_offset:{:x}", tile_line_offset);
                 println!("tile_line_addr:{:x}", tile_line_addr);
-
                 println!("real_color:{:x}", real_color);
             }
         });
 
-        println!("who! color:{:x}", self.frame_buffer[0xe][0][0]);
-        // self.debug_frame_out("draw_bg");
+        if self.debug {
+            println!("who! color:{:x}", self.frame_buffer[0xe][0][0]);
+            // self.debug_frame_out("draw_bg");
+        }
     }
 
     pub fn draw_window(&mut self) {
@@ -358,16 +366,13 @@ impl PPU {
             self.frame_buffer[screen_y as usize][screen_x as usize] = [real_color, real_color, real_color];
         });
 
-        self.debug_frame_out("draw_window");
+        // self.debug_frame_out("draw_window");
     }
 
     pub fn draw_sprite(&mut self, n: u16) {
         let oam_offset = n * SPRITE_BYTRES;
         let sprite_y = self.oamram[oam_offset as usize] as u16;
         let sprite_x = self.oamram[oam_offset as usize + 1] as u16;
-        println!("oam_offset:{:x}", oam_offset);
-        println!("sprite_y:{:x}, sprite_x:{:x}", sprite_y, sprite_x);
-        self.debug_oam_out();
 
         if sprite_y == 0 || sprite_y >= 160 { return; }
         if sprite_x == 0 || sprite_x >= 168 { return; }
@@ -397,15 +402,20 @@ impl PPU {
 
         let pattern_addr = tile_location + tile_offset;
 
-        println!("sprite_y:{:x}, sprite_x:{:x}", sprite_y, sprite_x);
-        println!("sprite_size:{:x}", sprite_size);
-        println!("tile_location:{:x}", tile_location);
-        println!("pattern:{:x}", pattern);
-        println!("sprite_attr:{:x}", sprite_attr);
-        println!("flip_y:{}, flip_x:{}", flip_y, flip_x);
-        println!("behind_bg:{}", behind_bg);
-        println!("tile_offset:{:x}", tile_offset);
-        println!("pattern_addr:{:x}", pattern_addr);
+        if self.debug {
+            println!("oam_offset:{:x}", oam_offset);
+            println!("sprite_y:{:x}, sprite_x:{:x}", sprite_y, sprite_x);
+            self.debug_oam_out();
+            println!("sprite_y:{:x}, sprite_x:{:x}", sprite_y, sprite_x);
+            println!("sprite_size:{:x}", sprite_size);
+            println!("tile_location:{:x}", tile_location);
+            println!("pattern:{:x}", pattern);
+            println!("sprite_attr:{:x}", sprite_attr);
+            println!("flip_y:{}, flip_x:{}", flip_y, flip_x);
+            println!("behind_bg:{}", behind_bg);
+            println!("tile_offset:{:x}", tile_offset);
+            println!("pattern_addr:{:x}", pattern_addr);
+        }
 
         /* Create Tile */
         let mut tile_buffer: [u8; (TILE_HEIGHT * 2 * TILE_WIDTH) as usize] = [0; (TILE_HEIGHT * 2 * TILE_WIDTH) as usize];
@@ -433,12 +443,14 @@ impl PPU {
             });
         });
 
-        self.debug_tile_out(&tile_buffer);
+        if self.debug {
+            self.debug_tile_out(&tile_buffer);
+        }
         /* Create Tile done */
 
-        let start_y = sprite_y - 16;
-        let start_x = sprite_x - 8;
-        let white = [Color::White as u8, Color::White as u8, Color::White as u8];
+        let start_y = sprite_y.wrapping_sub(16);
+        let start_x = sprite_x.wrapping_sub(8);
+        let white = [0, 0, 0];
 
         for y in 0..(sprite_size * TILE_HEIGHT) {
             for x in 0..TILE_WIDTH {
@@ -446,15 +458,19 @@ impl PPU {
                 let flipped_x = if !flip_x { x } else { TILE_WIDTH - x - 1 };
 
                 let pixel_color = tile_buffer[(flipped_y * TILE_HEIGHT + flipped_x) as usize];
-                println!("flipped_y:{:x}, flipped_x:{:x}", flipped_y, flipped_x);
-                //println!("pixel_color:{:x}", pixel_color);
+                if self.debug {
+                    println!("flipped_y:{:x}, flipped_x:{:x}", flipped_y, flipped_x);
+                }
+
                 if pixel_color == 0 {
                     continue;
                 }
 
-                let screen_x = start_x + x;
-                let screen_y = start_y + y;
-                println!("screen_x:{:x}, screen_y:{:x}", screen_x, screen_y);
+                let screen_x = start_x.wrapping_add(x);
+                let screen_y = start_y.wrapping_add(y);
+                if self.debug {
+                    println!("screen_x:{:x}, screen_y:{:x}", screen_x, screen_y);
+                }
                 if(screen_x >= GAMEBOY_WIDTH as u16 || screen_y >= GAMEBOY_HEIGHT as u16) {
                     continue;
                 }
@@ -466,12 +482,16 @@ impl PPU {
                 }
 
                 let real_color = palette[pixel_color as usize];
-                println!("real_color:{:x}", real_color);
+                if self.debug {
+                    println!("real_color:{:x}", real_color);
+                }
                 self.frame_buffer[screen_y as usize][screen_x as usize] = [real_color, real_color, real_color];
             }
         }
 
-        self.debug_frame_out("draw_sprite");
+        if self.debug {
+            // self.debug_frame_out("draw_sprite");
+        }
     }
 
     pub fn load_palette(&self, palette_reg: ByteRegister) -> [u8; 4] {
