@@ -8,9 +8,9 @@ fn main() {
     println!("rom: {rom}", rom=rom_name);
 
     let mut gameboy = Gameboy::new(rom_name);
-    let mut debug = true;
-    gameboy.cpu.set_debug();
-    gameboy.mmc.borrow_mut().ppu.set_debug();
+    let mut debug = false;
+    // gameboy.cpu.set_debug();
+    // gameboy.mmc.borrow_mut().ppu.set_debug();
 
     let mut count: u32 = 0;
     loop {
@@ -28,7 +28,7 @@ fn main() {
             if count == 800000 {
                 gameboy.mmc.borrow_mut().joypad.key_up(minifb::Key::Enter);
             }
-            if count == 5000000 {
+            if count == 20000000 {
                 panic!("For debug.")
             }
             count = count + 1;

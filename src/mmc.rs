@@ -3,6 +3,7 @@ use std::rc::Rc;
 
 use crate::joypad::Joypad;
 use crate::register::ByteRegister;
+use crate::timer::Timer;
 
 use super::rom::Rom;
 use super::ppu::PPU;
@@ -11,6 +12,7 @@ pub struct MMC {
     pub rom: Rom, 
     pub ppu: PPU,
     pub joypad: Joypad,
+    pub timer: Timer,
     pub wram: [u8; 0x8000],
     pub bank: usize,
     pub hram: [u8; 0x7F],
@@ -25,6 +27,7 @@ impl MMC {
             rom: Rom::new(fname),
             ppu: PPU::new(int_flag.clone()),
             joypad: Joypad::new(),
+            timer: Timer::new(),
             wram: [0x00; 0x8000],
             bank: 0x01,
             hram: [0x00; 0x7F],
@@ -34,25 +37,25 @@ impl MMC {
     }
 
     pub fn read(&mut self, addr: u16) -> u8 {
-        let mut result: u8 = 0;
-        match addr {
-            0x0000..=0x7FFF => result = self.rom.read(addr),
-            0x8000..=0x9FFF => result = self.ppu.read(addr),
-            0xA000..=0xBFFF => result = self.rom.read(addr),
-            0xC000..=0xCFFF => result = self.wram[(addr as usize) - 0xC000],
-            0xD000..=0xDFFF => result = self.wram[(addr as usize) - 0xD000 + (0x1000 * self.bank)],
-            0xE000..=0xEFFF => result = self.wram[addr as usize - 0xE000],
-            0xF000..=0xFDFF => result = self.wram[(addr as usize) - 0xF000 + (0x1000 * self.bank)],
-            0xFE00..=0xFE9F => result = self.ppu.read(addr),
-            0xFF00 => result = self.joypad.read(addr),
-            0xFF0F => result = self.int_flag.borrow_mut().data,
-            0xFF40..=0xFF45 => result = self.ppu.read(addr),
-            0xFF47..=0xFF4B => result = self.ppu.read(addr),
-            0xFF50 => result = self.rom.disable_boot_rom,
-            0xFF80..=0xFFFE => result = self.hram[(addr as usize) - 0xFF80],
-            0xFFFF => result = self.int_enable,
-            _ => result = 0,
-        }
+        let result = match addr {
+            0x0000..=0x7FFF => self.rom.read(addr),
+            0x8000..=0x9FFF => self.ppu.read(addr),
+            0xA000..=0xBFFF => self.rom.read(addr),
+            0xC000..=0xCFFF => self.wram[(addr as usize) - 0xC000],
+            0xD000..=0xDFFF => self.wram[(addr as usize) - 0xD000 + (0x1000 * self.bank)],
+            0xE000..=0xEFFF => self.wram[addr as usize - 0xE000],
+            0xF000..=0xFDFF => self.wram[(addr as usize) - 0xF000 + (0x1000 * self.bank)],
+            0xFE00..=0xFE9F => self.ppu.read(addr),
+            0xFF00 => self.joypad.read(addr),
+            0xFF04..=0xFF07 => self.timer.read(addr),
+            0xFF0F => self.int_flag.borrow_mut().data,
+            0xFF40..=0xFF45 => self.ppu.read(addr),
+            0xFF47..=0xFF4B => self.ppu.read(addr),
+            0xFF50 => self.rom.disable_boot_rom,
+            0xFF80..=0xFFFE => self.hram[(addr as usize) - 0xFF80],
+            0xFFFF => self.int_enable,
+            _ => 0,
+        };
 
         if addr != 0xFFFF && addr != 0xFF0F {
             // println!("mmc read addr:0x{:x}, ret:0x{:x}", addr, result);
