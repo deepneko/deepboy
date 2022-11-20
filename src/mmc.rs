@@ -27,7 +27,7 @@ impl MMC {
             rom: Rom::new(fname),
             ppu: PPU::new(int_flag.clone()),
             joypad: Joypad::new(),
-            timer: Timer::new(),
+            timer: Timer::new(int_flag.clone()),
             wram: [0x00; 0x8000],
             bank: 0x01,
             hram: [0x00; 0x7F],
