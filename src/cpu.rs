@@ -176,7 +176,7 @@ impl CPU {
             // DEC R8
             0x05 => self.regs.b = self.dec(self.regs.b),
             0x15 => self.regs.d = self.dec(self.regs.d),
-            0x25 => self.regs.h = self.inc(self.regs.h),
+            0x25 => self.regs.h = self.dec(self.regs.h),
             0x35 => {
                 let addr = self.regs.get_hl();
                 let dat = self.read8(addr);
