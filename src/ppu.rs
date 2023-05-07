@@ -170,7 +170,7 @@ impl PPU {
         }
 
         if self.debug {
-            // println!("ppu.read {:x} {:x}", addr, result);
+            println!("ppu.read {:x} {:x}", addr, result);
         }
 
         result
@@ -217,6 +217,7 @@ impl PPU {
         if self.debug {
             println!("render_scanline bg_enabled:{} window_enabled:{}", self.bg_enabled(), self.window_enabled());
         }
+
         if !self.lcd_enabled() {
             return;
         }
@@ -309,8 +310,7 @@ impl PPU {
         });
 
         if self.debug {
-            println!("who! color:{:x}", self.frame_buffer[0xe][0][0]);
-            // self.debug_frame_out("draw_bg");
+            self.debug_frame_out("draw_bg");
         }
     }
 
@@ -366,7 +366,9 @@ impl PPU {
             self.frame_buffer[screen_y as usize][screen_x as usize] = [real_color, real_color, real_color];
         });
 
-        // self.debug_frame_out("draw_window");
+        if self.debug {
+            self.debug_frame_out("draw_window");
+        }
     }
 
     pub fn draw_sprite(&mut self, n: u16) {
@@ -490,7 +492,7 @@ impl PPU {
         }
 
         if self.debug {
-            // self.debug_frame_out("draw_sprite");
+            self.debug_frame_out("draw_sprite");
         }
     }
 

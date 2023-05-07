@@ -21,6 +21,8 @@ pub const SCANLINE_PER_FRAME: u32 = 144;
 pub const CLOCKS_PER_FRAME: u32 = (CLOCKS_PER_SCANLINE * SCANLINE_PER_FRAME) + CLOCKS_PER_VBLANK;
 
 pub const CLOCK_RATE:i32 = 4194304;
+pub const STEP_TIME: u32 = 16;
+pub const STEP_CYCLES: u32 = (STEP_TIME as f64 / (1000_f64 / CLOCK_RATE as f64)) as u32;
 
 #[allow(non_camel_case_types)]
 pub enum VideoMode {

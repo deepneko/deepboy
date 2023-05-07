@@ -1,6 +1,7 @@
 pub mod gameboy;
 pub mod rom;
 pub mod cpu;
+pub mod rtc;
 pub mod ppu;
 pub mod apu;
 pub mod timer;

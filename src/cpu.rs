@@ -96,7 +96,6 @@ impl CPU {
         self.handle_interrupt();
 
         if self.halt {
-            // if self.debug { println!("cpu::run halt") };
             return 1;
         }
 
@@ -702,6 +701,7 @@ impl CPU {
             // LD A,(A8)
             0xF0 => {
                 let addr = 0xFF00 | u16::from(self.imm8());
+                // println!("0xF0 LDA, addr:{:x}", addr);
                 self.regs.a = self.read8(addr);
             }
             
@@ -1385,14 +1385,12 @@ impl CPU {
 
     pub fn pop(&mut self) -> u16 {
         let ret = self.read16(self.regs.sp);
-        // println!("pop {:x} {:x}", self.regs.sp, ret);
-        self.regs.sp += 2;
+        self.regs.sp = self.regs.sp.wrapping_add(2);
         ret
     }
 
     pub fn push(&mut self, dat: u16) {
-        self.regs.sp -= 2;
-        // println!("push {:x} {:x}", self.regs.sp, dat);
+        self.regs.sp = self.regs.sp.wrapping_sub(2);
         self.write16(self.regs.sp, dat);
     }
 
@@ -1627,7 +1625,5 @@ impl CPU {
 
         println!("PC:{:>04x} SP:{:>04x}, A:{:>02x} F:{:>02x} B:{:>02x} C:{:>02x} D:{:>02x} E:{:>02x} H:{:>02x} L:{:>02x}, 0x{:>02x} {}",
                 self.regs.pc, self.regs.sp, self.regs.a, self.regs.f, self.regs.b, self.regs.c, self.regs.d, self.regs.e, self.regs.h, self.regs.l, str_opcode, str);
-        // self.mmc.borrow_mut().read(0xFF00);
-        // println!("0xFF00: {:>02x}", self.mmc.borrow_mut().read(0xFF00));
     }
 }

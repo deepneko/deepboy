@@ -76,6 +76,7 @@ impl MMC {
             0xF000..=0xFDFF => self.wram[(addr as usize) - 0xF000 + (0x1000 * self.bank)] = dat,
             0xFE00..=0xFE9F => self.ppu.write(addr, dat),
             0xFF00 => self.joypad.write(addr, dat),
+            0xFF04..=0xFF07 => self.timer.write(addr, dat),
             0xFF0F => self.int_flag.borrow_mut().data = dat,
             0xFF40..=0xFF45 => self.ppu.write(addr, dat),
             0xFF46 => self.oam_dma_transfer(dat),

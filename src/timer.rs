@@ -46,10 +46,10 @@ impl Timer {
                 if self.tac & 0x03 != dat & 0x03 {
                     self.tma_clock = 0;
                     self.tma_period = match dat & 0x03 {
-                        0 => 1024,
-                        1 => 16,
-                        2 => 64,
-                        3 => 256,
+                        0b00 => 1024,
+                        0b01 => 16,
+                        0b10 => 64,
+                        0b11 => 256,
                         _ => panic!("Never come here"),
                     };
                     self.tima = self.tma;
@@ -61,6 +61,8 @@ impl Timer {
     }
 
     pub fn run(&mut self, cycles: u32) {
+        self.div = self.div.wrapping_add(cycles as u8);
+
         if (self.tac & 0x04) != 0 {
             let tma_cycles = self.tma_mod + cycles;
             self.tma_mod = tma_cycles % cycles;

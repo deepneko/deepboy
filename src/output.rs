@@ -55,13 +55,11 @@ impl Output {
         let mut i: usize = 0;
         for buffer in color_buffer.iter() {
             for rgb in buffer.iter() {
-                // let a = 0xff << 24;
                 let r = (rgb[2] as u32) << 16;
                 let g = (rgb[1] as u32) << 8;
                 let b = rgb[0] as u32;
 
                 screen_buffer[i] = r | g | b;
-                // screen_buffer[i] = a | b | g | r;
                 i += 1;
             }
         }
@@ -90,6 +88,10 @@ impl Output {
                 self.mmc.borrow_mut().joypad.key_up(*key);
             }
         }
+    }
+
+    pub fn window_is_open(&self) -> bool {
+        self.window.is_open()
     }
 
     pub fn debug_screen_out(&self, buf: Vec<u32>) -> Vec<u32>{
