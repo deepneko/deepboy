@@ -55,7 +55,7 @@ impl Rom {
             }
             1 => {
                 println!("MBC1");
-                Box::new(Mbc1::new(ram))
+                Box::new(Mbc1::new(ram, vec![]))
             },
             _n => panic!("Invalid mapper."),
         };

@@ -16,13 +16,13 @@ fn main() {
     loop {
         if debug {
             println!("count:{}", count);
-            if count == 300000 {
-                gameboy.mmc.borrow_mut().joypad.key_down(minifb::Key::Enter);
-            }
-            if count == 310000 {
+            if count == 500000 {
                 gameboy.mmc.borrow_mut().joypad.key_down(minifb::Key::Enter);
             }
             if count == 600000 {
+                gameboy.mmc.borrow_mut().joypad.key_up(minifb::Key::Enter);
+            }
+            if count == 1000000 {
                 panic!("For debug.")
             }
             count = count + 1;

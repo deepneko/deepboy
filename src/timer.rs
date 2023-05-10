@@ -1,15 +1,31 @@
 use std::{cell::RefCell, rc::Rc};
-
 use crate::register::ByteRegister;
+
+pub struct Clock {
+    pub period: u32,
+    pub n: u32,
+}
+
+impl Clock {
+    pub fn new(period: u32) -> Self {
+        Self { period, n: 0x00 }
+    }
+
+    pub fn next(&mut self, cycles: u32) -> u32 {
+        self.n += cycles;
+        let s = self.n / self.period;
+        self.n = self.n % self.period;
+        s
+    }
+}
 
 pub struct Timer {
     div: u8,
     tima: u8,
     tma: u8,
     tac: u8,
-    tma_clock: u32,
-    tma_period: u32,
-    tma_mod: u32,
+    div_clock: Clock,
+    tma_clock: Clock,
     int_flag: Rc<RefCell<ByteRegister>>,
 }
 
@@ -20,9 +36,8 @@ impl Timer {
             tima: 0,
             tma: 0,
             tac: 0,
-            tma_clock: 0,
-            tma_period: 0,
-            tma_mod: 0,
+            div_clock: Clock::new(256),
+            tma_clock: Clock::new(1024),
             int_flag: int_flag,
         }
     }
@@ -39,13 +54,16 @@ impl Timer {
 
     pub fn write(&mut self, addr: u16, dat: u8) {
         match addr {
-            0xFF04 => self.div = 0,
+            0xFF04 => {
+                self.div = 0;
+                self.div_clock.n = 0;
+            },
             0xFF05 => self.tima = dat,
             0xFF06 => self.tma = dat,
             0xFF07 => {
                 if self.tac & 0x03 != dat & 0x03 {
-                    self.tma_clock = 0;
-                    self.tma_period = match dat & 0x03 {
+                    self.tma_clock.n = 0;
+                    self.tma_clock.period = match dat & 0x03 {
                         0b00 => 1024,
                         0b01 => 16,
                         0b10 => 64,
@@ -61,13 +79,10 @@ impl Timer {
     }
 
     pub fn run(&mut self, cycles: u32) {
-        self.div = self.div.wrapping_add(cycles as u8);
+        self.div = self.div.wrapping_add(self.div_clock.next(cycles) as u8);
 
         if (self.tac & 0x04) != 0 {
-            let tma_cycles = self.tma_mod + cycles;
-            self.tma_mod = tma_cycles % cycles;
-
-            let n = tma_cycles / cycles;
+            let n = self.tma_clock.next(cycles);
             for _ in 0..n {
                 self.tima = self.tima.wrapping_add(1);
                 if self.tima == 0 {

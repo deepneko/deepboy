@@ -39,3 +39,8 @@ pub enum Color {
     DarkGray = 0x60,
     Gray = 0x00,
 }
+
+pub enum BankMode {
+    Rom,
+    Ram,
+}
