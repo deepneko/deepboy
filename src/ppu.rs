@@ -21,11 +21,14 @@ pub struct PPU {
     mode: VideoMode,
     pub v_blank: bool,
     cycles: u32,
+    dots: u32,
     debug: bool,
 }
 
 impl PPU {
     pub fn new(int_flag: Rc<RefCell<ByteRegister>>) -> Self {
+        let mut sp1 = ByteRegister::new();
+        sp1.set(1);
         PPU {
             frame_buffer: [[[0x0; 3]; GAMEBOY_WIDTH as usize]; GAMEBOY_HEIGHT as usize],
             vram: [0; 0x4000],
@@ -41,10 +44,11 @@ impl PPU {
             window_y: 0,
             bg_palette: ByteRegister::new(),
             sprite_palette0: ByteRegister::new(),
-            sprite_palette1: ByteRegister::new(),
+            sprite_palette1: sp1,
             mode: VideoMode::ACCESS_OAM,
             v_blank: false,
             cycles: 0,
+            dots: 0,
             debug: false,
         }
     }
@@ -54,19 +58,30 @@ impl PPU {
     }
 
     pub fn run(&mut self, cycles: u32) {
+        println!("ppu next line:{}", self.line);
+        println!("ppu next dots:{}", self.dots);
+        println!("ppu next intf:{:0>8b}", self.int_flag.borrow_mut().data);
+        println!("ppu next lcd_status:{:0>8b}", self.lcd_status.data);
+        println!("ppu next lcd_control:{:0>8b}", self.lcd_control.data);
         self.cycles += cycles;
         if self.debug {
             println!("ppu.line: {:x}", self.line);
             println!("ppu.cycles: {:x}", self.cycles);
+            println!("ppu next dots:{}", self.dots);
         }
 
+        if !self.lcd_enabled() {
+            return;
+        }
+
+        self.dots += cycles;
         match self.mode {
             VideoMode::ACCESS_OAM => {
                 if self.debug {
                     println!("ppu.mode: OAM");
                 }
-                if self.cycles >= CLOCKS_PER_SCANLINE_OAM {
-                    self.cycles %= CLOCKS_PER_SCANLINE_OAM;
+                if self.dots >= CLOCKS_PER_SCANLINE_OAM {
+                    // self.dots %= CLOCKS_PER_SCANLINE_OAM;
                     self.lcd_status.set_bit(1, true);
                     self.lcd_status.set_bit(0, true);
                     self.mode = VideoMode::ACCESS_VRAM;
@@ -77,8 +92,8 @@ impl PPU {
                 if self.debug {
                     println!("ppu.mode: VRAM");
                 }
-                if self.cycles >= CLOCKS_PER_SCANLINE_VRAM {
-                    self.cycles %= CLOCKS_PER_SCANLINE_VRAM;
+                if self.dots >= CLOCKS_PER_SCANLINE_OAM + CLOCKS_PER_SCANLINE_VRAM {
+                    // self.dots %= CLOCKS_PER_SCANLINE_VRAM;
                     self.mode = VideoMode::HBLANK;
 
                     if self.lcd_status.check_bit(3) {
@@ -100,17 +115,17 @@ impl PPU {
                 if self.debug {
                     println!("ppu.mode: HBLANK");
                 }
-                if self.cycles >= CLOCKS_PER_HBLANK {
+                if self.dots >= CLOCKS_PER_SCANLINE {
                     self.render_scanline();
                     self.line += 1;
 
-                    self.cycles %= CLOCKS_PER_HBLANK;
+                    self.dots %= CLOCKS_PER_SCANLINE;
 
                     if self.line == 144 {
                         self.mode = VideoMode::VBLANK;
                         self.lcd_status.set_bit(1, false);
                         self.lcd_status.set_bit(0, true);
-                        self.int_flag.borrow_mut().set_bit(0, true);
+                        self.int_flag.borrow_mut().set_bit(0, true); // ???
                     } else {
                         self.lcd_status.set_bit(1, true);
                         self.lcd_status.set_bit(0, false);
@@ -123,10 +138,10 @@ impl PPU {
                 if self.debug {
                     println!("ppu.mode: VBLANK");
                 }
-                if self.cycles >= CLOCKS_PER_SCANLINE {
+                if self.dots >= CLOCKS_PER_SCANLINE {
                     self.line += 1;
 
-                    self.cycles %= CLOCKS_PER_SCANLINE;
+                    self.dots %= CLOCKS_PER_SCANLINE;
 
                     if self.line == 154 {
                         self.render_sprites();
@@ -135,6 +150,13 @@ impl PPU {
                         self.mode = VideoMode::ACCESS_OAM;
                         self.lcd_status.set_bit(1, true);
                         self.lcd_status.set_bit(0, false);
+                    }
+
+                    let ly_coincidence = self.ly_compare == self.line;
+                    println!("ppu next ly interrupt line:{}", self.line);
+                    println!("ppu next ly interrupt ly_compare:{}", self.ly_compare);
+                    if self.lcd_status.check_bit(6) && ly_coincidence {
+                        self.int_flag.borrow_mut().set_bit(1, true);
                     }
                 }
             }
@@ -187,6 +209,9 @@ impl PPU {
             0xFF40 => {
                 self.lcd_control.set(dat);
                 if !self.lcd_enabled() {
+                    self.mode = VideoMode::HBLANK;
+                    self.dots = 0;
+                    self.line = 0;
                     self.reset_buffer();
                     self.v_blank = true;
                 }
@@ -194,7 +219,7 @@ impl PPU {
             0xFF41 => self.lcd_status.set(dat),
             0xFF42 => self.scroll_y = dat,
             0xFF43 => self.scroll_x = dat,
-            0xFF44 => self.line = dat,
+            0xFF44 => {},
             0xFF45 => self.ly_compare = dat,
             0xFF47 => self.bg_palette.set(dat),
             0xFF48 => self.sprite_palette0.set(dat),
@@ -473,7 +498,7 @@ impl PPU {
                 if self.debug {
                     println!("screen_x:{:x}, screen_y:{:x}", screen_x, screen_y);
                 }
-                if(screen_x >= GAMEBOY_WIDTH as u16 || screen_y >= GAMEBOY_HEIGHT as u16) {
+                if screen_x >= GAMEBOY_WIDTH as u16 || screen_y >= GAMEBOY_HEIGHT as u16 {
                     continue;
                 }
 

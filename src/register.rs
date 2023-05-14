@@ -102,16 +102,16 @@ pub enum IntFlag {
 impl Register {
     pub fn new() -> Self {
         Register {
-            a: 0,
-            f: 0,
-            b: 0,
-            c: 0,
-            d: 0,
-            e: 0,
-            h: 0,
-            l: 0,
-            sp: 0,
-            pc: 0,
+            a: 0x01,
+            f: 0xb0,
+            b: 0x00,
+            c: 0x13,
+            d: 0x00,
+            e: 0xd8,
+            h: 0x01,
+            l: 0x4d,
+            sp: 0xfffe,
+            pc: 0x100,
         }
     }
 

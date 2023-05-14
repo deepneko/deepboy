@@ -23,7 +23,7 @@ pub struct MMC {
 impl MMC {
     pub fn new(fname: &String) -> Self {
         let int_flag = Rc::new(RefCell::new(ByteRegister::new()));
-        MMC {
+        let mut m = MMC {
             rom: Rom::new(fname),
             ppu: PPU::new(int_flag.clone()),
             joypad: Joypad::new(),
@@ -33,7 +33,39 @@ impl MMC {
             hram: [0x00; 0x7F],
             int_enable: 0,
             int_flag: int_flag.clone(),
-        }
+        };
+        m.write(0xff05, 0x00);
+        m.write(0xff06, 0x00);
+        m.write(0xff07, 0x00);
+        m.write(0xff10, 0x80);
+        m.write(0xff11, 0xbf);
+        m.write(0xff12, 0xf3);
+        m.write(0xff14, 0xbf);
+        m.write(0xff16, 0x3f);
+        m.write(0xff16, 0x3f);
+        m.write(0xff17, 0x00);
+        m.write(0xff19, 0xbf);
+        m.write(0xff1a, 0x7f);
+        m.write(0xff1b, 0xff);
+        m.write(0xff1c, 0x9f);
+        m.write(0xff1e, 0xff);
+        m.write(0xff20, 0xff);
+        m.write(0xff21, 0x00);
+        m.write(0xff22, 0x00);
+        m.write(0xff23, 0xbf);
+        m.write(0xff24, 0x77);
+        m.write(0xff25, 0xf3);
+        m.write(0xff26, 0xf1);
+        m.write(0xff40, 0x91);
+        m.write(0xff42, 0x00);
+        m.write(0xff43, 0x00);
+        m.write(0xff45, 0x00);
+        m.write(0xff47, 0xfc);
+        m.write(0xff48, 0xff);
+        m.write(0xff49, 0xff);
+        m.write(0xff4a, 0x00);
+        m.write(0xff4b, 0x00);
+        m
     }
 
     pub fn read(&mut self, addr: u16) -> u8 {

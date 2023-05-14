@@ -26,10 +26,10 @@ pub const STEP_CYCLES: u32 = (STEP_TIME as f64 / (1000_f64 / CLOCK_RATE as f64))
 
 #[allow(non_camel_case_types)]
 pub enum VideoMode {
-    HBLANK,
-    VBLANK,
-    ACCESS_OAM,
-    ACCESS_VRAM,
+    HBLANK = 0,
+    VBLANK = 1,
+    ACCESS_OAM = 2,
+    ACCESS_VRAM = 3,
 }
 
 #[derive(Clone)]

@@ -26,7 +26,7 @@ impl Gameboy {
     }
 
     pub fn exec_frame(&mut self) -> bool {
-        let cycles = self.cpu.run();
+        let cycles = self.cpu.run() * 4;
         self.elapsed_cycles += cycles;
 
         self.mmc.borrow_mut().timer.run(cycles);

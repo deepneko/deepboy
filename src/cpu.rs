@@ -82,7 +82,7 @@ impl CPU {
             opcode: 0,
             cb_opcode: 0,
             halt: false,
-            ime: false,
+            ime: true,
             ei_delay: false,
             debug: false,
         }
@@ -93,7 +93,12 @@ impl CPU {
     }
 
     pub fn run(&mut self) -> u32 {
-        self.handle_interrupt();
+        let hi = self.handle_interrupt();
+        println!("cpu next halt:{}", self.halt);
+
+        if hi > 0 {
+            return hi;
+        }
 
         if self.halt {
             return 1;
@@ -652,6 +657,7 @@ impl CPU {
             // LD (A8),A
             0xE0 => {
                 let addr = 0xFF00 | u16::from(self.imm8());
+                // println!("0xE0 LDA, addr:{:x}", addr);
                 self.write8(addr, self.regs.a);
             }
 
@@ -701,7 +707,7 @@ impl CPU {
             // LD A,(A8)
             0xF0 => {
                 let addr = 0xFF00 | u16::from(self.imm8());
-                // println!("0xF0 LDA, addr:{:x}", addr);
+                println!("0xF0 LDA, addr:{:x}", addr);
                 self.regs.a = self.read8(addr);
             }
             
@@ -1504,42 +1510,53 @@ impl CPU {
         self.regs.set_h(true);
     }
 
-    pub fn handle_interrupt(&mut self) {
-        if !self.ime {
-            return;
+    pub fn handle_interrupt(&mut self) -> u32 {
+        if !self.ime && !self.halt {
+            return 0;
         }
 
         let int_enable: u8 = self.read8(IoRegs::IE as u16);
         let mut int_flag: u8 = self.read8(IoRegs::IF as u16);
-        let fired_interrupt: u8 = int_enable & int_flag;
+        println!("cpu hi inte:{:0>8b}", int_enable);
+        println!("cpu hi intf:{:0>8b}", int_flag);
 
+        let fired_interrupt: u8 = int_enable & int_flag;
         if fired_interrupt == 0 {
-            return;
+            return 0;
         }
         self.halt = false;
 
-        self.push(self.regs.pc);
+        if !self.ime {
+            return 0;
+        }
+        self.ime = false;
 
+        /*
+        let n = fired_interrupt.trailing_zeros();
+        int_flag = int_flag & !(1 << n);
+        self.write8(IoRegs::IF as u16, int_flag);
+        */
+
+        self.push(self.regs.pc);
         if fired_interrupt > 0 {
             if fired_interrupt & (IntFlag::VBLANK as u8) > 0 {
                 self.regs.pc = 0x40;
                 int_flag &= !(IntFlag::VBLANK as u8);
-                self.ime = false;
             } else if fired_interrupt & (IntFlag::STAT as u8) > 0 {
                 self.regs.pc = 0x48;
                 int_flag &= !(IntFlag::STAT as u8);
-                self.ime = false;
             } else if fired_interrupt & (IntFlag::TIMER as u8) > 0 {
                 self.regs.pc = 0x58;
                 int_flag &= !(IntFlag::SERIAL as u8);
-                self.ime = false;
             } else if fired_interrupt & (IntFlag::JOYPAD as u8) > 0 {
                 self.regs.pc = 0x60;
                 int_flag &= !(IntFlag::JOYPAD as u8);
-                self.ime = false;
             }
         }
         self.write8(IoRegs::IF as u16, int_flag);
+        // self.regs.pc = 0x0040 | ((n as u16) << 3);
+
+        4
     }
 
     pub fn debug_out(&mut self) {
