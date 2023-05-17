@@ -657,7 +657,7 @@ impl CPU {
             // LD (A8),A
             0xE0 => {
                 let addr = 0xFF00 | u16::from(self.imm8());
-                // println!("0xE0 LDA, addr:{:x}", addr);
+                println!("0xE0 LDA, addr:{:x}", addr);
                 self.write8(addr, self.regs.a);
             }
 
@@ -1642,5 +1642,6 @@ impl CPU {
 
         println!("PC:{:>04x} SP:{:>04x}, A:{:>02x} F:{:>02x} B:{:>02x} C:{:>02x} D:{:>02x} E:{:>02x} H:{:>02x} L:{:>02x}, 0x{:>02x} {}",
                 self.regs.pc, self.regs.sp, self.regs.a, self.regs.f, self.regs.b, self.regs.c, self.regs.d, self.regs.e, self.regs.h, self.regs.l, str_opcode, str);
+        println!("0xff00:{:x}", self.read8(0xff00));
     }
 }

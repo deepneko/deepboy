@@ -1,6 +1,9 @@
+use std::{cell::RefCell, rc::Rc};
+
 use crate::register::ByteRegister;
 
 pub struct Joypad {
+    int_flag: Rc<RefCell<ByteRegister>>,
     direction_select: bool,    
     action_select: bool,
     right: bool,
@@ -14,8 +17,9 @@ pub struct Joypad {
 }
 
 impl Joypad {
-    pub fn new() -> Self {
+    pub fn new(int_flag: Rc<RefCell<ByteRegister>>) -> Self {
         Joypad {
+            int_flag: int_flag,
             direction_select: false,
             action_select: false,
             right: false,
@@ -30,6 +34,7 @@ impl Joypad {
     }
 
     pub fn key_down(&mut self, key: minifb::Key) {
+        self.int_flag.borrow_mut().set_bit(4, true);
         match key {
             minifb::Key::Right => { self.right = true },
             minifb::Key::Left => { self.left = true },
@@ -66,6 +71,9 @@ impl Joypad {
             keys.set_bit(1, !self.left);
             keys.set_bit(2, !self.up);
             keys.set_bit(3, !self.down);
+            keys.set_bit(4, self.direction_select);
+            // println!("direction_select keys:{:x}", keys.get());
+            return keys.get();
         }
 
         if self.action_select {
@@ -73,21 +81,19 @@ impl Joypad {
             keys.set_bit(1, !self.b);
             keys.set_bit(2, !self.select);
             keys.set_bit(3, !self.start);
+            keys.set_bit(5, self.action_select);
+            // println!("action_select keys:{:x}", keys.get());
+            return keys.get();
         }
 
-        keys.set_bit(4, !self.direction_select);
-        keys.set_bit(5, !self.action_select);
-
-        /*
-        println!("joypad read: down:{}", self.down);
-        println!("joypad read: start:{}", self.start);
-        println!("joypad read: keys:{:8b}", keys.data);
-        */
+        // keys.set_bit(4, !self.direction_select);
+        // keys.set_bit(5, !self.action_select);
         keys.get()
     }
 
     pub fn write(&mut self, addr: u16, dat: u8) {
-        self.direction_select = (dat >> 4) & 0x1 == 0;
-        self.action_select = (dat >> 5) & 0x1 == 0;
+        // println!("joypad write addr:{:x}, dat:{:x}", addr, dat);
+        self.direction_select = (dat >> 4) & 0x1 == 1;
+        self.action_select = (dat >> 5) & 0x1 == 1;
     }
 }

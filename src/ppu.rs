@@ -58,8 +58,12 @@ impl PPU {
     }
 
     pub fn run(&mut self, cycles: u32) {
+        self.lcd_status.set_bit(2, self.line == self.ly_compare);
+
         println!("ppu next line:{}", self.line);
+        println!("ppu next ly_compare:{}", self.ly_compare);
         println!("ppu next dots:{}", self.dots);
+        println!("ppu next mode:{}", self.mode as u8);
         println!("ppu next intf:{:0>8b}", self.int_flag.borrow_mut().data);
         println!("ppu next lcd_status:{:0>8b}", self.lcd_status.data);
         println!("ppu next lcd_control:{:0>8b}", self.lcd_control.data);
@@ -75,12 +79,16 @@ impl PPU {
         }
 
         self.dots += cycles;
+
         match self.mode {
             VideoMode::ACCESS_OAM => {
                 if self.debug {
                     println!("ppu.mode: OAM");
                 }
-                if self.dots >= CLOCKS_PER_SCANLINE_OAM {
+                self.lcd_status.set_bit(1, true);
+                self.lcd_status.set_bit(0, false);
+
+                if self.dots > CLOCKS_PER_SCANLINE_OAM {
                     // self.dots %= CLOCKS_PER_SCANLINE_OAM;
                     self.lcd_status.set_bit(1, true);
                     self.lcd_status.set_bit(0, true);
@@ -92,7 +100,10 @@ impl PPU {
                 if self.debug {
                     println!("ppu.mode: VRAM");
                 }
-                if self.dots >= CLOCKS_PER_SCANLINE_OAM + CLOCKS_PER_SCANLINE_VRAM {
+                self.lcd_status.set_bit(1, true);
+                self.lcd_status.set_bit(0, true);
+
+                if self.dots > CLOCKS_PER_SCANLINE_OAM + CLOCKS_PER_SCANLINE_VRAM {
                     // self.dots %= CLOCKS_PER_SCANLINE_VRAM;
                     self.mode = VideoMode::HBLANK;
 
@@ -100,12 +111,12 @@ impl PPU {
                         self.int_flag.borrow_mut().set_bit(1, true);
                     }
 
-                    let ly_coincidence = self.ly_compare == self.line;
-                    if self.lcd_status.check_bit(6) && ly_coincidence {
+                    /*
+                    if self.lcd_status.check_bit(6) && (self.line == self.ly_compare) {
                         self.int_flag.borrow_mut().set_bit(1, true);
                     }
+                    */
 
-                    self.lcd_status.set_bit(2, ly_coincidence);
                     self.lcd_status.set_bit(1, false);
                     self.lcd_status.set_bit(0, false);
                 }
@@ -115,6 +126,9 @@ impl PPU {
                 if self.debug {
                     println!("ppu.mode: HBLANK");
                 }
+                self.lcd_status.set_bit(1, false);
+                self.lcd_status.set_bit(0, false);
+
                 if self.dots >= CLOCKS_PER_SCANLINE {
                     self.render_scanline();
                     self.line += 1;
@@ -131,6 +145,10 @@ impl PPU {
                         self.lcd_status.set_bit(0, false);
                         self.mode = VideoMode::ACCESS_OAM;
                     }
+                } else if self.dots <= CLOCKS_PER_SCANLINE_OAM {
+                    self.lcd_status.set_bit(1, true);
+                    self.lcd_status.set_bit(0, false);
+                    self.mode = VideoMode::ACCESS_OAM;
                 }
             }
 
@@ -138,6 +156,9 @@ impl PPU {
                 if self.debug {
                     println!("ppu.mode: VBLANK");
                 }
+                self.lcd_status.set_bit(1, false);
+                self.lcd_status.set_bit(0, true);
+
                 if self.dots >= CLOCKS_PER_SCANLINE {
                     self.line += 1;
 
@@ -210,13 +231,28 @@ impl PPU {
                 self.lcd_control.set(dat);
                 if !self.lcd_enabled() {
                     self.mode = VideoMode::HBLANK;
+                    self.lcd_status.set_bit(1, false);
+                    self.lcd_status.set_bit(0, false);
                     self.dots = 0;
                     self.line = 0;
                     self.reset_buffer();
                     self.v_blank = true;
                 }
             }
-            0xFF41 => self.lcd_status.set(dat),
+            0xFF41 => {
+                if dat & 0x40 > 0 {
+                    self.lcd_status.set_bit(6, true);
+                }
+                if dat & 0x20 > 0 {
+                    self.lcd_status.set_bit(5, true);
+                }
+                if dat & 0x10 > 0 {
+                    self.lcd_status.set_bit(4, true);
+                }
+                if dat & 0x08 > 0 {
+                    self.lcd_status.set_bit(3, true);
+                }
+            },
             0xFF42 => self.scroll_y = dat,
             0xFF43 => self.scroll_x = dat,
             0xFF44 => {},

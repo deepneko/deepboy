@@ -26,7 +26,7 @@ impl MMC {
         let mut m = MMC {
             rom: Rom::new(fname),
             ppu: PPU::new(int_flag.clone()),
-            joypad: Joypad::new(),
+            joypad: Joypad::new(int_flag.clone()),
             timer: Timer::new(int_flag.clone()),
             wram: [0x00; 0x8000],
             bank: 0x01,
