@@ -75,10 +75,16 @@ impl Timer {
                 self.tac = dat;
             }
             _ => panic!("Timer: Unknown address."),
-        }        
+        }
     }
 
     pub fn run(&mut self, cycles: u32) {
+        println!("timer next div:{:x}", self.div);
+        println!("timer next tima:{:x}", self.tima);
+        println!("timer next tma:{:x}", self.tma);
+        println!("timer next tac:{:x}", self.tac);
+        println!("timer next div_clock.n:{:x}", self.div_clock.n);
+        println!("timer next tma_clock.n:{:x}", self.tma_clock.n);
         self.div = self.div.wrapping_add(self.div_clock.next(cycles) as u8);
 
         if (self.tac & 0x04) != 0 {
@@ -88,6 +94,7 @@ impl Timer {
                 if self.tima == 0 {
                     self.tima = self.tma;
                     self.int_flag.borrow_mut().set_bit(2, true);
+                    println!("timer next interrupt Flag::Timer");
                 }
             }
         }

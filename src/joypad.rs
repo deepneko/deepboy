@@ -4,8 +4,7 @@ use crate::register::ByteRegister;
 
 pub struct Joypad {
     int_flag: Rc<RefCell<ByteRegister>>,
-    direction_select: bool,    
-    action_select: bool,
+    select_switch: ByteRegister,
     right: bool,
     left: bool,
     up: bool,
@@ -20,8 +19,7 @@ impl Joypad {
     pub fn new(int_flag: Rc<RefCell<ByteRegister>>) -> Self {
         Joypad {
             int_flag: int_flag,
-            direction_select: false,
-            action_select: false,
+            select_switch: ByteRegister::new(),
             right: false,
             left: false,
             up: false,
@@ -66,34 +64,26 @@ impl Joypad {
         let mut keys = ByteRegister::new();
         keys.set(0b1111);
 
-        if self.direction_select {
+        if !self.select_switch.check_bit(4) {
             keys.set_bit(0, !self.right);
             keys.set_bit(1, !self.left);
             keys.set_bit(2, !self.up);
             keys.set_bit(3, !self.down);
-            keys.set_bit(4, self.direction_select);
-            // println!("direction_select keys:{:x}", keys.get());
-            return keys.get();
+            return self.select_switch.data | keys.get();
         }
 
-        if self.action_select {
+        if !self.select_switch.check_bit(5) {
             keys.set_bit(0, !self.a);
             keys.set_bit(1, !self.b);
             keys.set_bit(2, !self.select);
             keys.set_bit(3, !self.start);
-            keys.set_bit(5, self.action_select);
-            // println!("action_select keys:{:x}", keys.get());
-            return keys.get();
+            return self.select_switch.data | keys.get();
         }
 
-        // keys.set_bit(4, !self.direction_select);
-        // keys.set_bit(5, !self.action_select);
-        keys.get()
+        return self.select_switch.data;
     }
 
     pub fn write(&mut self, addr: u16, dat: u8) {
-        // println!("joypad write addr:{:x}, dat:{:x}", addr, dat);
-        self.direction_select = (dat >> 4) & 0x1 == 1;
-        self.action_select = (dat >> 5) & 0x1 == 1;
+        self.select_switch.set(dat);
     }
 }

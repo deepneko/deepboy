@@ -1546,6 +1546,9 @@ impl CPU {
                 self.regs.pc = 0x48;
                 int_flag &= !(IntFlag::STAT as u8);
             } else if fired_interrupt & (IntFlag::TIMER as u8) > 0 {
+                self.regs.pc = 0x50;
+                int_flag &= !(IntFlag::TIMER as u8);
+            } else if fired_interrupt & (IntFlag::SERIAL as u8) > 0 {
                 self.regs.pc = 0x58;
                 int_flag &= !(IntFlag::SERIAL as u8);
             } else if fired_interrupt & (IntFlag::JOYPAD as u8) > 0 {
