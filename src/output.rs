@@ -81,10 +81,8 @@ impl Output {
     pub fn handle_keys(&mut self) {
         for key in &self.joypad_keys {
             if self.window.is_key_down(*key) {
-                // println!("output key_down:{:?}", *joypad_key);
                 self.mmc.borrow_mut().joypad.key_down(*key);
             } else if self.window.is_key_released(*key) {
-                // println!("output key_up:{:?}", *joypad_key);
                 self.mmc.borrow_mut().joypad.key_up(*key);
             }
         }

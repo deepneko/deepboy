@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::prelude::*;
+use std::path::Path;
 
 use crate::mapper::mbc1::Mbc1;
 use crate::mapper::nombc::NoMbc;
@@ -28,7 +29,7 @@ pub struct Rom {
     pub mbc_type: u8,
     pub rom_size_type: u8,
     pub ram_size_type: u8,
-    pub ram_size: u16,
+    pub ram_size: usize,
     pub disable_boot_rom: u8,
     pub mapper: Box<dyn Mapper>,
 }
@@ -36,36 +37,42 @@ pub struct Rom {
 impl Rom {
     pub fn new(fname: &String) -> Self {
         let mut f = File::open(fname).expect("File not found.");
-        let mut ram = Vec::new();
-        f.read_to_end(&mut ram).unwrap();
+        let mut rom = Vec::new();
+        f.read_to_end(&mut rom).unwrap();
 
-        let mbc_type = ram[0x147];
-        let rom_size_type = ram[0x148];
-        let ram_size_type = ram[0x149];
+        let mbc_type = rom[0x147];
+        let rom_size_type = rom[0x148];
+        let ram_size_type = rom[0x149];
         let mut ram_size = 0;
 
-        println!("MBC TYPE:{m}", m=mbc_type);
-        println!("ROM SIZE TYPE:{m}", m=rom_size_type);
-        println!("RAM SIZE TYPE:{m}", m=ram_size_type);
+        println!("MBC TYPE:{}", mbc_type);
+        println!("ROM SIZE TYPE:{}", rom_size_type);
+        println!("RAM SIZE TYPE:{}", ram_size_type);
+
+        match ram_size_type {
+            0 => ram_size = 0,
+            1 => ram_size = 0x800,
+            2 => ram_size = 0x2000,
+            3 => ram_size = 0x8000,
+            _ => println!("Invalid RAM SIZE TYPE")
+        }
 
         let mapper: Box<dyn Mapper> = match mbc_type {
             0 => {
                 println!("NoMBC");
-                Box::new(NoMbc::new(ram))
+                Box::new(NoMbc::new(rom))
             }
             1 => {
                 println!("MBC1");
-                Box::new(Mbc1::new(ram, vec![]))
+                Box::new(Mbc1::new(rom, vec![]))
             },
+            3 => {
+                println!("MBC1");
+                // let save_file = Path::new(fname).with_extension("sav");
+                Box::new(Mbc1::new(rom, vec![0; ram_size]))
+            }
             _n => panic!("Invalid mapper."),
         };
-
-        match ram_size_type {
-            0 => ram_size = 0x200,
-            1 => ram_size = 0,
-            3 => ram_size = 0x8000,
-            _ => println!("Invalid RAM SIZE TYPE")
-        }
 
         Rom {
             mbc_type: mbc_type,

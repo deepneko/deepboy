@@ -8,7 +8,7 @@ pub const TILES_PER_LINE: u16 = 32;
 pub const TILE_HEIGHT: u16 = 8;
 pub const TILE_WIDTH: u16 = 8;
 pub const TILE_BYTES: u16 = 16;
-pub const BG_MAP_SIZE: u16 = 255; // It is actually 256 but not a problem.
+pub const BG_MAP_SIZE: u16 = 255;
 pub const SPRITE_BYTRES: u16 = 4;
 pub const NUM_SPRITES: u16 = 40;
 

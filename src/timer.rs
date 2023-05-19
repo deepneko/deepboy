@@ -8,7 +8,10 @@ pub struct Clock {
 
 impl Clock {
     pub fn new(period: u32) -> Self {
-        Self { period, n: 0x00 }
+        Self {
+            period: period,
+            n: 0,
+        }
     }
 
     pub fn next(&mut self, cycles: u32) -> u32 {
@@ -20,26 +23,32 @@ impl Clock {
 }
 
 pub struct Timer {
+    int_flag: Rc<RefCell<ByteRegister>>,
     div: u8,
     tima: u8,
     tma: u8,
     tac: u8,
     div_clock: Clock,
     tma_clock: Clock,
-    int_flag: Rc<RefCell<ByteRegister>>,
+    debug: bool,
 }
 
 impl Timer {
     pub fn new(int_flag: Rc<RefCell<ByteRegister>>) -> Self {
         Timer {
+            int_flag: int_flag,
             div: 0,
             tima: 0,
             tma: 0,
             tac: 0,
             div_clock: Clock::new(256),
             tma_clock: Clock::new(1024),
-            int_flag: int_flag,
+            debug: false,
         }
+    }
+
+    pub fn set_debug(&mut self) {
+        self.debug = true;
     }
 
     pub fn read(&self, addr: u16) -> u8 {
@@ -79,12 +88,15 @@ impl Timer {
     }
 
     pub fn run(&mut self, cycles: u32) {
-        println!("timer next div:{:x}", self.div);
-        println!("timer next tima:{:x}", self.tima);
-        println!("timer next tma:{:x}", self.tma);
-        println!("timer next tac:{:x}", self.tac);
-        println!("timer next div_clock.n:{:x}", self.div_clock.n);
-        println!("timer next tma_clock.n:{:x}", self.tma_clock.n);
+        if self.debug {
+            println!("timer next div:{:x}", self.div);
+            println!("timer next tima:{:x}", self.tima);
+            println!("timer next tma:{:x}", self.tma);
+            println!("timer next tac:{:x}", self.tac);
+            println!("timer next div_clock.n:{:x}", self.div_clock.n);
+            println!("timer next tma_clock.n:{:x}", self.tma_clock.n);
+        }
+
         self.div = self.div.wrapping_add(self.div_clock.next(cycles) as u8);
 
         if (self.tac & 0x04) != 0 {
@@ -94,7 +106,6 @@ impl Timer {
                 if self.tima == 0 {
                     self.tima = self.tma;
                     self.int_flag.borrow_mut().set_bit(2, true);
-                    println!("timer next interrupt Flag::Timer");
                 }
             }
         }

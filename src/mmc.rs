@@ -89,10 +89,6 @@ impl MMC {
             _ => 0,
         };
 
-        if addr != 0xFFFF && addr != 0xFF0F {
-            // println!("mmc read addr:0x{:x}, ret:0x{:x}", addr, result);
-        }
-
         result
     }
 

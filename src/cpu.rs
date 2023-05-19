@@ -94,7 +94,7 @@ impl CPU {
 
     pub fn run(&mut self) -> u32 {
         let hi = self.handle_interrupt();
-        println!("cpu next halt:{}", self.halt);
+        // println!("cpu next halt:{}", self.halt);
 
         if hi > 0 {
             return hi;
@@ -657,7 +657,9 @@ impl CPU {
             // LD (A8),A
             0xE0 => {
                 let addr = 0xFF00 | u16::from(self.imm8());
-                println!("0xE0 LDA, addr:{:x}", addr);
+                if self.debug {
+                    println!("0xE0 LDA, addr:{:x}", addr);
+                }
                 self.write8(addr, self.regs.a);
             }
 
@@ -707,7 +709,9 @@ impl CPU {
             // LD A,(A8)
             0xF0 => {
                 let addr = 0xFF00 | u16::from(self.imm8());
-                println!("0xF0 LDA, addr:{:x}", addr);
+                if self.debug {
+                    println!("0xF0 LDA, addr:{:x}", addr);
+                }
                 self.regs.a = self.read8(addr);
             }
             
@@ -1517,8 +1521,11 @@ impl CPU {
 
         let int_enable: u8 = self.read8(IoRegs::IE as u16);
         let mut int_flag: u8 = self.read8(IoRegs::IF as u16);
-        println!("cpu hi inte:{:0>8b}", int_enable);
-        println!("cpu hi intf:{:0>8b}", int_flag);
+
+        if self.debug {
+            println!("cpu hi inte:{:0>8b}", int_enable);
+            println!("cpu hi intf:{:0>8b}", int_flag);
+        }
 
         let fired_interrupt: u8 = int_enable & int_flag;
         if fired_interrupt == 0 {
@@ -1530,12 +1537,6 @@ impl CPU {
             return 0;
         }
         self.ime = false;
-
-        /*
-        let n = fired_interrupt.trailing_zeros();
-        int_flag = int_flag & !(1 << n);
-        self.write8(IoRegs::IF as u16, int_flag);
-        */
 
         self.push(self.regs.pc);
         if fired_interrupt > 0 {
@@ -1557,7 +1558,6 @@ impl CPU {
             }
         }
         self.write8(IoRegs::IF as u16, int_flag);
-        // self.regs.pc = 0x0040 | ((n as u16) << 3);
 
         4
     }
@@ -1645,6 +1645,5 @@ impl CPU {
 
         println!("PC:{:>04x} SP:{:>04x}, A:{:>02x} F:{:>02x} B:{:>02x} C:{:>02x} D:{:>02x} E:{:>02x} H:{:>02x} L:{:>02x}, 0x{:>02x} {}",
                 self.regs.pc, self.regs.sp, self.regs.a, self.regs.f, self.regs.b, self.regs.c, self.regs.d, self.regs.e, self.regs.h, self.regs.l, str_opcode, str);
-        println!("0xff00:{:x}", self.read8(0xff00));
     }
 }

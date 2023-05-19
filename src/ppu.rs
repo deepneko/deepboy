@@ -21,7 +21,6 @@ pub struct PPU {
     mode: VideoMode,
     pub v_blank: bool,
     cycles: u32,
-    dots: u32,
     debug: bool,
 }
 
@@ -48,7 +47,6 @@ impl PPU {
             mode: VideoMode::ACCESS_OAM,
             v_blank: false,
             cycles: 0,
-            dots: 0,
             debug: false,
         }
     }
@@ -58,38 +56,28 @@ impl PPU {
     }
 
     pub fn run(&mut self, cycles: u32) {
-        self.lcd_status.set_bit(2, self.line == self.ly_compare);
-
-        println!("ppu next line:{}", self.line);
-        println!("ppu next ly_compare:{}", self.ly_compare);
-        println!("ppu next dots:{}", self.dots);
-        println!("ppu next mode:{}", self.mode as u8);
-        println!("ppu next intf:{:0>8b}", self.int_flag.borrow_mut().data);
-        println!("ppu next lcd_status:{:0>8b}", self.lcd_status.data);
-        println!("ppu next lcd_control:{:0>8b}", self.lcd_control.data);
-        self.cycles += cycles;
-        if self.debug {
-            println!("ppu.line: {:x}", self.line);
-            println!("ppu.cycles: {:x}", self.cycles);
-            println!("ppu next dots:{}", self.dots);
+        if self.debug { 
+            println!("ppu next line:{}", self.line);
+            println!("ppu next ly_compare:{}", self.ly_compare);
+            println!("ppu next dots:{}", self.cycles);
+            println!("ppu next mode:{}", self.mode as u8);
+            println!("ppu next intf:{:0>8b}", self.int_flag.borrow_mut().data);
+            let bit = if self.line == self.ly_compare { 0x04 } else { 0x00 };
+            println!("ppu next lcd_status:{:0>8b}", self.lcd_status.data | bit);
+            println!("ppu next lcd_control:{:0>8b}", self.lcd_control.data);
         }
 
         if !self.lcd_enabled() {
             return;
         }
 
-        self.dots += cycles;
-
+        self.cycles += cycles;
         match self.mode {
             VideoMode::ACCESS_OAM => {
-                if self.debug {
-                    println!("ppu.mode: OAM");
-                }
                 self.lcd_status.set_bit(1, true);
                 self.lcd_status.set_bit(0, false);
 
-                if self.dots > CLOCKS_PER_SCANLINE_OAM {
-                    // self.dots %= CLOCKS_PER_SCANLINE_OAM;
+                if self.cycles > CLOCKS_PER_SCANLINE_OAM {
                     self.lcd_status.set_bit(1, true);
                     self.lcd_status.set_bit(0, true);
                     self.mode = VideoMode::ACCESS_VRAM;
@@ -97,25 +85,15 @@ impl PPU {
             }
 
             VideoMode::ACCESS_VRAM => {
-                if self.debug {
-                    println!("ppu.mode: VRAM");
-                }
                 self.lcd_status.set_bit(1, true);
                 self.lcd_status.set_bit(0, true);
 
-                if self.dots > CLOCKS_PER_SCANLINE_OAM + CLOCKS_PER_SCANLINE_VRAM {
-                    // self.dots %= CLOCKS_PER_SCANLINE_VRAM;
+                if self.cycles > CLOCKS_PER_SCANLINE_OAM + CLOCKS_PER_SCANLINE_VRAM {
                     self.mode = VideoMode::HBLANK;
 
                     if self.lcd_status.check_bit(3) {
                         self.int_flag.borrow_mut().set_bit(1, true);
                     }
-
-                    /*
-                    if self.lcd_status.check_bit(6) && (self.line == self.ly_compare) {
-                        self.int_flag.borrow_mut().set_bit(1, true);
-                    }
-                    */
 
                     self.lcd_status.set_bit(1, false);
                     self.lcd_status.set_bit(0, false);
@@ -123,17 +101,18 @@ impl PPU {
             }
 
             VideoMode::HBLANK => {
-                if self.debug {
-                    println!("ppu.mode: HBLANK");
-                }
                 self.lcd_status.set_bit(1, false);
                 self.lcd_status.set_bit(0, false);
 
-                if self.dots >= CLOCKS_PER_SCANLINE {
+                if self.cycles >= CLOCKS_PER_SCANLINE {
                     self.render_scanline();
                     self.line += 1;
 
-                    self.dots %= CLOCKS_PER_SCANLINE;
+                    self.cycles %= CLOCKS_PER_SCANLINE;
+                    let ly_coincidence = self.ly_compare == self.line;
+                    if self.lcd_status.check_bit(6) && ly_coincidence {
+                        self.int_flag.borrow_mut().set_bit(1, true);
+                    }
 
                     if self.line == 144 {
                         self.mode = VideoMode::VBLANK;
@@ -145,7 +124,7 @@ impl PPU {
                         self.lcd_status.set_bit(0, false);
                         self.mode = VideoMode::ACCESS_OAM;
                     }
-                } else if self.dots <= CLOCKS_PER_SCANLINE_OAM {
+                } else if self.cycles <= CLOCKS_PER_SCANLINE_OAM {
                     self.lcd_status.set_bit(1, true);
                     self.lcd_status.set_bit(0, false);
                     self.mode = VideoMode::ACCESS_OAM;
@@ -153,16 +132,13 @@ impl PPU {
             }
 
             VideoMode::VBLANK => {
-                if self.debug {
-                    println!("ppu.mode: VBLANK");
-                }
                 self.lcd_status.set_bit(1, false);
                 self.lcd_status.set_bit(0, true);
 
-                if self.dots >= CLOCKS_PER_SCANLINE {
+                if self.cycles >= CLOCKS_PER_SCANLINE {
                     self.line += 1;
 
-                    self.dots %= CLOCKS_PER_SCANLINE;
+                    self.cycles %= CLOCKS_PER_SCANLINE;
 
                     if self.line == 154 {
                         self.render_sprites();
@@ -174,8 +150,6 @@ impl PPU {
                     }
 
                     let ly_coincidence = self.ly_compare == self.line;
-                    println!("ppu next ly interrupt line:{}", self.line);
-                    println!("ppu next ly interrupt ly_compare:{}", self.ly_compare);
                     if self.lcd_status.check_bit(6) && ly_coincidence {
                         self.int_flag.borrow_mut().set_bit(1, true);
                     }
@@ -199,7 +173,10 @@ impl PPU {
             0x8000..=0x9FFF => result = self.vram[addr as usize - 0x8000],
             0xFE00..=0xFE9F => result = self.oamram[addr as usize - 0xFE00],
             0xFF40 => result = self.lcd_control.get(),
-            0xFF41 => result = self.lcd_status.get(),
+            0xFF41 => {
+                let bit = if self.line == self.ly_compare { 0x04 } else { 0x00 };
+                result = self.lcd_status.get() | bit;
+            }
             0xFF42 => result = self.scroll_y,
             0xFF43 => result = self.scroll_x,
             0xFF44 => result = self.line,
@@ -233,7 +210,7 @@ impl PPU {
                     self.mode = VideoMode::HBLANK;
                     self.lcd_status.set_bit(1, false);
                     self.lcd_status.set_bit(0, false);
-                    self.dots = 0;
+                    self.cycles = 0;
                     self.line = 0;
                     self.reset_buffer();
                     self.v_blank = true;
@@ -354,6 +331,7 @@ impl PPU {
 
             self.frame_buffer[screen_y as usize][screen_x as usize] = [real_color, real_color, real_color];
 
+            /*
             if self.debug {
                 println!("screen_x:{:x} screen_y:{:x}", screen_x, screen_y);
                 println!("scrolled_x:{:x} scrolled_y:{:x}", scrolled_x, scrolled_y);
@@ -368,6 +346,7 @@ impl PPU {
                 println!("tile_line_addr:{:x}", tile_line_addr);
                 println!("real_color:{:x}", real_color);
             }
+            */
         });
 
         if self.debug {
@@ -465,6 +444,7 @@ impl PPU {
 
         let pattern_addr = tile_location + tile_offset;
 
+        /*
         if self.debug {
             println!("oam_offset:{:x}", oam_offset);
             println!("sprite_y:{:x}, sprite_x:{:x}", sprite_y, sprite_x);
@@ -479,6 +459,7 @@ impl PPU {
             println!("tile_offset:{:x}", tile_offset);
             println!("pattern_addr:{:x}", pattern_addr);
         }
+        */
 
         /* Create Tile */
         let mut tile_buffer: [u8; (TILE_HEIGHT * 2 * TILE_WIDTH) as usize] = [0; (TILE_HEIGHT * 2 * TILE_WIDTH) as usize];

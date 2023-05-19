@@ -61,6 +61,7 @@ impl Joypad {
     }
 
     pub fn read(&self, addr: u16) -> u8 {
+        assert_eq!(addr, 0xff00);
         let mut keys = ByteRegister::new();
         keys.set(0b1111);
 
@@ -84,6 +85,7 @@ impl Joypad {
     }
 
     pub fn write(&mut self, addr: u16, dat: u8) {
+        assert_eq!(addr, 0xff00);
         self.select_switch.set(dat);
     }
 }
