@@ -1,6 +1,5 @@
 use std::fs::File;
 use std::io::prelude::*;
-use std::path::Path;
 
 use crate::mapper::mbc1::Mbc1;
 use crate::mapper::nombc::NoMbc;
@@ -68,7 +67,6 @@ impl Rom {
             },
             3 => {
                 println!("MBC1");
-                // let save_file = Path::new(fname).with_extension("sav");
                 Box::new(Mbc1::new(rom, vec![0; ram_size]))
             }
             _n => panic!("Invalid mapper."),
@@ -95,7 +93,7 @@ impl Rom {
                 */
                 self.mapper.read(addr)
             }
-            0x0100..=0x7FFF => self.mapper.read(addr),
+            0x0100..=0xBFFF => self.mapper.read(addr),
             _ => 0,
         }
     }
@@ -103,7 +101,7 @@ impl Rom {
     pub fn write(&mut self, addr: u16, dat: u8) {
         let uaddr: usize = addr as usize;
         match uaddr {
-            0x0000..=0x7FFF => self.mapper.write(addr, dat),
+            0x0000..=0xBFFF => self.mapper.write(addr, dat),
             _ => {},
         }
     }

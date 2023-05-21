@@ -9,7 +9,7 @@ fn main() {
 
     let mut gameboy = Gameboy::new(rom_name);
     let debug = true;
-    // gameboy.cpu.set_debug();
+    gameboy.cpu.set_debug();
     // gameboy.mmc.borrow_mut().ppu.set_debug();
     // gameboy.mmc.borrow_mut().timer.set_debug();
 
@@ -17,49 +17,13 @@ fn main() {
     loop {
         if debug {
             println!("count:{}", count);
-            if count == 900000 {
+            if count == 700000 {
                 gameboy.mmc.borrow_mut().joypad.key_down(minifb::Key::Enter);
             }
-            if count == 910000 {
+            if count == 710000 {
                 gameboy.mmc.borrow_mut().joypad.key_up(minifb::Key::Enter);
             }
-            if count == 1500000 {
-                gameboy.mmc.borrow_mut().joypad.key_down(minifb::Key::Enter);
-            }
-            if count == 1510000 {
-                gameboy.mmc.borrow_mut().joypad.key_up(minifb::Key::Enter);
-            }
-            if count == 2000000 {
-                gameboy.mmc.borrow_mut().joypad.key_down(minifb::Key::Enter);
-            }
-            if count == 2010000 {
-                gameboy.mmc.borrow_mut().joypad.key_up(minifb::Key::Enter);
-            }
-            if count == 2500000 {
-                gameboy.mmc.borrow_mut().joypad.key_down(minifb::Key::Enter);
-            }
-            if count == 2510000 {
-                gameboy.mmc.borrow_mut().joypad.key_up(minifb::Key::Enter);
-            }
-            if count == 4100000 {
-                gameboy.mmc.borrow_mut().joypad.key_down(minifb::Key::A);
-            }
-            if count == 4110000 {
-                gameboy.mmc.borrow_mut().joypad.key_up(minifb::Key::A);
-            }
-            if count == 5000000 {
-                gameboy.mmc.borrow_mut().joypad.key_down(minifb::Key::Enter);
-            }
-            if count == 5010000 {
-                gameboy.mmc.borrow_mut().joypad.key_up(minifb::Key::Enter);
-            }
-            if count == 6000000 {
-                gameboy.mmc.borrow_mut().joypad.key_down(minifb::Key::Enter);
-            }
-            if count == 6010000 {
-                gameboy.mmc.borrow_mut().joypad.key_up(minifb::Key::Enter);
-            }
-            if count == 7000000 {
+            if count == 1000000 {
                 panic!("For debug.");
             }
             count = count + 1;

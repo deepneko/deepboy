@@ -272,6 +272,9 @@ impl CPU {
             }
             0x2A => {
                 let addr = self.regs.get_hl();
+                if self.debug {
+                    println!("0x2a, addr:{:x}", addr);
+                }
                 self.regs.a = self.read8(addr);
                 self.regs.set_hl(addr.wrapping_add(1));
             }

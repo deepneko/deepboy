@@ -374,7 +374,7 @@ impl PPU {
         if scrolled_y > GAMEBOY_HEIGHT as u16 { return; }
 
         (0..GAMEBOY_WIDTH as u16).for_each(|screen_x| {
-            let scrolled_x = screen_x + self.window_x as u16 - 7;
+            let scrolled_x = (screen_x + self.window_x as u16).wrapping_sub(7);
 
             let tile_x = scrolled_x / TILE_WIDTH;
             let tile_y = scrolled_y / TILE_HEIGHT;

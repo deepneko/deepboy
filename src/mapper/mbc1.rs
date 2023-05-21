@@ -39,6 +39,7 @@ impl Mbc1 {
 
 impl Mapper for Mbc1 {
     fn read(&self, addr: u16) -> u8 {
+        println!("MBC1 read addr:{:x}, ram_enable:{}", addr, self.ram_enable);
         match addr {
             0x0000..=0x3FFF => self.rom[addr as usize],
             0x4000..=0x7FFF => {
@@ -48,6 +49,8 @@ impl Mapper for Mbc1 {
             0xA000..=0xBFFF => {
                 if self.ram_enable {
                     let offset = 0x2000 * self.ram_bank() as usize;
+                    println!("MBC1 read ram addr:{:x}", addr as usize - 0xA000 + offset);
+                    println!("MBC1 read ram:{:x}", self.ram[addr as usize - 0xA000 + offset]);
                     self.ram[addr as usize - 0xA000 + offset]
                 } else {
                     0
@@ -58,8 +61,11 @@ impl Mapper for Mbc1 {
     }
 
     fn write(&mut self, addr: u16, dat: u8) {
+        // println!("MBC1 write addr:{:x}, dat:{:x}", addr, dat);
         match addr {
-            0x0000..=0x1FFF => self.ram_enable = (dat & 0x0f) == 0x0a,
+            0x0000..=0x1FFF => {
+                self.ram_enable = (dat & 0x0f) == 0x0a;
+            }
             0x2000..=0x3FFF => {
                 if dat == 0x00 { self.rom_bank = 0x01 }
                 if dat == 0x20 { self.rom_bank = 0x21; return }
