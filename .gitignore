@@ -1,9 +1,0 @@
-/target
-/roms/*
-/bootstrap_rom
-/bootroms/*
-hoge
-moge
-flamegraph.svg
-.DS_Store
-/*/.DS_Store
