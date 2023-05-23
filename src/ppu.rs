@@ -331,7 +331,6 @@ impl PPU {
 
             self.frame_buffer[screen_y as usize][screen_x as usize] = [real_color, real_color, real_color];
 
-            /*
             if self.debug {
                 println!("screen_x:{:x} screen_y:{:x}", screen_x, screen_y);
                 println!("scrolled_x:{:x} scrolled_y:{:x}", scrolled_x, scrolled_y);
@@ -346,7 +345,6 @@ impl PPU {
                 println!("tile_line_addr:{:x}", tile_line_addr);
                 println!("real_color:{:x}", real_color);
             }
-            */
         });
 
         if self.debug {

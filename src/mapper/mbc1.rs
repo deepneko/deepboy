@@ -6,6 +6,7 @@ pub struct Mbc1 {
     ram: Vec<u8>,
     ram_enable: bool,
     rom_bank: u8,
+    ram_bank: u8,
     bank_mode: BankMode,
 }
 
@@ -16,41 +17,32 @@ impl Mbc1 {
             ram: ram,
             ram_enable: false,
             rom_bank: 0x01,
+            ram_bank: 0,
             bank_mode: BankMode::Rom,
         }
-    }
-
-    pub fn rom_bank(&self) -> usize {
-        let bank = match self.bank_mode {
-            BankMode::Rom => self.rom_bank & 0x7f,
-            BankMode::Ram => self.rom_bank & 0x1f,
-        };
-        bank as usize
-    }
-
-    pub fn ram_bank(&self) -> usize {
-        let bank = match self.bank_mode {
-            BankMode::Rom => 0,
-            BankMode::Ram => (self.rom_bank & 0x60) >> 5,
-        };
-        bank as usize
     }
 }
 
 impl Mapper for Mbc1 {
     fn read(&self, addr: u16) -> u8 {
-        println!("MBC1 read addr:{:x}, ram_enable:{}", addr, self.ram_enable);
+        // println!("MBC1 read addr:{:x}, ram_enable:{}", addr, self.ram_enable);
         match addr {
-            0x0000..=0x3FFF => self.rom[addr as usize],
+            0x0000..=0x3FFF => {
+                match self.bank_mode {
+                    BankMode::Rom => self.rom[addr as usize],
+                    BankMode::Ram => {
+                        let offset = 0x4000 * ((self.ram_bank << 5) + self.rom_bank) as usize;
+                        self.rom[addr as usize + offset]
+                    }
+                }
+            }
             0x4000..=0x7FFF => {
-                let offset = 0x4000 * self.rom_bank() as usize;
-                self.rom[addr as usize - 0x4000 + offset]
+                let offset = 0x4000 * self.rom_bank as usize;
+                self.rom[(addr as usize - 0x4000 + offset)]
             }
             0xA000..=0xBFFF => {
                 if self.ram_enable {
-                    let offset = 0x2000 * self.ram_bank() as usize;
-                    println!("MBC1 read ram addr:{:x}", addr as usize - 0xA000 + offset);
-                    println!("MBC1 read ram:{:x}", self.ram[addr as usize - 0xA000 + offset]);
+                    let offset = 0x2000 * self.ram_bank as usize;
                     self.ram[addr as usize - 0xA000 + offset]
                 } else {
                     0
@@ -64,7 +56,8 @@ impl Mapper for Mbc1 {
         // println!("MBC1 write addr:{:x}, dat:{:x}", addr, dat);
         match addr {
             0x0000..=0x1FFF => {
-                self.ram_enable = (dat & 0x0f) == 0x0a;
+                if dat & 0xf == 0x00 { self.ram_enable = false }
+                if dat & 0xf == 0x0a { self.ram_enable = true }
             }
             0x2000..=0x3FFF => {
                 if dat == 0x00 { self.rom_bank = 0x01 }
@@ -74,7 +67,7 @@ impl Mapper for Mbc1 {
                 self.rom_bank = dat & 0x1F;
             }
             0x4000..=0x5FFF => {
-                self.rom_bank = self.rom_bank & 0x9f | ((dat & 0x03) << 5);
+                self.ram_bank = dat & 0x03;
             }
             0x6000..=0x7FFF => {
                 match dat {
@@ -85,7 +78,7 @@ impl Mapper for Mbc1 {
             }
             0xA000..=0xBFFF => {
                 if self.ram_enable {
-                    let offset = 0x2000 * self.ram_bank() as usize;
+                    let offset = 0x2000 * self.ram_bank as usize;
                     self.ram[addr as usize - 0xA000 + offset] = dat;
                 }
             }

@@ -272,9 +272,6 @@ impl CPU {
             }
             0x2A => {
                 let addr = self.regs.get_hl();
-                if self.debug {
-                    println!("0x2a, addr:{:x}", addr);
-                }
                 self.regs.a = self.read8(addr);
                 self.regs.set_hl(addr.wrapping_add(1));
             }
@@ -1525,10 +1522,12 @@ impl CPU {
         let int_enable: u8 = self.read8(IoRegs::IE as u16);
         let mut int_flag: u8 = self.read8(IoRegs::IF as u16);
 
+        /*
         if self.debug {
             println!("cpu hi inte:{:0>8b}", int_enable);
             println!("cpu hi intf:{:0>8b}", int_flag);
         }
+        */
 
         let fired_interrupt: u8 = int_enable & int_flag;
         if fired_interrupt == 0 {

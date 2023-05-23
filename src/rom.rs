@@ -44,6 +44,7 @@ impl Rom {
         let ram_size_type = rom[0x149];
         let mut ram_size = 0;
 
+        println!("ROM SIZE:0x{:x}", rom.len());
         println!("MBC TYPE:{}", mbc_type);
         println!("ROM SIZE TYPE:{}", rom_size_type);
         println!("RAM SIZE TYPE:{}", ram_size_type);
@@ -86,11 +87,9 @@ impl Rom {
         let uaddr: usize = addr as usize;
         match uaddr {
             0x0000..=0x00FF => {
-                /*
                 if self.disable_boot_rom == 0 {
                     return DMG[uaddr];
                 }
-                */
                 self.mapper.read(addr)
             }
             0x0100..=0xBFFF => self.mapper.read(addr),
