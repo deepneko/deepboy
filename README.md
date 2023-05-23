@@ -28,11 +28,7 @@ Confirmed these games worked well.
 <img src="https://github.com/deepneko/deepboy/blob/images/tetris.png" alt="Tetris" width="150"/> <img src="https://github.com/deepneko/deepboy/blob/images/super_mario.png" alt="Super Mario" width="150"/>
 
 ### MBC1
-<img src="https://github.com/deepneko/deepboy/blob/images/zelda.png" alt="Zelda" width="150"/>
-<img src="https://github.com/deepneko/deepboy/blob/images/rockman.png" alt="Rockman World" width="150"/>
-<img src="https://github.com/deepneko/deepboy/blob/images/rockman2.png" alt="Rockman World2" width="150"/>
-<img src="https://github.com/deepneko/deepboy/blob/images/metroid2.png" alt="Metroid2" width="150"/>
-<img src="https://github.com/deepneko/deepboy/blob/images/pokemon_midori.png" alt="Pokemon Midori" width="150"/>
+<img src="https://github.com/deepneko/deepboy/blob/images/zelda.png" alt="Zelda" width="150"/> <img src="https://github.com/deepneko/deepboy/blob/images/rockman.png" alt="Rockman World" width="150"/> <img src="https://github.com/deepneko/deepboy/blob/images/rockman2.png" alt="Rockman World2" width="150"/> <img src="https://github.com/deepneko/deepboy/blob/images/metroid2.png" alt="Metroid2" width="150"/> <img src="https://github.com/deepneko/deepboy/blob/images/pokemon_midori.png" alt="Pokemon Midori" width="150"/>
 
 ## Reference
 https://imrannazar.com/GameBoy-Emulation-in-JavaScript
